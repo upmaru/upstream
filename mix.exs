@@ -11,7 +11,6 @@ defmodule Blazay.Mixfile do
       source_url: "https://github.com/artellectual/blazay",
       deps: deps(),
       dialyzer: [
-        plt_file: ".local.plt",
         plt_add_deps: true,
         plt_add_apps: [
           :httpoison
