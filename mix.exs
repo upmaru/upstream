@@ -10,6 +10,7 @@ defmodule Blazay.Mixfile do
       start_permanent: Mix.env == :prod,
       source_url: "https://github.com/artellectual/blazay",
       name: "Blazay",
+      description: description(),
       deps: deps(),
       package: package(),
       dialyzer: [
@@ -33,6 +34,13 @@ defmodule Blazay.Mixfile do
         :logger
       ]
     ]
+  end
+
+  defp description do
+    """
+    Blazay is for integrating into projects that need to do large 
+    file uploads to B2 service. It integrates tightly with Backblaze B2.
+    """
   end
 
   # Dependencies can be Hex packages:
