@@ -9,7 +9,9 @@ defmodule Blazay.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       source_url: "https://github.com/artellectual/blazay",
+      name: "Blazay",
       deps: deps(),
+      package: package(),
       dialyzer: [
         plt_add_deps: true,
         plt_add_apps: [
@@ -46,6 +48,16 @@ defmodule Blazay.Mixfile do
     [
       {:httpoison, "~> 0.11.0"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      name: :blazay,
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["Zack Siri"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/artellectual/blazay"}
     ]
   end
 end
