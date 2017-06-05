@@ -31,6 +31,7 @@ defmodule Blazay.Mixfile do
       mod: {Blazay, []},
       extra_applications: [
         :httpoison,
+        :poison,
         :logger
       ]
     ]
@@ -55,6 +56,7 @@ defmodule Blazay.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.11.0"},
+      {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]
