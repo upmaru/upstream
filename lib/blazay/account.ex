@@ -1,6 +1,5 @@
 defmodule Blazay.Account do
-  alias Blazay.Request.Authorize
-  alias Blazay.Response.Authorization
+  alias Blazay.Account.Authorization
 
   require Logger
 
@@ -30,7 +29,7 @@ defmodule Blazay.Account do
   defp authorize do
     Logger.info "Authorizing B2 account..."
 
-    case Authorize.call do
+    case Authorization.call do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

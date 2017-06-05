@@ -17,7 +17,7 @@ defmodule Blazay do
     Blazay.Supervisor.start_link()
   end
 
-  @b2_base_api ~S(https://api.backblazeb2.com/b2api/v1)
+  @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
   
   @config Application.get_env(:blazay, Blazay)
