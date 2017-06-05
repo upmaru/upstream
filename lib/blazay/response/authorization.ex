@@ -1,6 +1,12 @@
 defmodule Blazay.Response.Authorization do
-  defstruct account_id: nil, authorization_token: nil, api_url: nil, download_url: nil, 
-            recommended_part_size: nil, absolute_minimum_part_size: nil
+  defstruct [
+    :account_id, 
+    :authorization_token, 
+    :api_url, 
+    :download_url,
+    :recommended_part_size,
+    :absolute_minimum_part_size
+  ]
 
   @type t :: %__MODULE__{
     account_id: String.t,

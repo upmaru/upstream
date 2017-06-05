@@ -1,7 +1,7 @@
 defmodule Blazay.Response do
   alias __MODULE__.{Error, Authorization}
 
-  @spec deserialize(String.t, atom) :: {atom, struct}
+  @spec deserialize(String.t, atom) :: {:ok | :error, struct}
   def deserialize(body, :error) when is_binary(body) do
     response = Poison.decode!(body)
 

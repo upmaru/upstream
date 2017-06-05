@@ -1,33 +1,38 @@
 defmodule Blazay.Account do
-  import HTTPoison, only: [get: 3]
-  alias Blazay.{Url, Response}
+  alias Blazay.Request.Authorize
+  alias Blazay.Response.Authorization
+
+  require Logger
 
   @doc """
-  authorize function will make a call to the api and authorize based on the
-  account_id, and application_key passed in from the config.
-
-  config :blazay, Blazay, 
-    account_id: <whatever account_id>,
-    application_key: <whatever application_key>
+  Authorizes the b2 account and start agent so we can access the data
+  without making another authorize_account call.
   """
-
-  @spec authorize :: {:ok | :error, struct}
-  def authorize do
-    url = Url.generate(:authorize_account)
-
-    case get(url, authorization_header(), params: []) do
-      {:ok, %{status_code: 200, body: body}} ->
-        body |> Response.deserialize(:authorization)
-      {:ok, %{status_code: _, body: body}} ->
-        body |> Response.deserialize(:error)
-    end
+  def start_link do
+    Agent.start_link(&authorize/0, name: __MODULE__)
   end
 
-  defp authorization_header do
-    encoded = "Basic " <> Base.encode64(
-      Blazay.config(:account_id) <> ":" <> Blazay.config(:application_key)
-    )
-    
-    [{"Authorization", encoded}]
+  @spec authorization :: %Authorization{}
+  @doc """
+  Returns the %Authorization{} data struct that will allow you to retrieve
+  the data required.
+  """
+  def authorization do
+    __MODULE__ |> Agent.get(fn authorization -> authorization end)
+  end
+
+  def authorization_header do
+    token = authorization.authorization_token
+
+    {"Authorization", token}
+  end
+
+  defp authorize do
+    Logger.info "Authorizing B2 account..."
+
+    case Authorize.call do
+      {:ok, authorization} -> authorization
+      {:error, error} -> raise error.message
+    end
   end
 end

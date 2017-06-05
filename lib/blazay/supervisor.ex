@@ -6,7 +6,9 @@ defmodule Blazay.Supervisor do
   end
 
   def init(:ok) do
-    children = []
+    children = [
+      worker(Blazay.Account, [])
+    ]
 
     supervise(children, strategy: :one_for_one)
   end
