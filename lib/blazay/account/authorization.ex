@@ -1,6 +1,6 @@
 defmodule Blazay.Account.Authorization do
   use Blazay.Request
-  alias Blazay.Error
+  @behaviour Blazay.Request
 
   defstruct [
     :account_id, 
@@ -27,8 +27,11 @@ defmodule Blazay.Account.Authorization do
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
-  @spec call :: {:ok | :error, struct}
-  def call do
+  @spec call :: {:ok | :error, %__MODULE__{} | %Error{}}
+  def call, do: call(nil)
+
+  @spec call(none) :: {:ok | :error, %__MODULE__{} | %Error{}}
+  def call(_) do
     url = Url.generate(:authorize_account)
 
     case get(url, header(), params: []) do

@@ -6,5 +6,5 @@ defmodule Blazay.Request do
     end
   end
   
-  @callback call(String.t) :: {atom, struct}
+  @callback call(nil | String.t) :: {atom, struct}
 end

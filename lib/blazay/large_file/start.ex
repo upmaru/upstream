@@ -1,8 +1,8 @@
 defmodule Blazay.LargeFile.Start do
   use Blazay.Request
-  alias Blazay.{Error, Account}
-
   @behaviour Blazay.Request
+
+  alias Blazay.{Error, Account}
 
   defstruct [
     :file_id,
