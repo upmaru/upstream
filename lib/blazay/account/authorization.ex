@@ -30,7 +30,7 @@ defmodule Blazay.Account.Authorization do
   @spec call :: {:ok | :error, %__MODULE__{} | %Error{}}
   def call, do: call(nil)
 
-  @spec call(none) :: {:ok | :error, %__MODULE__{} | %Error{}}
+  @spec call(any) :: {:ok | :error, %__MODULE__{} | %Error{}}
   def call(_) do
     url = Url.generate(:authorize_account)
 
