@@ -5,4 +5,6 @@ defmodule Blazay.Request do
       alias Blazay.{Url, Error, Account}
     end
   end
+  
+  @callback call(String.t) :: {atom, struct}
 end
