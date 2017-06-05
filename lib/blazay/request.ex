@@ -3,6 +3,7 @@ defmodule Blazay.Request do
     quote do
       import HTTPoison, only: [get: 3]
       alias Blazay.{Url, Error, Account}
+      @behaviour unquote(__MODULE__)
     end
   end
   

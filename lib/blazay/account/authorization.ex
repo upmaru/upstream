@@ -1,6 +1,5 @@
 defmodule Blazay.Account.Authorization do
   use Blazay.Request
-  @behaviour Blazay.Request
 
   defstruct [
     :account_id, 
