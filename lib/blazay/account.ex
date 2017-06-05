@@ -22,7 +22,7 @@ defmodule Blazay.Account do
   end
 
   def authorization_header do
-    token = authorization.authorization_token
+    token = authorization().authorization_token
 
     {"Authorization", token}
   end
