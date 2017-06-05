@@ -1,8 +1,6 @@
 defmodule Blazay.Account do
   import HTTPoison, only: [get: 3]
-  alias Blazay.Response.{Authorization, Error}
-
-  alias Blazay.Url
+  alias Blazay.{Url, Response}
 
   @doc """
   authorize function will make a call to the api and authorize based on the
@@ -13,15 +11,15 @@ defmodule Blazay.Account do
     application_key: <whatever application_key>
   """
 
-  @spec authorize :: %Authorization{} | %Error{}
+  @spec authorize :: {:ok | :error, struct}
   def authorize do
     url = Url.generate(:authorize_account)
 
     case get(url, authorization_header(), params: []) do
       {:ok, %{status_code: 200, body: body}} ->
-        deserialize(:success, body)
+        body |> Response.deserialize(:authorization)
       {:ok, %{status_code: _, body: body}} ->
-        deserialize(:error, body)
+        body |> Response.deserialize(:error)
     end
   end
 
@@ -31,28 +29,5 @@ defmodule Blazay.Account do
     )
     
     [{"Authorization", encoded}]
-  end
-
-  defp deserialize(:error, body) do
-    {:ok, response} = Poison.decode(body)
-
-    %Error{
-      status: response["status"],
-      code: response["code"],
-      message: response["message"]
-    }
-  end
-
-  defp deserialize(:success, body) do
-    {:ok, response} = Poison.decode(body)
-
-    %Authorization{
-      account_id: response["accountId"],
-      authorization_token: response["authorizationToken"],
-      api_url: response["apiUrl"],
-      download_url: response["downloadUrl"],
-      recommended_part_size: response["recommendedPartSize"],
-      absolute_minimum_part_size: response["absoluteMinimumPartSize"]
-    }
   end
 end
