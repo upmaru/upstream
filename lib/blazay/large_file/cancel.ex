@@ -1,5 +1,6 @@
 defmodule Blazay.LargeFile.Cancel do
-  use Blazay.Request
+  alias Blazay.Request
+  use Request.Caller
 
   defstruct [
     :file_id,
@@ -15,13 +16,11 @@ defmodule Blazay.LargeFile.Cancel do
     file_name: String.t
   }
 
-  @spec call(String.t) :: {:ok | :error, %__MODULE__{} | %Error{}}
+  @spec call(String.t) :: {:ok | :error, struct}
   def call(file_id) do
-    url = Url.generate(Account.authorization.api_url, :cancel_large_file)
-
-    case get(url, [Account.authorization_header], params: [fileId: file_id]) do
-      {:ok, %{status_code: 200, body: body}} -> body
-      {:ok, %{status_code: _, body: body}} -> body
-    end
+    %__MODULE__{}
+    |> Request.get(url(), [Account.authorization_header], params: [fileId: file_id])
   end
+
+  defp url, do: Url.generate(Account.authorization.api_url, :cancel_large_file)
 end

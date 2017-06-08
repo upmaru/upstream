@@ -15,9 +15,6 @@ defmodule Blazay.Mixfile do
       package: package(),
       dialyzer: [
         plt_add_deps: true,
-        plt_add_apps: [
-          :httpoison
-        ]
       ]
     ]
   end
