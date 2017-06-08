@@ -1,10 +1,5 @@
 defmodule Blazay.LargeFile.Cancel do
-  defstruct [
-    :file_id,
-    :account_id,
-    :bucket_id,
-    :file_name
-  ]
+  defstruct [:file_id, :account_id, :bucket_id, :file_name]
 
   @type t :: %__MODULE__{
     file_id: String.t,
