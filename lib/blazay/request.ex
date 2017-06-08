@@ -5,24 +5,31 @@ defmodule Blazay.Request do
         alias Blazay.{Url, Account, Request}
         @behaviour unquote(__MODULE__)
 
-        @spec call(nil | String.t | map) :: {:ok | :error, %__MODULE__{} | struct}
-        def call(params) do
+        @spec call(nil | String.t | map, Keyword.t) :: {:ok | :error, %__MODULE__{} | struct}
+        def call(params \\ nil, options \\ []) do
+          url_option    = Keyword.get(options, :url, nil)
+          header_option = Keyword.get(options, :header, nil)
+
           %__MODULE__{}
           |> Request.get(
-            __MODULE__.url(),
-            __MODULE__.header(), 
+            __MODULE__.url(url_option),
+            __MODULE__.header(header_option), 
             __MODULE__.params(params)
           )
         end
 
+        def header(nil), do: header()
+        def url(nil), do: url()
+        def params(nil), do: [params: []]
+        
         def header, do: [Account.authorization_header]
 
-        defoverridable [header: 0]
+        defoverridable [header: 0, header: 1, url: 1, params: 1]
       end
     end
 
-    @callback url :: String.t
-    @callback header :: List.t
+    @callback url(nil | String.t | map | none) :: String.t
+    @callback header(nil | String.t | map | none) :: List.t
     @callback params(nil | String.t | map) :: Keyword.t
   end
 

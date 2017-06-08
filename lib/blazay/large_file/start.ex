@@ -23,8 +23,7 @@ defmodule Blazay.LargeFile.Start do
   alias Blazay.Request
   use Request.Caller
 
-  def url, 
-    do: Url.generate(Account.authorization.api_url, :start_large_file)
+  def url, do: Account.api_url |> Url.generate(:start_large_file)
 
   def params(file_name) do
     [

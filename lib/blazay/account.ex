@@ -20,6 +20,8 @@ defmodule Blazay.Account do
     __MODULE__ |> Agent.get(fn authorization -> authorization end)
   end
 
+  def api_url, do: authorization().api_url
+
   def authorization_header do
     token = authorization().authorization_token
 

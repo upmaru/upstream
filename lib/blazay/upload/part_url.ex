@@ -1,5 +1,4 @@
 defmodule Blazay.Upload.PartUrl do
-
   defstruct [
     :file_id,
     :upload_url,
@@ -11,12 +10,11 @@ defmodule Blazay.Upload.PartUrl do
     upload_url: String.t,
     authorization_token: String.t
   }
-  
+
   alias Blazay.Request
   use Request.Caller
 
-  def url, 
-    do: Url.generate(Account.authorization.api_url, :get_upload_part_url)
+  def url, do: Account.api_url |> Url.generate(:get_upload_part_url)
   
   def params(file_id) do
     [
