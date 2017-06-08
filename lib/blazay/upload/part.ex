@@ -21,4 +21,6 @@ defmodule Blazay.Upload.Part do
       {"X-Bz-Content-Sha1", part_data.x_bz_content_sha1}
     ]
   end
+
+  def body(body), do: body
 end

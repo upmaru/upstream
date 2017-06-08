@@ -31,7 +31,7 @@ defmodule Blazay.Account do
   defp authorize do
     Logger.info "Authorizing B2 account..."
 
-    case Authorization.call do
+    case Authorization.get do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

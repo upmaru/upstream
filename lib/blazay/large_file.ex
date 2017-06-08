@@ -5,8 +5,8 @@ defmodule Blazay.LargeFile do
   }
 
   @spec start(String.t) :: {:ok | :error, %Start{} | struct}
-  def start(file_name), do: Start.call(file_name)
+  def start(file_name), do: Start.get(file_name)
 
   @spec cancel(String.t) :: {:ok | :error, %Cancel{} | struct}
-  def cancel(file_id), do: Cancel.call(file_id)
+  def cancel(file_id), do: Cancel.get(file_id)
 end

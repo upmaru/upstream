@@ -25,10 +25,6 @@ defmodule Blazay.Account.Authorization do
     application_key: <whatever application_key>
   """
   alias Blazay.Request
-
-  @doc """
-  the Request.Caller macro sets up the `call` function for this module
-  """
   use Request.Caller
 
   def url, do: Url.generate(:authorize_account)
