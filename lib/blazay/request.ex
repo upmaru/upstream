@@ -2,17 +2,33 @@ defmodule Blazay.Request do
   defmodule Caller do
     defmacro __using__(_) do
       quote do
-        alias Blazay.{Url, Account}
+        alias Blazay.{Url, Account, Request}
         @behaviour unquote(__MODULE__)
+
+        @spec call(nil | String.t | map) :: {:ok | :error, %__MODULE__{} | struct}
+        def call(params) do
+          %__MODULE__{}
+          |> Request.get(
+            __MODULE__.url(), 
+            __MODULE__.header(), 
+            __MODULE__.params(params)
+          )
+        end
+
+        def header, do: [Account.authorization_header]
+
+        defoverridable [header: 0]
       end
     end
 
-    @callback call(nil | String.t) :: {:ok | :error, struct}
+    @callback url :: String.t
+    @callback header :: List.t
+    @callback params(nil | String.t | map) :: Keyword.t
   end
 
   alias Blazay.Error
 
-  @spec get(struct, String.t, List.t, Keyword.t) :: {:ok | :error, struct}
+  @spec get(struct, String.t, List.t, Keyword.t) :: {:ok | :error, struct | %Error{}}
   def get(caller_struct, url, header, params) do
     case HTTPoison.get(url, header, params) do
       {:ok, %{status_code: 200, body: body}} ->

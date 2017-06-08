@@ -1,7 +1,4 @@
 defmodule Blazay.Account.Authorization do
-  alias Blazay.Request
-  use Request.Caller
-
   defstruct [
     :account_id, 
     :authorization_token, 
@@ -27,22 +24,23 @@ defmodule Blazay.Account.Authorization do
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
+  alias Blazay.Request
+  use Request.Caller
+
   @spec call :: {:ok | :error, struct}
   def call, do: call(nil)
 
-  @spec call(any) :: {:ok | :error, struct}
-  def call(_) do
-    %__MODULE__{}
-    |> Request.get(url(), header(), params: [])
-  end
-
-  defp url, do: Url.generate(:authorize_account)
+  def url, do: Url.generate(:authorize_account)
     
-  defp header do
+  def header do
     encoded = "Basic " <> Base.encode64(
       Blazay.config(:account_id) <> ":" <> Blazay.config(:application_key)
     )
     
     [{"Authorization", encoded}]
+  end
+
+  def params(nil) do
+    [params: []]
   end
 end

@@ -1,6 +1,4 @@
 defmodule Blazay.LargeFile.Start do
-  alias Blazay.Request
-  use Request.Caller
 
   defstruct [
     :file_id,
@@ -21,18 +19,20 @@ defmodule Blazay.LargeFile.Start do
     file_info: map,
     upload_timestamp: integer
   }
+  
+  alias Blazay.Request
+  use Request.Caller
 
-  @spec call(String.t) :: {:ok | :error, struct}
-  def call(file_name) do
-    %__MODULE__{}
-    |> Request.get(url(), [Account.authorization_header], params: params(file_name))
-  end
+  def url, 
+    do: Url.generate(Account.authorization.api_url, :start_large_file)
 
-  defp url, do: Url.generate(Account.authorization.api_url, :start_large_file)
-
-  defp params(file_name) do
-    [bucketId: Blazay.config(:bucket_id),
-     contentType: "b2/x-auto", 
-     fileName: file_name]
+  def params(file_name) do
+    [
+      params: [
+        bucketId: Blazay.config(:bucket_id),
+        contentType: "b2/x-auto",
+        fileName: file_name
+      ]
+    ]
   end
 end
