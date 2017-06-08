@@ -16,7 +16,7 @@ defmodule Blazay.LargeFile.Cancel do
   alias Blazay.Request
   use Request.Caller
 
-  def url, 
+  def url,
     do: Url.generate(Account.authorization.api_url, :cancel_large_file)
   
   def params(file_id) do

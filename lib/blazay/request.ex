@@ -9,7 +9,7 @@ defmodule Blazay.Request do
         def call(params) do
           %__MODULE__{}
           |> Request.get(
-            __MODULE__.url(), 
+            __MODULE__.url(),
             __MODULE__.header(), 
             __MODULE__.params(params)
           )
@@ -28,7 +28,7 @@ defmodule Blazay.Request do
 
   alias Blazay.Error
 
-  @spec get(struct, String.t, List.t, Keyword.t) :: {:ok | :error, struct | %Error{}}
+  @spec get(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
   def get(caller_struct, url, header, params) do
     case HTTPoison.get(url, header, params) do
       {:ok, %{status_code: 200, body: body}} ->
