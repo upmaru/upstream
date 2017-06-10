@@ -1,6 +1,8 @@
 defmodule Blazay.Supervisor do
   use Supervisor
 
+  alias Blazay.Job
+  
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -8,11 +10,13 @@ defmodule Blazay.Supervisor do
   def init(:ok) do
     children = [
       worker(Blazay.B2.Account, []),
-      worker(Redix, ["redis://localhost:6379/0", [name: :redix_blazay]]),
-
-      supervisor(Blazay.Job.Supervisor, [])
+      worker(Redix, ["redis://localhost:6379/0", [name: :redix_blazay]])
     ]
 
     supervise(children, strategy: :one_for_one, name: __MODULE__)
+  end
+
+  def start_job(file_name) do
+    Job.Supervisor.start_link(file_name)
   end
 end

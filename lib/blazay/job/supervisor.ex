@@ -1,16 +1,16 @@
 defmodule Blazay.Job.Supervisor do
   use Supervisor
 
-  def start_link do
-    Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(file_path) do
+    Supervisor.start_link(__MODULE__, file_path, name: __MODULE__)
   end
 
-  def init(:ok) do
+  def init(file_path) do
     children = [
-      worker(Blazay.Job.LargeFile, [])
+      worker(Blazay.Job.LargeFile, [file_path])
     ]
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :simple_one_for_one)
   end
 
   def start_uploader(:large_file, file_path) do
