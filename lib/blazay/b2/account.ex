@@ -1,12 +1,12 @@
-defmodule Blazay.Account do
-  alias Blazay.Account.Authorization
-
-  require Logger
-
-  @doc """
+defmodule Blazay.B2.Account do
+  @moduledoc """
   Authorizes the b2 account and start agent so we can access the data
   without making another authorize_account call.
   """
+  alias Blazay.B2.Account.Authorization
+
+  require Logger
+
   def start_link do
     Agent.start_link(&authorize/0, name: __MODULE__)
   end
@@ -21,6 +21,8 @@ defmodule Blazay.Account do
   end
 
   def api_url, do: authorization().api_url
+  def minimum_part_size, do: authorization().minimum_part_size
+  def recommended_part_size, do: authorization().recommended_part_size
 
   def authorization_header do
     token = authorization().authorization_token
@@ -31,7 +33,7 @@ defmodule Blazay.Account do
   defp authorize do
     Logger.info "Authorizing B2 account..."
 
-    case Authorization.get do
+    case Authorization.call do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

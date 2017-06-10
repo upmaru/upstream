@@ -1,4 +1,4 @@
-defmodule Blazay.Account.Authorization do
+defmodule Blazay.B2.Account.Authorization do
   defstruct [
     :account_id, 
     :authorization_token, 
@@ -24,10 +24,9 @@ defmodule Blazay.Account.Authorization do
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
-  alias Blazay.Request
-  use Request.Caller
+  use Blazay.B2
 
-  def url, do: Url.generate(:authorize_account)
+  def url(_), do: Url.generate(:authorize_account)
     
   def header do
     encoded = "Basic " <> Base.encode64(

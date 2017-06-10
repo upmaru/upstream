@@ -7,10 +7,12 @@ defmodule Blazay.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Blazay.Account, []),
-      worker(Redix, ["redis://localhost:6379/0", [name: :redix_blazay]])
+      worker(Blazay.B2.Account, []),
+      worker(Redix, ["redis://localhost:6379/0", [name: :redix_blazay]]),
+
+      supervisor(Blazay.Job.Supervisor, [])
     ]
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :one_for_one, name: __MODULE__)
   end
 end

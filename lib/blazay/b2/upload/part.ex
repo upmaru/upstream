@@ -1,4 +1,4 @@
-defmodule Blazay.Upload.Part do
+defmodule Blazay.B2.Upload.Part do
   defstruct [:file_id, :part_number, :content_length, :content_sha_1]
 
   @type t :: %__MODULE__{
@@ -8,8 +8,7 @@ defmodule Blazay.Upload.Part do
     content_sha_1: String.t
   }
 
-  alias Blazay.Request
-  use Request.Caller
+  use Blazay.B2
 
   def url(upload_url) when is_binary(upload_url), do: upload_url
 

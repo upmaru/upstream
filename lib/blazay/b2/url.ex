@@ -1,4 +1,4 @@
-defmodule Blazay.Url do
+defmodule Blazay.B2.Url do
   import Enum, only: [join: 2]
 
   def generate(name), do: generate(Blazay.base_api, name)

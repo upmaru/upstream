@@ -1,4 +1,4 @@
-defmodule Blazay.LargeFile.Start do
+defmodule Blazay.B2.LargeFile.Start do
 
   defstruct [
     :file_id,
@@ -20,18 +20,15 @@ defmodule Blazay.LargeFile.Start do
     upload_timestamp: integer
   }
   
-  alias Blazay.Request
-  use Request.Caller
+  use Blazay.B2
 
-  def url, do: Account.api_url |> Url.generate(:start_large_file)
+  def url(_), do: Account.api_url |> Url.generate(:start_large_file)
 
-  def params(file_name) do
-    [
-      params: [
-        bucketId: Blazay.config(:bucket_id),
-        contentType: "b2/x-auto",
-        fileName: file_name
-      ]
-    ]
+  def body(file_name) when is_binary(file_name) do
+    %{ 
+      bucketId: Blazay.config(:bucket_id), 
+      contentType: "b2/x-auto",
+      fileName: file_name
+    }
   end
 end
