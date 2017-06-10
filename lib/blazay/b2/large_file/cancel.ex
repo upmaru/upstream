@@ -10,7 +10,7 @@ defmodule Blazay.B2.LargeFile.Cancel do
 
   use Blazay.B2
 
-  def url(_), do: Account.api_url |> Url.generate( :cancel_large_file)
+  def url(_), do: Account.api_url |> Url.generate(:cancel_large_file)
   
   def body(file_id) when is_binary(file_id), do: %{ fileId: file_id }
 end
