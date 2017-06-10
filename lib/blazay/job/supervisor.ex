@@ -8,9 +8,11 @@ defmodule Blazay.Job.Supervisor do
   def init(file_path) do
     children = [
       worker(Blazay.Job.LargeFile, [file_path])
+
+      supervisor(Blazay.Uploader.Supervisor, [file_path])
     ]
 
-    supervise(children, strategy: :simple_one_for_one)
+    supervise(children, strategy: :one_for_one)
   end
 
   def start_uploader(:large_file, file_path) do
