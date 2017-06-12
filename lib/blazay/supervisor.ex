@@ -17,6 +17,7 @@ defmodule Blazay.Supervisor do
   end
 
   def start_job(file_name) do
-    Job.Supervisor.start_link(file_name)
+    child_spec = supervisor(Blazay.Job.Supervisor, [file_name])
+    __MODULE__ |> Supervisor.start_child(child_spec)
   end
 end
