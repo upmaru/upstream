@@ -1,5 +1,7 @@
 defmodule Blazay.Job do
-  def upload(file_name) do
-    Blazay.Job.LargeFile.add(file_name)
+  alias Blazay.Job.LargeFile
+
+  def create(:large_file, file_path) do
+    LargeFile.prepare(file_path)
   end
 end

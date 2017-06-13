@@ -1,35 +1,24 @@
 defmodule Blazay.Job.LargeFile do
-  defstruct [:name, :full_path, :stream, :stat, :threads]
+  defstruct [:name, :full_path, :basename, :stream, :stat, :threads, :progress, :b2]
 
   alias Blazay.B2.Account
+  alias Blazay.Job.LargeFile.B2
+
+  @stream_bytes 2048
 
   @type t() :: %__MODULE__{
+    basename: String.t,
     name: String.t,
     full_path: String.t,
     stat: File.Stat.t,
     stream: File.Stream.t,
-    threads: integer
+    threads: integer,
+    progress: integer,
+    b2: B2.t
   }
 
-  @stream_bytes 2048
-
-  def start_link do
-    Agent.start_link(fn -> %{} end, name: __MODULE__)
-  end
-
-  def add(file_path) do
-    __MODULE__ |> Agent.update(fn map -> 
-      Map.merge(map, %{file_path => prepare(file_path)})
-    end)
-  end
-  
-  def get(file_path) do
-    __MODULE__ |> Agent.get(fn map -> 
-      Map.fetch(map, file_path)
-    end)
-  end
-
-  defp prepare(file_path) do
+  def prepare(file_path) do
+    basename = file_path |> Path.basename
     absolute_path = file_path |> Path.expand
     stat = File.stat!(absolute_path)
     threads = recommend_thread_count(stat.size)
@@ -38,6 +27,7 @@ defmodule Blazay.Job.LargeFile do
     %__MODULE__{
       name: file_path,
       full_path: absolute_path,
+      basename: basename,
       stat: stat,
       stream: stream,
       threads: threads
