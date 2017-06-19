@@ -16,12 +16,19 @@ defmodule Blazay.Uploader.LargeFile do
     {:ok, started} = Task.Supervisor.async(TaskSupervisor, fn ->
       LargeFile.start(job.basename)
     end) |> Task.await()
+    
+    tasks = for _n <- 1..job.threads do
+      Task.Supervisor.async(TaskSupervisor, fn -> 
+        Upload.part_url(started.file_id)
+      end)
+    end
 
-    {:ok, part_url} = Task.Supervisor.async(TaskSupervisor, fn -> 
-      Upload.part_url(started.file_id)
-    end) |> Task.await()
+    threads = tasks |> Enum.map(fn task -> 
+      {:ok, part_url} = Task.await(task)
+      part_url
+    end)
 
-    {:ok, %{job: job, b2: %{start: started, part_url: part_url}}}
+    {:ok, %{job: job, b2: %{start: started, parts: threads}}}
   end
   
   def get(pid, :b2), do: GenServer.call(pid, :b2)
@@ -44,7 +51,7 @@ defmodule Blazay.Uploader.LargeFile do
     {:ok, cancellation} = Task.Supervisor.async(TaskSupervisor, fn -> 
       LargeFile.cancel(state.b2.start.file_id)
     end) |> Task.await()
-
-    {:reply, cancellation, Map.merge(state, %{cancel: cancellation})}
+    
+    {:reply, cancellation, state}
   end
 end

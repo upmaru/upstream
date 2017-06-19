@@ -1,28 +1,32 @@
 defmodule Blazay.Job.LargeFile.B2.Thread do
-  defstruct [:url, :checksums, :content_length]
+  defstruct [:authorization_token, :url, :checksums, :content_length]
 
   @type t :: %__MODULE__{
     url: String.t,
-    checksums: List.t,
-    content_length: integer
+    checksum: String.t,
+    content_length: integer,
+    authorization_token: String.t,
   }
 
-  def prepare(stream) do
+  def prepare(chunk) do
     %__MODULE__{
-      checksums: calculate_sha(stream)
+      checksum: calculate_sha(chunk)
+      content_length: calculate_length(chunk)
     }
   end
 
-  def calculate_sha(stream) do
-    Enum.map(stream, &calculate_sha_for_chunk/1) 
-  end
-
-  defp calculate_sha_for_chunk(chunk) do
+  defp calculate_sha(chunk) do
     chunk 
     |> Enum.reduce(:crypto.hash_init(:sha), fn(bytes, acc) -> 
       :crypto.hash_update(acc, bytes)
     end)
     |> :crypto.hash_final 
     |> Base.encode16
+  end
+
+  defp calculate_length(chunk) do
+    chunk
+    |> Enum.map(&byte_size/1)
+    |> Enum.sum
   end
 end
