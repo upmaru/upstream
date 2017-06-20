@@ -11,5 +11,5 @@ defmodule Blazay.Uploader do
   def entry(pid, :large_file),  do: pid |> LargeFile.get(:entry)
   def job(pid, :large_file),    do: pid |> LargeFile.get(:job)
   def cancel(pid, :large_file), do: pid |> LargeFile.cancel
-  def upload(pid, :large_file), do: pid |> Largefile.upload
+  # def upload(pid, :large_file), do: pid |> Largefile.upload
 end
