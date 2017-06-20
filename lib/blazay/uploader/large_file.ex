@@ -11,11 +11,9 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def init(file_path) do
-    job = Job.create(:large_file, file_path)
-
-    {:ok, started} = Task.Supervisor.async(TaskSupervisor, fn ->
-      LargeFile.start(job.basename)
-    end) |> Task.await()
+    file_path
+    |> Job.create(:large_file)
+    |> Job.create(:b2)
     
     tasks = for _n <- 1..job.threads do
       Task.Supervisor.async(TaskSupervisor, fn -> 

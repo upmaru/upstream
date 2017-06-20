@@ -1,4 +1,4 @@
-defmodule Blazay.Job.LargeFile.B2.Thread do
+defmodule Blazay.Job.B2.Thread do
   defstruct [:authorization_token, :url, :checksums, :content_length]
 
   @type t :: %__MODULE__{
@@ -10,7 +10,8 @@ defmodule Blazay.Job.LargeFile.B2.Thread do
 
   def prepare(chunk) do
     %__MODULE__{
-      checksum: calculate_sha(chunk)
+      url: get_part_url,
+      checksum: calculate_sha(chunk),
       content_length: calculate_length(chunk)
     }
   end
