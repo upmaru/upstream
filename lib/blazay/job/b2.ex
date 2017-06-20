@@ -1,34 +1,33 @@
 defmodule Blazay.Job.B2 do
-  defstruct [:file, :job, :threads]
+  defstruct [:entry, :job, :threads]
 
   alias Blazay.{B2, Job}
   alias Blazay.Uploader.TaskSupervisor
 
 
   @type t :: %__MODULE__{
-    file: LargeFile.t,
-    job: Start.t,
+    entry: Entry.LargeFile.t,
+    job: B2.Start.t,
     threads: List.t
   }
 
-  def prepare(job, :large_file) do
-    {:ok, started} = B2.LargeFile.start(file_path)
-
-    tasks = for _n <- 1..job.threads do
-      Task.Supervisor.async(TaskSupervisor, fn -> 
-        B2.Upload.part_url(started.file_id)
-      end)
-    end
+  def prepare(entry) do
+    {:ok, started} = B2.LargeFile.start(entry.name)
+    threads = prepare_thread(entry, started.file_id)
+              |> Enum.map(&Task.await/1)
 
     %__MODULE__{
-      file: job,
+      entry: entry,
       job: started,
-      threads: prepare_thread(job)
+      threads: threads
     }
   end
 
-
-  def prepare_thread(job) do
-    job.stream |> Enum.map(&Thread.prepare/1)
+  defp prepare_thread(entry, file_id) do
+    for chunk <- entry.stream do
+      Task.Supervisor.async(TaskSupervisor, fn -> 
+        Job.B2.Thread.prepare(chunk, file_id)
+      end)
+    end
   end
 end

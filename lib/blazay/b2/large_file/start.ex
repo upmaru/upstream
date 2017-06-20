@@ -1,5 +1,4 @@
 defmodule Blazay.B2.LargeFile.Start do
-
   defstruct [
     :file_id,
     :file_name,

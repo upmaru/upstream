@@ -11,25 +11,12 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def init(file_path) do
-    file_path
-    |> Job.create(:large_file)
-    |> Job.create(:b2)
-    
-    tasks = for _n <- 1..job.threads do
-      Task.Supervisor.async(TaskSupervisor, fn -> 
-        Upload.part_url(started.file_id)
-      end)
-    end
+    job = file_path |> Job.create
 
-    threads = tasks |> Enum.map(fn task -> 
-      {:ok, part_url} = Task.await(task)
-      part_url
-    end)
-
-    {:ok, %{job: job, b2: %{start: started, parts: threads}}}
+    {:ok, job}
   end
   
-  def get(pid, :b2), do: GenServer.call(pid, :b2)
+  def get(pid, :entry), do: GenServer.call(pid, :entry)
   def get(pid, :job), do: GenServer.call(pid, :job)
   
   def cancel(pid) do
@@ -37,8 +24,8 @@ defmodule Blazay.Uploader.LargeFile do
     {GenServer.stop(pid), cancellation}
   end
 
-  def handle_call(:b2, _from, state) do
-    {:reply, state.b2, state}
+  def handle_call(:entry, _from, state) do
+    {:reply, state.entry, state}
   end
 
   def handle_call(:job, _from, state) do

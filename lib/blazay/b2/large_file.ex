@@ -1,7 +1,8 @@
 defmodule Blazay.B2.LargeFile do
   alias Blazay.B2.LargeFile.{
     Start,
-    Cancel
+    Cancel, 
+    Unfinished
   }
 
   @spec start(String.t) :: {:ok | :error, %Start{} | struct}
@@ -11,4 +12,6 @@ defmodule Blazay.B2.LargeFile do
 
   @spec cancel(String.t) :: {:ok | :error, %Cancel{} | struct}
   def cancel(file_id), do: Cancel.call(body: file_id)
+
+  def unfinished, do: Unfinished.call
 end

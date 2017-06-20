@@ -1,16 +1,18 @@
 defmodule Blazay.Job.B2.Thread do
-  defstruct [:authorization_token, :url, :checksums, :content_length]
+  defstruct [:part_url, :checksum, :content_length]
+
+  alias Blazay.B2.Upload
+  alias Upload.PartUrl
 
   @type t :: %__MODULE__{
-    url: String.t,
     checksum: String.t,
     content_length: integer,
-    authorization_token: String.t,
+    part_url: PartUrl.t,
   }
 
-  def prepare(chunk) do
+  def prepare(chunk, file_id) do
     %__MODULE__{
-      url: get_part_url,
+      part_url: get_part_url(file_id),
       checksum: calculate_sha(chunk),
       content_length: calculate_length(chunk)
     }
@@ -29,5 +31,10 @@ defmodule Blazay.Job.B2.Thread do
     chunk
     |> Enum.map(&byte_size/1)
     |> Enum.sum
+  end
+
+  defp get_part_url(file_id) do
+    {:ok, part_url} = Upload.part_url(file_id)
+    part_url
   end
 end

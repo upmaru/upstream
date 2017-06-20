@@ -13,6 +13,8 @@ defmodule Blazay do
       :world
 
   """
+  alias Blazay.B2
+
   def start(_type, _args) do
     Blazay.Supervisor.start_link()
   end
@@ -23,4 +25,16 @@ defmodule Blazay do
   @config Application.get_env(:blazay, Blazay)
   def config, do: @config
   def config(key), do: Keyword.fetch!(config(), key)
+
+  def cancel_unfinished_large_files do
+    {:ok, unfinished} = B2.LargeFile.unfinished
+
+    tasks = unfinished.files |> Enum.map(fn file -> 
+      Task.async(fn -> 
+        B2.LargeFile.cancel(file["fileId"])
+      end)
+    end)
+
+    tasks |> Enum.each(fn task -> Task.await(task) end)
+  end
 end

@@ -1,8 +1,7 @@
-defmodule Blazay.Job.LargeFile do
-  defstruct [:name, :full_path, :basename, :stream, :stat, :threads, :progress, :b2]
+defmodule Blazay.Entry.LargeFile do
+  defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
 
   alias Blazay.B2.Account
-  alias Blazay.Job.LargeFile.B2
 
   @stream_bytes 2048
 
@@ -12,9 +11,7 @@ defmodule Blazay.Job.LargeFile do
     full_path: String.t,
     stat: File.Stat.t,
     stream: File.Stream.t,
-    threads: integer,
-    progress: integer,
-    b2: B2.t
+    threads: integer
   }
 
   def prepare(file_path) do
