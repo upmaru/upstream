@@ -4,12 +4,14 @@ defmodule Blazay.Uploader do
     LargeFile
   }
 
-  def start(file_path, :large_file) do
+  def start_large_file(file_path) do
     Supervisor.start_large_file(file_path)
   end
 
-  def entry(pid, :large_file),  do: pid |> LargeFile.get(:entry)
-  def job(pid, :large_file),    do: pid |> LargeFile.get(:job)
-  def cancel(pid, :large_file), do: pid |> LargeFile.cancel
-  # def upload(pid, :large_file), do: pid |> Largefile.upload
+  def large_file(pid, :entry),   do: pid |> LargeFile.get(:entry)
+  def large_file(pid, :job),     do: pid |> LargeFile.get(:job)
+  def large_file(pid, :threads), do: pid |> LargeFile.get(:threads)
+
+  def cancel_large_file!(pid),  do: pid |> LargeFile.cancel
+  def upload_large_file!(pid),  do: pid |> LargeFile.upload
 end

@@ -3,7 +3,7 @@ defmodule Blazay.Request do
 
   @spec post(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
   def post(caller_struct, url, body, headers) do
-    case HTTPoison.post(url, body, headers) do
+    case HTTPoison.post(url, body, headers, [connect_timeout: 100_000, recv_timeout: 100_000, timeout: 100_000]) do
       {:ok, %{status_code: 200, body: body}} ->
         {:ok, struct(caller_struct, process_response(body))}
       {:ok, %{status_code: _, body: body}} ->

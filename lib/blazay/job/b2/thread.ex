@@ -2,7 +2,6 @@ defmodule Blazay.Job.B2.Thread do
   defstruct [:part_url, :checksum, :content_length]
 
   alias Blazay.B2.Upload
-  alias Upload.PartUrl
 
   @type t :: %__MODULE__{
     checksum: String.t,

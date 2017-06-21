@@ -5,5 +5,7 @@ defmodule Blazay.B2.Upload do
   }
 
   def part_url(file_id), do: PartUrl.call(body: file_id)
-  def part(body), do: Part.call(body: body)
+  def part(url, header, body) do 
+    Part.call(url: url, header: header, body: body)
+  end
 end
