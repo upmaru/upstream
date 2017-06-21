@@ -1,11 +1,11 @@
 defmodule Blazay.B2.Upload.Part do
-  defstruct [:file_id, :part_number, :content_length, :content_sha_1]
+  defstruct [:file_id, :part_number, :content_length, :content_sha1]
 
   @type t :: %__MODULE__{
     file_id: String.t,
     part_number: String.t,
     content_length: String.t,
-    content_sha_1: String.t
+    content_sha1: String.t
   }
 
   use Blazay.B2
