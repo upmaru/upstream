@@ -66,12 +66,10 @@ defmodule Blazay.Uploader.LargeFile do
 
       ## pass a stream so we can count the bytes in between
       ## make this better
-      stream_chunk = 
-        chunk 
-        |> Stream.map(fn byte -> 
-            IO.inspect byte_size(byte)
-            byte
-          end)
+      chunk_stream = Stream.map(chunk, fn byte -> 
+        byte_size(byte)
+        byte
+      end)
 
       Upload.part(url, header, stream_chunk)
     end)
