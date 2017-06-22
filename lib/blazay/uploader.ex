@@ -9,7 +9,6 @@ defmodule Blazay.Uploader do
   end
 
   def large_file(pid, :entry),   do: pid |> LargeFile.get(:entry)
-  def large_file(pid, :job),     do: pid |> LargeFile.get(:job)
   def large_file(pid, :threads), do: pid |> LargeFile.get(:threads)
 
   def cancel_large_file!(pid),  do: pid |> LargeFile.cancel

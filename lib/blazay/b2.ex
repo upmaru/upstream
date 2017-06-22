@@ -10,15 +10,17 @@ defmodule Blazay.B2 do
 
       @spec call(Keyword.t) :: {:ok | :error, %__MODULE__{} | struct}
       def call(options \\ []) do
-        url_option    = Keyword.get(options, :url, nil)
-        header_option = Keyword.get(options, :header, nil)
-        body_option   = Keyword.get(options, :body, nil)
+        url_option      = Keyword.get(options, :url, nil)
+        header_option   = Keyword.get(options, :header, nil)
+        body_option     = Keyword.get(options, :body, nil)
+        request_options = Keyword.get(options, :options, [])
 
         Request.post(
           %__MODULE__{},
           __MODULE__.url(url_option),
           (__MODULE__.body(body_option) |> process_body),
-          __MODULE__.header(header_option)
+          __MODULE__.header(header_option),
+          request_options
         )
       end
 

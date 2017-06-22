@@ -21,5 +21,5 @@ defmodule Blazay.B2.Upload.Part do
     ]
   end
 
-  def body(body), do: body
+  def body(body), do: {:stream, body}
 end

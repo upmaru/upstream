@@ -1,4 +1,4 @@
-defmodule Blazay.Job.B2.Thread do
+defmodule Blazay.Job.Thread do
   defstruct [:part_url, :checksum, :content_length]
 
   alias Blazay.B2.Upload
@@ -24,11 +24,12 @@ defmodule Blazay.Job.B2.Thread do
     end)
     |> :crypto.hash_final 
     |> Base.encode16
+    |> String.downcase
   end
 
   defp calculate_length(chunk) do
     chunk
-    |> Enum.map(&byte_size/1)
+    |> Stream.map(&byte_size/1)
     |> Enum.sum
   end
 

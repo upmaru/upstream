@@ -6,6 +6,15 @@ defmodule Blazay.B2.Upload do
 
   def part_url(file_id), do: PartUrl.call(body: file_id)
   def part(url, header, body) do 
-    Part.call(url: url, header: header, body: body)
+    Part.call(
+      url: url, 
+      header: header, 
+      body: body, 
+      options: [
+        timeout: :infinity, 
+        recv_timeout: :infinity, 
+        connect_timeout: :infinity
+      ]
+    )
   end
 end
