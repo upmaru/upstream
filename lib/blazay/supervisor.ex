@@ -1,7 +1,7 @@
 defmodule Blazay.Supervisor do
   use Supervisor
 
-  alias Blazay.{Job, Uploader}
+  alias Blazay.Uploader
   
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
