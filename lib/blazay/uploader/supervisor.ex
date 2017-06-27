@@ -9,14 +9,15 @@ defmodule Blazay.Uploader.Supervisor do
   
   def init(:ok) do
     children = [
-      supervisor(Task.Supervisor, [[name: Blazay.Uploader.TaskSupervisor]])
+      supervisor(Task.Supervisor, [[name: Blazay.Uploader.TaskSupervisor]]),
+      supervisor(Registry, [:unique, Blazay.Uploader.Registry]),
     ]
 
     supervise(children, strategy: :one_for_one)
   end
 
-  def start_large_file(job) do
-    child_spec = worker(LargeFile, [job])
+  def start_large_file(job, name) do
+    child_spec = worker(LargeFile, [job, name])
     __MODULE__ |> Supervisor.start_child(child_spec)
   end
 end

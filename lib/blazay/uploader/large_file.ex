@@ -9,8 +9,8 @@ defmodule Blazay.Uploader.LargeFile do
 
   alias Blazay.Job
 
-  def start_link(file_path) do
-    GenServer.start_link(__MODULE__, file_path)
+  def start_link(file_path, name) do
+    GenServer.start_link(__MODULE__, file_path, name: name)
   end
 
   def init(file_path) do
@@ -19,13 +19,10 @@ defmodule Blazay.Uploader.LargeFile do
     {:ok, %{job: job, progress: progress}}
   end
   
-  def get(pid, :entry), do: GenServer.call(pid, :entry)
-  def get(pid, :threads), do: GenServer.call(pid, :threads)
-
+  def entry(pid), do: GenServer.call(pid, :entry)
+  def threads(pid), do: GenServer.call(pid, :threads)
   def upload(pid), do: GenServer.cast(pid, :upload)
-
   def finish(pid), do: GenServer.call(pid, :finish)
-
   def progress(pid), do: GenServer.call(pid, :progress)
   
   def cancel(pid) do
@@ -46,16 +43,19 @@ defmodule Blazay.Uploader.LargeFile do
   end
   
   def handle_call(:entry, _from, state) do
-    {:reply, state.entry, state}
+    {:reply, state.job.entry, state}
   end
 
   def handle_call(:threads, _from, state) do
-    {:reply, state.threads, state}
+    {:reply, state.job.threads, state}
   end
 
-  # def handle_call(:finish, _from, state) do
-    
-  # end
+  def handle_call(:finish, _from, state) do
+    sha1_array = state.job.threads.map(fn thread -> 
+      thread.checksum 
+    end)
+    LargeFile.finish(state.file_id, sha1_array)
+  end
 
   def handle_call(:cancel, _from, state) do
     {:ok, cancellation} = Task.Supervisor.async(TaskSupervisor, fn -> 
@@ -71,7 +71,7 @@ defmodule Blazay.Uploader.LargeFile do
     |> Enum.map(&(create_upload_task(&1, job.threads, progress)))
     |> Task.yield_many(100_000)
     |> Stream.with_index
-    |> Enum.map(&(verify_upload_task(&1, job.threads, progress)))
+    |> Enum.map(&(verify_upload_task(&1, job.threads)))
   end
 
   defp create_upload_task({chunk, index}, threads, progress) do    
@@ -101,7 +101,7 @@ defmodule Blazay.Uploader.LargeFile do
     end)
   end
 
-  defp verify_upload_task({{_task, {:ok, result}}, index}, threads, _progress) do
+  defp verify_upload_task({{_task, {:ok, result}}, index}, threads) do
     {:ok, part} = result
     thread = Enum.at(threads, index)
     if part.content_sha1 == thread.checksum,
