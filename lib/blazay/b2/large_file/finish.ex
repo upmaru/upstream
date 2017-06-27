@@ -15,4 +15,18 @@ defmodule Blazay.B2.LargeFile.Finish do
     action: String.t,
     upload_timestamp: integer
   }
+
+  use Blazay.B2
+
+  def url(_), do: Account.api_url |> Url.generate(:finish_large_file)
+
+  def body(body) do
+    file_id = Keyword.fetch(body, :file_id)
+    sha1_array = Keyword.fetch(body, :sha1_array)
+
+    %{ 
+      fileId: file_id,
+      partSha1Array: sha1_array
+    }
+  end
 end
