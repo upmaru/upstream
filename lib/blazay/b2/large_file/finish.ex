@@ -15,6 +15,7 @@ defmodule Blazay.B2.LargeFile.Finish do
     action: String.t,
     upload_timestamp: integer
   }
+  
   use Blazay.B2
 
   def url(_), do: Account.api_url |> Url.generate(:finish_large_file)
