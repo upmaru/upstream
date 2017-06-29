@@ -1,7 +1,8 @@
 defmodule Blazay.B2.Upload do
   alias Blazay.B2.Upload.{
     PartUrl,
-    Part
+    Part,
+    Url
   }
 
   def part_url(file_id), do: PartUrl.call(body: file_id)
@@ -17,4 +18,6 @@ defmodule Blazay.B2.Upload do
       ]
     )
   end
+
+  def url, do: Url.call
 end
