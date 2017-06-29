@@ -56,6 +56,7 @@ defmodule Blazay.Mixfile do
     [
       {:httpoison, "~> 0.11.0"},
       {:redix, "~> 0.6.1"},
+      {:gen_stage, "~> 0.11"},
       {:redix_pubsub, "~> 0.4.1"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},

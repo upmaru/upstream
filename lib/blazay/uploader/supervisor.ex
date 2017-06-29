@@ -20,4 +20,20 @@ defmodule Blazay.Uploader.Supervisor do
     child_spec = worker(LargeFile, [job, name])
     __MODULE__ |> Supervisor.start_child(child_spec)
   end
+
+  def finish_large_file(file_path) do 
+    pid = file_path |> child_pid
+      
+    pid
+    |> GenServer.call(:finish)
+    |> GenServer.call(:stop)
+
+    Registry.unregister(Blazay.Uploader.Registry, file_path)
+  end
+
+  defp child_pid(file_path) do
+    [{pid, _}] = Registry.lookup(Blazay.Uploader.Registry, file_path)
+    
+    pid
+  end
 end

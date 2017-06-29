@@ -10,6 +10,7 @@ defmodule Blazay.Utility do
       end)
     end)
 
-    tasks |> Enum.each(fn task -> Task.await(task) end)
+    results = tasks |> Task.yield_many(10_000)
+    {:ok, results}
   end
 end

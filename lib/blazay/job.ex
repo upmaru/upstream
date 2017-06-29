@@ -12,7 +12,7 @@ defmodule Blazay.Job do
     Entry, 
     B2
   }
-
+  
   alias Uploader.TaskSupervisor
   
   def create(file_path) do
@@ -23,6 +23,7 @@ defmodule Blazay.Job do
 
   defp prepare(entry) do
     {:ok, started} = B2.LargeFile.start(entry.name)
+
     threads = prepare_thread(entry, started.file_id)
               |> Enum.map(&Task.await/1)
 
