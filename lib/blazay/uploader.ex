@@ -4,8 +4,10 @@ defmodule Blazay.Uploader do
     LargeFile
   }
 
-  def start_large_file(file_path) do
-    Supervisor.start_large_file(file_path, name(file_path))
+  def upload_large_file!(file_path) do
+    file_path 
+    |> start(:large_file)
+    |> upload!(:large_file)
   end
 
   def large_file(file_path, :entry) do
@@ -24,7 +26,13 @@ defmodule Blazay.Uploader do
     file_path |> name |> LargeFile.cancel
   end
 
-  def upload_large_file!(file_path) do 
+  defp start(file_path, :large_file) do
+    {:ok, pid} = Supervisor.start_large_file(file_path, name(file_path))
+
+    {:ok, pid, file_path}
+  end
+
+  defp upload!({:ok, _, file_path}, :large_file) do
     file_path |> name |> LargeFile.upload
   end
 
