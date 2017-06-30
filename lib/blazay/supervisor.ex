@@ -10,7 +10,6 @@ defmodule Blazay.Supervisor do
   def init(:ok) do
     children = [
       worker(Blazay.B2.Account, []),
-      worker(Redix, ["redis://localhost:6379/0", [name: :redix_blazay]]),
       
       supervisor(Uploader.Supervisor, [])
     ]

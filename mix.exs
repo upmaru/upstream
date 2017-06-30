@@ -29,8 +29,6 @@ defmodule Blazay.Mixfile do
       extra_applications: [
         :httpoison,
         :poison,
-        :redix,
-        :redix_pubsub,
         :logger
       ]
     ]
@@ -55,11 +53,10 @@ defmodule Blazay.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.11.0"},
-      {:redix, "~> 0.6.1"},
       {:gen_stage, "~> 0.11"},
-      {:redix_pubsub, "~> 0.4.1"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:exvcr, "~> 0.8", only: :test},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]
   end

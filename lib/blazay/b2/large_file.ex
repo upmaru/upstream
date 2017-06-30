@@ -7,6 +7,9 @@ defmodule Blazay.B2.LargeFile do
   }
 
   @spec start(String.t) :: {:ok | :error, %Start{} | struct}
+  @doc """
+  `Blazay.B2.LargeFile.start/1` Starts the uploading of the large_file on b2
+  """
   def start(file_name) do 
     Start.call(body: file_name)
   end
