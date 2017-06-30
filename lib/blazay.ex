@@ -22,5 +22,14 @@ defmodule Blazay do
 
   @config Application.get_env(:blazay, Blazay)
   def config, do: @config
+
+  @doc """
+  Blazay.config/1 should help you get to your config
+
+  ## Examples
+
+    iex> Blazay.config(:account_id)
+    Keyword.fetch!(Blazay.config, :account_id)
+  """
   def config(key), do: Keyword.fetch!(config(), key)
 end
