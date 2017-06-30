@@ -1,4 +1,4 @@
-defmodule Blazay.Entry.LargeFile do
+defmodule Blazay.Entry do
   defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
 
   alias Blazay.B2.Account
