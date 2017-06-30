@@ -1,9 +1,15 @@
 defmodule Blazay.Job do
-  defstruct [:entry, :file_id, :threads]
+  @moduledoc """
+  Gathers all the data required to start the upload process.
+
+  It will also automaticall select which uploader to use, the normal
+  file uploader or large_file uploader.
+  """
+
+  defstruct [:entry, :threads]
 
   @type t :: %__MODULE__{
     entry: Entry.LargeFile.t,
-    file_id: String.t,
     threads: List.t,
   }
 
@@ -16,22 +22,21 @@ defmodule Blazay.Job do
   alias Uploader.TaskSupervisor
   
   def create(file_path) do
-    file_path
-    |> Entry.LargeFile.prepare
-    |> prepare
-  end
+    entry = file_path |> Entry.prepare
+    threads = 
+      prepare_thread(entry, started.file_id)
+      |> Enum.map(&Task.await/1)
 
-  defp prepare(entry) do
-    {:ok, started} = B2.LargeFile.start(entry.name)
-
-    threads = prepare_thread(entry, started.file_id)
-              |> Enum.map(&Task.await/1)
-
-    %__MODULE__{
+    job = %__MODULE__{
       entry: entry,
-      file_id: started.file_id,
       threads: threads
     }
+
+    if entry.threads == 1 do
+      job |> Uploader.Supervisor.start_file
+    else
+      job |> Uploader.Supervisor.start_large_file
+    end
   end
 
   defp prepare_thread(entry, file_id) do

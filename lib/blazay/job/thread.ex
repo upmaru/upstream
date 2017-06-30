@@ -1,4 +1,8 @@
 defmodule Blazay.Job.Thread do
+  @moduledoc """
+  Responsible for preparing the thread data for uploading
+  """
+
   defstruct [:part_url, :checksum, :content_length]
 
   alias Blazay.B2.Upload
