@@ -24,7 +24,7 @@ defmodule Blazay do
   def config, do: @config
 
   @doc """
-  Blazay.config/1 should help you get to your config
+  Blazay.config/1 help you get to your config
 
   ## Examples
 

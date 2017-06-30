@@ -1,7 +1,10 @@
 defmodule Blazay.Uploader.Supervisor do
   use Supervisor
 
-  alias Blazay.Uploader.LargeFile
+  alias Blazay.Uploader.{
+    LargeFile,
+    File
+  }
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -32,7 +35,7 @@ defmodule Blazay.Uploader.Supervisor do
   end
 
   def start_file(job, name) do
-    
+    child_spec = worker(File,)
   end
 
   defp child_pid(file_path) do
