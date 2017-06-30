@@ -4,6 +4,11 @@ defmodule Blazay.Uploader do
     LargeFile
   }
 
+  @doc """
+  Blazay.Uploader.upload_large_file!/1 takes the path of the file from the disk
+  and uploads it to b2.
+  """
+
   def upload_large_file!(file_path) do
     file_path 
     |> start(:large_file)
