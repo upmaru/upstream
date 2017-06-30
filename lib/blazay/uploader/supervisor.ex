@@ -23,12 +23,16 @@ defmodule Blazay.Uploader.Supervisor do
 
   def finish_large_file(file_path) do 
     pid = file_path |> child_pid
-      
+
     pid
     |> GenServer.call(:finish)
     |> GenServer.call(:stop)
 
     Registry.unregister(Blazay.Uploader.Registry, file_path)
+  end
+
+  def start_file(job, name) do
+    
   end
 
   defp child_pid(file_path) do
