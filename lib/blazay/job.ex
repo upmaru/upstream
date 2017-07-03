@@ -15,17 +15,15 @@ defmodule Blazay.Job do
 
   alias Blazay.{
     Uploader,
-    Entry, 
+    Entry,
     B2
   }
-  
+
   alias Uploader.TaskSupervisor
-  
+
   def create(file_path) do
-    entry = file_path |> Entry.prepare
-    threads = 
-      prepare_thread(entry, started.file_id)
-      |> Enum.map(&Task.await/1)
+    entry = Entry.prepare(file_path)
+    threads = Enum.map(prepare_thread(entry, started.file_id), &Task.await/1)
 
     job = %__MODULE__{
       entry: entry,
@@ -33,9 +31,9 @@ defmodule Blazay.Job do
     }
 
     if entry.threads == 1 do
-      job |> Uploader.Supervisor.start_file
+      Uploader.Supervisor.start_file(job)
     else
-      job |> Uploader.Supervisor.start_large_file
+      Uploader.Supervisor.start_large_file(job)
     end
   end
 

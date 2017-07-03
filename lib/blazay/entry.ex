@@ -1,4 +1,9 @@
 defmodule Blazay.Entry do
+  @moduledoc """
+  Entry module for making it easy to work with upload job by exposing 
+  file stats and file stream.
+  """
+
   defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
 
   alias Blazay.B2.Account
@@ -15,8 +20,8 @@ defmodule Blazay.Entry do
   }
 
   def prepare(file_path) do
-    basename = file_path |> Path.basename
-    absolute_path = file_path |> Path.expand
+    basename = Path.basename(file_path)
+    absolute_path = Path.expand(file_path)
     stat = File.stat!(absolute_path)
     threads = recommend_thread_count(stat.size)
     stream = file_stream(absolute_path, stat.size, threads)
@@ -32,7 +37,7 @@ defmodule Blazay.Entry do
   end
 
   defp recommend_thread_count(file_size) do
-    (file_size / Account.recommended_part_size) |> to_integer 
+     to_integer((file_size / Account.recommended_part_size))
   end
 
   defp file_stream(absolute_path, file_size, threads) do
@@ -42,7 +47,7 @@ defmodule Blazay.Entry do
   end
 
   defp chunk_size(file_size, threads) do
-    (((file_size / @stream_bytes) |> to_integer) / threads) |> to_integer
+     to_integer(((to_integer((file_size / @stream_bytes))) / threads))
   end
 
   defp to_integer(float) when is_float(float) do
