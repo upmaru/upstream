@@ -20,8 +20,8 @@ defmodule Blazay.Request do
   defp process_response(body) do
     body
     |> Poison.decode!
-    |> Enum.map fn({k, v}) ->
+    |> Enum.map(fn({k, v}) ->
       {String.to_atom(Macro.underscore(k)), v}
-    end
+    end)
   end
 end

@@ -1,47 +1,56 @@
 defmodule Blazay.Job do
   @moduledoc """
-  Gathers all the data required to start the upload process.
-
-  It will also automaticall select which uploader to use, the normal
-  file uploader or large_file uploader.
+  Job module for making it easy to work with upload job by exposing 
+  file stats and file stream.
   """
 
-  defstruct [:entry, :threads]
+  defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
 
-  @type t :: %__MODULE__{
-    entry: Entry.LargeFile.t,
-    threads: List.t,
+  @stream_bytes 2048
+
+  @type t() :: %__MODULE__{
+    basename: String.t,
+    name: String.t,
+    full_path: String.t,
+    stat: File.Stat.t,
+    stream: File.Stream.t,
+    threads: integer
   }
-
-  alias Blazay.{
-    Uploader,
-    Entry,
-    B2
-  }
-
-  alias Uploader.TaskSupervisor
 
   def create(file_path) do
-    entry = Entry.prepare(file_path)
-    threads = Enum.map(prepare_thread(entry, started.file_id), &Task.await/1)
+    basename = Path.basename(file_path)
+    absolute_path = Path.expand(file_path)
+    stat = File.stat!(absolute_path)
+    threads = recommend_thread_count(stat.size)
+    stream = file_stream(absolute_path, stat.size, threads)
 
-    job = %__MODULE__{
-      entry: entry,
+    %__MODULE__{
+      name: file_path,
+      full_path: absolute_path,
+      basename: basename,
+      stat: stat,
+      stream: stream,
       threads: threads
     }
-
-    if entry.threads == 1 do
-      Uploader.Supervisor.start_file(job)
-    else
-      Uploader.Supervisor.start_large_file(job)
-    end
   end
 
-  defp prepare_thread(entry, file_id) do
-    for chunk <- entry.stream do
-      Task.Supervisor.async(TaskSupervisor, fn -> 
-        __MODULE__.Thread.prepare(chunk, file_id)
-      end)
-    end
+  defp recommend_thread_count(file_size) do
+    alias Blazay.B2.Account
+
+    to_integer((file_size / Account.recommended_part_size))
+  end
+
+  defp file_stream(absolute_path, file_size, threads) do
+    absolute_path
+    |> File.stream!([], @stream_bytes)
+    |> Stream.chunk(chunk_size(file_size, threads))
+  end
+
+  defp chunk_size(file_size, threads) do
+     to_integer(((to_integer((file_size / @stream_bytes))) / threads))
+  end
+
+  defp to_integer(float) when is_float(float) do
+    float |> Float.ceil |> round
   end
 end

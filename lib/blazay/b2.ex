@@ -1,4 +1,11 @@
 defmodule Blazay.B2 do
+  @moduledoc """
+  B2 module for using in the api call definitions
+
+  simply call `use Blazay.B2` in the module and define the url, header, body
+  and use the module to make the calls.
+  """
+  
   defmacro __using__(_) do
     quote do
       alias Blazay.Request
@@ -18,7 +25,7 @@ defmodule Blazay.B2 do
         Request.post(
           %__MODULE__{},
           __MODULE__.url(url_option),
-          (__MODULE__.body(body_option) |> process_body),
+          process_body(__MODULE__.body(body_option)),
           __MODULE__.header(header_option),
           request_options
         )
