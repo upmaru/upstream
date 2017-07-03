@@ -1,4 +1,8 @@
 defmodule Blazay.Request do
+  @moduledoc """
+  Request module for making and handling network request to b2
+  """
+
   alias Blazay.Error
 
   @spec post(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
@@ -14,10 +18,10 @@ defmodule Blazay.Request do
   end
 
   defp process_response(body) do
-    body 
+    body
     |> Poison.decode!
-    |> Enum.map(fn({k, v}) -> 
+    |> Enum.map fn({k, v}) ->
       {String.to_atom(Macro.underscore(k)), v}
-    end)
+    end
   end
 end
