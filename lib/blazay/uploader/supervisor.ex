@@ -27,28 +27,46 @@ defmodule Blazay.Uploader.Supervisor do
     child_spec = worker(LargeFile, [job])
     {:ok, pid} = Supervisor.start_child(__MODULE__ , child_spec)
 
-    Registry.register(Blazay.Uploader.Registry, job.entry.name, pid)
-  end
+    Registry.register(Blazay.Uploader.Registry, job.name, pid)
 
-  def finish_large_file(file_path) do
-    pid =  child_pid(file_path)
-
-    pid
-    |> GenServer.call(:finish)
-    |> GenServer.call(:stop)
-
-    Registry.unregister(Blazay.Uploader.Registry, file_path)
+    {:ok, pid}
   end
 
   def start_file(job) do
     child_spec = worker(File, [job])
     {:ok, pid} = Supervisor.start_child(__MODULE__, child_spec)
 
-    Registry.register(Blazay.Uploader.Registry, job.entry.name, pid)
+    Registry.register(Blazay.Uploader.Registry, job.name, pid)
+
+    {:ok, pid}
+  end
+
+  def cancel_large_file(file_path) do
+    file_path
+    |> child_pid
+    |> GenServer.call(:cancel)
+  end
+
+  def finish_large_file(file_path) do
+    file_path
+    |> child_pid
+    |> GenServer.call(:finish)
+  end
+
+  def stop_large_file(file_path) do
+    file_path
+    |> child_pid
+    |> GenServer.call(:stop)
+  end
+
+  def upload(file_path) do
+    file_path
+    |> child_pid
+    |> GenServer.cast(:upload)
   end
 
   defp child_pid(file_path) do
-    [{pid, _}] = Registry.lookup(Blazay.Uploader.Registry, file_path)
+    [{_, pid}] = Registry.lookup(Blazay.Uploader.Registry, file_path)
 
     pid
   end
