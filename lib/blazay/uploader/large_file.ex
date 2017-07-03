@@ -6,10 +6,10 @@ defmodule Blazay.Uploader.LargeFile do
 
   alias Blazay.B2.LargeFile
 
-  alias Blazay.Uploader.{
-    TaskSupervisor,
-    Status
-  }
+  alias Blazay.Uploader
+
+  alias Uploader.TaskSupervisor
+  alias Uploader.Status
 
   alias Blazay.Job
 
@@ -53,7 +53,7 @@ defmodule Blazay.Uploader.LargeFile do
 
   def handle_cast(:upload, state) do
     Task.Supervisor.start_child TaskSupervisor, fn ->
-      upload_stream(state.job, state.status)
+      upload_stream(state)
     end
 
     new_state = Map.merge(state, %{current_state: :uploading})
@@ -86,7 +86,7 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def handle_call(:cancel, _from, state) do
-    {:ok, cancelled} = Task.await(cancel_upload(state.file_id))
+    {:ok, cancelled} = Task.await(cancel_upload_task(state.file_id))
 
     new_state = Map.merge(state, %{current_state: :cancelled})
 
@@ -110,7 +110,7 @@ defmodule Blazay.Uploader.LargeFile do
         :normal
       :shutdown ->
         Logger.info "-----> Cancelling #{state.job.entry.name}"
-        Task.await(cancel_upload(state.file_id))
+        Task.await(cancel_upload_task(state.file_id))
         Logger.info "-----> Cancelled #{state.job.entry.name}"
         :shutdown
     end
@@ -126,20 +126,20 @@ defmodule Blazay.Uploader.LargeFile do
     end
   end
 
+  defp upload_stream(state) do
+    state.job.stream
+    |> Stream.with_index
+    |> Enum.map(&(create_upload_task(&1, state.threads, state.status)))
+    |> Task.yield_many(100_000)
+    |> Stream.with_index
+    |> Enum.map(&(verify_upload_task(&1, state.threads)))
+    |> Status.verify_and_finish(state.status, state.job, state.threads)
+  end
+
   defp cancel_upload_task(file_id) do
     Task.Supervisor.async TaskSupervisor, fn ->
       LargeFile.cancel(file_id)
     end
-  end
-
-  defp upload_stream(job, status) do
-    job.stream
-    |> Stream.with_index
-    |> Enum.map(&(create_upload_task(&1, job.threads, status)))
-    |> Task.yield_many(100_000)
-    |> Stream.with_index
-    |> Enum.map(&(verify_upload_task(&1, job.threads)))
-    |> Status.verify_and_finish(status, job.entry, job.threads)
   end
 
   defp create_upload_task({chunk, index}, threads, status) do
