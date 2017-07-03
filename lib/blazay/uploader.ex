@@ -6,7 +6,12 @@ defmodule Blazay.Uploader do
 
   alias Blazay.Job
 
-  def start(file_path) do
-    job = Job.create(file_path)
+  alias __MODULE__.Supervisor
+
+  def upload!(file_path) do
+    file_path
+    |> Job.create
+    |> Supervisor.start_job
+    |> Supervisor.upload
   end
 end

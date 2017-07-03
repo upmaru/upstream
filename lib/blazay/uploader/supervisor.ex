@@ -1,6 +1,6 @@
 defmodule Blazay.Uploader.Supervisor do
   @moduledoc """
-  The Supervisor for uploaders, it manages the starting and stopping
+  The Supervisor for uploaders, it manages the life cycle
   of all the uploaders.
   """
   use Supervisor
@@ -23,22 +23,12 @@ defmodule Blazay.Uploader.Supervisor do
     supervise(children, strategy: :one_for_one)
   end
 
-  def start_large_file(job) do
-    child_spec = worker(LargeFile, [job])
-    {:ok, pid} = Supervisor.start_child(__MODULE__ , child_spec)
+  def start_job(job) do
+    {:ok, pid} = Supervisor.start_child(__MODULE__ , child_spec(job))
 
     Registry.register(Blazay.Uploader.Registry, job.name, pid)
 
-    {:ok, pid}
-  end
-
-  def start_file(job) do
-    child_spec = worker(File, [job])
-    {:ok, pid} = Supervisor.start_child(__MODULE__, child_spec)
-
-    Registry.register(Blazay.Uploader.Registry, job.name, pid)
-
-    {:ok, pid}
+    job.name
   end
 
   def cancel_large_file(file_path) do
@@ -53,16 +43,24 @@ defmodule Blazay.Uploader.Supervisor do
     |> GenServer.call(:finish)
   end
 
-  def stop_large_file(file_path) do
+  def stop(file_path) do
     file_path
     |> child_pid
     |> GenServer.call(:stop)
+
+    Registry.unregister(Blazay.Uploader.Registry, file_path)
   end
 
   def upload(file_path) do
     file_path
     |> child_pid
     |> GenServer.cast(:upload)
+  end
+
+  defp child_spec(job) do
+    if job.threads == 1,
+      do: worker(File, [job]),
+        else: worker(LargeFile, [job])
   end
 
   defp child_pid(file_path) do

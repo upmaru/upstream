@@ -27,14 +27,15 @@ defmodule Blazay.Uploader.Status do
     end
   end
 
-  def verify_and_finish(results, pid, entry, threads) do
+  def verify_and_finish(results, pid, job, threads) do
     counted =
       Enum.reduce results, %{}, fn(result, acc) ->
         Map.update(acc, result, 1, &(&1 + 1))
       end
 
     if get(pid) == 100.0 && counted.ok == Enum.count(threads) do
-      Supervisor.finish_large_file(entry.name)
+      Supervisor.finish_large_file(job.name)
+      Supervisor.stop(job.name)
     end
   end
 end
