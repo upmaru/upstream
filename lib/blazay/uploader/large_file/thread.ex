@@ -1,4 +1,4 @@
-defmodule Blazay.Job.Thread do
+defmodule Blazay.Uploader.LargeFile.Thread do
   @moduledoc """
   Responsible for preparing the thread data for uploading
   """
@@ -6,6 +6,7 @@ defmodule Blazay.Job.Thread do
   defstruct [:part_url, :checksum, :content_length]
 
   alias Blazay.B2.Upload
+  alias Upload.PartUrl
 
   @type t :: %__MODULE__{
     checksum: String.t,

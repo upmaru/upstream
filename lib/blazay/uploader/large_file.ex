@@ -4,7 +4,8 @@ defmodule Blazay.Uploader.LargeFile do
   """
   use GenServer
 
-  alias Blazay.B2.{LargeFile, Upload}
+  alias Blazay.B2.LargeFile
+
   alias Blazay.Uploader.{
     TaskSupervisor,
     Status
@@ -12,82 +13,127 @@ defmodule Blazay.Uploader.LargeFile do
 
   alias Blazay.Job
 
+  require Logger
+
   def start_link(job) do
     GenServer.start_link(__MODULE__, job)
   end
 
   def init(job) do
     {:ok, status} = Status.start_link
-    {:ok, %{job: job, status: status}}
+
+    {:ok, started} = LargeFile.start(job.name)
+
+    threads = Enum.map(
+      prepare_threads(job, started.file_id),
+      &Task.await/1
+    )
+
+    {:ok, %{
+      job: job,
+      file_id: started.file_id,
+      threads: threads,
+      status: status,
+      current_state: :started
+    }}
+  end
+
+  def upload(pid), do: GenServer.cast(pid, :upload)
+  def cancel(pid) do
+    cancellation = GenServer.call(pid, :cancel)
+    {:ok, cancellation}
   end
 
   def stop(pid), do: GenServer.call(pid, :stop)
-  def entry(pid), do: GenServer.call(pid, :entry)
+  def finish(pid), do: GenServer.call(pid, :finish)
+
+  def job(pid), do: GenServer.call(pid, :job)
   def threads(pid), do: GenServer.call(pid, :threads)
-  def upload(pid), do: GenServer.cast(pid, :upload)
   def progress(pid), do: GenServer.call(pid, :progress)
-
-  def cancel(pid) do
-    cancellation = GenServer.call(pid, :cancel)
-    {GenServer.stop(pid), cancellation}
-  end
-
-  def finish(pid) do
-    finished = GenServer.call(pid, :finish)
-    {:ok, finished}
-  end
 
   def handle_cast(:upload, state) do
     Task.Supervisor.start_child TaskSupervisor, fn ->
       upload_stream(state.job, state.status)
     end
 
-    {:noreply, state}
-  end
+    new_state = Map.merge(state, %{current_state: :uploading})
 
-  def handle_call(:stop, _from, state) do
-    Status.stop(state.status)
-    {:stop, :normal, state}
+    {:noreply, new_state}
   end
 
   def handle_call(:progress, _from , state) do
     {:reply, Status.get(state.status), state}
   end
 
-  def handle_call(:entry, _from, state) do
-    {:reply, state.job.entry, state}
+  def handle_call(:job, _from, state) do
+    {:reply, state.job, state}
   end
 
   def handle_call(:threads, _from, state) do
-    {:reply, state.job.threads, state}
+    {:reply, state.threads, state}
   end
 
   def handle_call(:finish, _from, state) do
-    sha1_array = Enum.map state.job.threads, fn thread ->
+    sha1_array = Enum.map state.threads, fn thread ->
       thread.checksum
     end
 
-    {:ok, finished} = LargeFile.finish(state.job.file_id, sha1_array)
-    {:reply, finished, state}
+    {:ok, finished} = LargeFile.finish(state.file_id, sha1_array)
+
+    new_state = Map.merge(state, %{current_state: :finished})
+
+    {:reply, finished, new_state}
   end
 
   def handle_call(:cancel, _from, state) do
-    task = Task.Supervisor.async TaskSupervisor, fn ->
-      LargeFile.cancel(state.file_id)
+    {:ok, cancelled} = Task.await(cancel_upload(state.file_id))
+
+    new_state = Map.merge(state, %{current_state: :cancelled})
+
+    {:reply, cancelled, new_state}
+  end
+
+  def handle_call(:stop, _from, state) do
+    Status.stop(state.status)
+
+    case state.current_state do
+      :finished -> {:stop, :normal, state}
+      :cancelled -> {:stop, :normal, state}
+      _ -> {:stop, :shutdown, state}
     end
-
-    {:ok, cancellation} = Task.await(task)
-
-    {:reply, cancellation, state}
   end
 
   def terminate(reason, state) do
-    IO.puts "#{state.job.entry.name} Uploaded!"
-    :ok
+    case reason do
+      :normal ->
+        Logger.info "-----> #{state.job.entry.name} #{Atom.to_string(state.current_state)}"
+        :normal
+      :shutdown ->
+        Logger.info "-----> Cancelling #{state.job.entry.name}"
+        Task.await(cancel_upload(state.file_id))
+        Logger.info "-----> Cancelled #{state.job.entry.name}"
+        :shutdown
+    end
+  end
+
+  defp prepare_threads(job, file_id) do
+    alias __MODULE__.Thread
+
+    for chunk <- job.stream do
+      Task.Supervisor.async TaskSupervisor, fn ->
+        Thread.prepare(chunk, file_id)
+      end
+    end
+  end
+
+  defp cancel_upload_task(file_id) do
+    Task.Supervisor.async TaskSupervisor, fn ->
+      LargeFile.cancel(file_id)
+    end
   end
 
   defp upload_stream(job, status) do
-    job.entry.stream
+    job.stream
     |> Stream.with_index
     |> Enum.map(&(create_upload_task(&1, job.threads, status)))
     |> Task.yield_many(100_000)
@@ -97,6 +143,8 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   defp create_upload_task({chunk, index}, threads, status) do
+    alias Blazay.B2.Upload
+
     Task.Supervisor.async TaskSupervisor, fn ->
       thread = Enum.at(threads, index)
       url = thread.part_url.upload_url
