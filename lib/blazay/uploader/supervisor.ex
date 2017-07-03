@@ -23,9 +23,11 @@ defmodule Blazay.Uploader.Supervisor do
     supervise(children, strategy: :one_for_one)
   end
 
-  def start_large_file(job, name) do
-    child_spec = worker(LargeFile, [job, name])
-    Supervisor.start_child(__MODULE__ , child_spec)
+  def start_large_file(job) do
+    child_spec = worker(LargeFile, [job])
+    {:ok, pid} = Supervisor.start_child(__MODULE__ , child_spec)
+
+    Registry.register(Blazay.Uploader.Registry, job.entry.name, pid)
   end
 
   def finish_large_file(file_path) do
@@ -38,8 +40,11 @@ defmodule Blazay.Uploader.Supervisor do
     Registry.unregister(Blazay.Uploader.Registry, file_path)
   end
 
-  def start_file(job, name) do
-    child_spec = worker(File, [job, name])
+  def start_file(job) do
+    child_spec = worker(File, [job])
+    {:ok, pid} = Supervisor.start_child(__MODULE__, child_spec)
+
+    Registry.register(Blazay.Uploader.Registry, job.entry.name, pid)
   end
 
   defp child_pid(file_path) do

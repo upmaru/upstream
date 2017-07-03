@@ -22,11 +22,11 @@ defmodule Blazay.Job.Thread do
   end
 
   defp calculate_sha(chunk) do
-    chunk 
-    |> Enum.reduce(:crypto.hash_init(:sha), fn(bytes, acc) -> 
+    chunk
+    |> Enum.reduce(:crypto.hash_init(:sha), fn(bytes, acc) ->
       :crypto.hash_update(acc, bytes)
     end)
-    |> :crypto.hash_final 
+    |> :crypto.hash_final
     |> Base.encode16
     |> String.downcase
   end
