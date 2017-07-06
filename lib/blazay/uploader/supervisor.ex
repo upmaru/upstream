@@ -58,9 +58,11 @@ defmodule Blazay.Uploader.Supervisor do
   end
 
   defp child_spec(job) do
-    if job.threads == 1,
-      do: worker(File, [job]),
-        else: worker(LargeFile, [job])
+    if job.threads == 1 do
+      worker(File, [job], restart: :transient)
+    else
+      worker(LargeFile, [job], restart: :transient)
+    end
   end
 
   defp child_pid(file_path) do
