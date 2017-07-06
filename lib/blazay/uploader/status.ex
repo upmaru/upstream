@@ -2,10 +2,10 @@ defmodule Blazay.Uploader.Status do
   @moduledoc """
   used to track the status of the upload process
   """
-  defstruct [:sha1_array, :progress]
+  defstruct [:uploaded, :progress]
 
   @type t :: %__MODULE__{
-    sha1_array: map,
+    uploaded: List.t,
     progress: map
   }
 
@@ -13,40 +13,66 @@ defmodule Blazay.Uploader.Status do
   def start_link do
     Agent.start_link(fn ->
       %__MODULE__{
-        sha1_array: %{},
+        uploaded: [],
         progress: %{}
-      } 
+      }
     end)
+  end
+
+  def upload_complete?(pid) do
+    progress_count(pid) == uploaded_count(pid)
+  end
+
+  def uploaded_count(pid) do
+    Agent.get pid, fn reports ->
+      Enum.count(reports.uploaded)
+    end
+  end
+
+  def progress_count(pid) do
+    Agent.get pid, fn reports ->
+      Enum.count(reports.progress)
+    end
   end
 
   def stop(pid), do: Agent.stop(pid)
 
-  def get(pid) do
-    Agent.get pid, fn reports ->
-      reports.progress
-      |> Enum.map(fn {_, status} -> (status || 0) end)
-      |> Enum.sum
-      |> Float.round(2)
-    end
-  end
-
-  def get_sha1_array(pid) do
-    Agent.get pid, fn reports ->
-      Map.keys(reports)
-    end
-  end
-
   def thread_count(pid) do
     Agent.get pid, fn reports ->
-      Enum.count(reports)
+      Enum.count(reports.progress)
     end
+  end
+
+  def bytes_transferred(pid) do
+    Agent.get pid, fn reports ->
+      reports.progress
+      |> Enum.map(fn {_, transferred} ->
+        transferred
+      end)
+      |> Enum.sum
+    end
+  end
+
+  def add_uploaded({:ok, {index, checksum}}, pid) do
+    Agent.get_and_update pid, fn reports ->
+      new_uploaded = List.insert_at(reports.uploaded, index, checksum)
+
+      {reports, Map.put(reports, :uploaded, new_uploaded)}
+    end
+  end
+
+  def get_uploaded_sha1(pid) do
+    Agent.get pid, fn reports -> reports.uploaded end
   end
 
   def add_bytes_out(bytes, pid, thread) do
     Agent.get_and_update pid, fn reports ->
-      Map.get_and_update reports, "#{thread.checksum}", fn status ->
-        {status, (status || 0) + (bytes / thread.content_length * 100.0)}
-      end
+      {_old, new_progress} =
+        Map.get_and_update reports.progress, "#{thread.checksum}", fn transferred ->
+          {transferred, (transferred || 0) + bytes}
+        end
+
+      {reports, Map.put(reports, :progress, new_progress)}
     end
   end
 end

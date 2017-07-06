@@ -60,7 +60,13 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def handle_call(:progress, _from , state) do
-    {:reply, Status.get(state.status), state}
+    total_bytes = state.job.stat.size
+    transferred_bytes = Status.bytes_transferred(state.status)
+
+    percent_transferred =
+      Float.round(((transferred_bytes / total_bytes) * 100), 2)
+
+    {:reply, percent_transferred, state}
   end
 
   def handle_call(:job, _from, state) do
@@ -72,7 +78,7 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def handle_call(:finish, _from, state) do
-    sha1_array = Status.get_sha1_array(state.status)
+    sha1_array = Status.get_uploaded_sha1(state.status)
 
     {:ok, finished} = LargeFile.finish(state.file_id, sha1_array)
 
@@ -90,40 +96,24 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def handle_call(:stop, _from, state) do
-    Status.stop(state.status)
-
     case state.current_state do
-      :finished -> {:stop, :normal, state}
-      :cancelled -> {:stop, :normal, state}
-      _ -> {:stop, :shutdown, state}
+      :uploading ->
+        Logger.info "-----> Cancelling #{state.job.name}"
+        Task.await(cancel_upload_task(state.file_id))
+        {:stop, :shutdown, state}
+      :finished ->
+        Logger.info "-----> #{state.job.name} #{Atom.to_string(state.current_state)}"
+        {:stop, :shutdown, state}
+      :cancelled ->
+        Logger.info "-----> Cancelled #{state.job.name}"
+        {:stop, :shutdown, state}
     end
   end
 
   def terminate(reason, state) do
-    case reason do
-      :normal ->
-        Logger.info "-----> #{state.job.entry.name} #{Atom.to_string(state.current_state)}"
-        :normal
-      :shutdown ->
-        Logger.info "-----> Cancelling #{state.job.entry.name}"
-        Task.await(cancel_upload_task(state.file_id))
-        Logger.info "-----> Cancelled #{state.job.entry.name}"
-        :shutdown
-    end
-  end
-
-  defp upload_stream(state) do
-    task = Task.Supervisor.async_stream(
-      TaskSupervisor,
-      Stream.with_index(state.job.stream),
-      &concurrently_upload(&1, state.file_id, state.status),
-      max_concurrency: Blazay.concurrency,
-      timeout: :infinity
-    )
-
-    task
-    |> Stream.map(&verify_thread(&1))
-    |> verify_and_finish(state.status, state.job)
+    Status.stop(state.status)
+    Logger.info "-----> Shutting down #{state.job.name}"
+    reason
   end
 
   defp cancel_upload_task(file_id) do
@@ -132,7 +122,25 @@ defmodule Blazay.Uploader.LargeFile do
     end
   end
 
-  defp concurrently_upload({chunk, index}, file_id, status) do
+  defp upload_stream(state) do
+    task = Task.Supervisor.async_stream(
+      TaskSupervisor,
+      Stream.with_index(state.job.stream),
+      &upload_chunk(&1, state.file_id, state.status),
+      max_concurrency: Blazay.concurrency,
+      timeout: :infinity
+    )
+
+    Enum.each(task, &Status.add_uploaded(&1, state.status))
+    Logger.info "-----> #{Status.uploaded_count(state.status)} part(s) uploaded"
+
+    if Status.upload_complete?(state.status) do
+      Supervisor.finish_large_file(state.job.name)
+      Supervisor.stop_child(state.job.name)
+    end
+  end
+
+  defp upload_chunk({chunk, index}, file_id, status) do
     thread = Thread.prepare(file_id, chunk)
     url = thread.part_url.upload_url
 
@@ -154,26 +162,8 @@ defmodule Blazay.Uploader.LargeFile do
       byte
     end
 
-    {:ok, part} = Upload.part(url, header, chunk_stream)
+    {:ok, _part} = Upload.part(url, header, chunk_stream)
 
-    {thread, part}
-  end
-
-  defp verify_thread({:ok, {thread, part}}) do
-    if part.content_sha1 == thread.checksum,
-      do: {:ok, thread.checksum}, else: {:error, thread.checksum}
-  end
-
-  defp verify_and_finish(results, status, job) do
-    counted = Enum.reduce results, %{}, fn({result, _checksum}, acc) ->
-      Map.update(acc, result, 1, &(&1 + 1))
-    end
-
-    Logger.info "-----> #{counted.ok} part(s) uploaded"
-
-    if counted.ok == Status.thread_count(status) do
-      Supervisor.finish_large_file(job.name)
-      Supervisor.stop_child(job.name)
-    end
+    {index, thread.checksum}
   end
 end
