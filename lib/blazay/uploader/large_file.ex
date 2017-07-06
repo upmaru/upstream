@@ -3,17 +3,21 @@ defmodule Blazay.Uploader.LargeFile do
   LargeFile Uploader handles all the interaction to upload a large file.
   """
   use GenServer
-
-  alias Blazay.B2.LargeFile
-
+  require Logger
   alias Blazay.Uploader
 
-  alias Uploader.TaskSupervisor
-  alias Uploader.Status
+  alias Blazay.B2.{
+    LargeFile,
+    Upload
+  }
 
-  alias Blazay.Job
+  alias Uploader.{
+    TaskSupervisor,
+    Supervisor,
+    Status
+  }
 
-  require Logger
+  alias __MODULE__.Thread
 
   def start_link(job) do
     GenServer.start_link(__MODULE__, job)
@@ -24,15 +28,9 @@ defmodule Blazay.Uploader.LargeFile do
 
     {:ok, started} = LargeFile.start(job.name)
 
-    threads = Enum.map(
-      prepare_threads(job, started.file_id),
-      &Task.await/1
-    )
-
     {:ok, %{
       job: job,
       file_id: started.file_id,
-      threads: threads,
       status: status,
       current_state: :started
     }}
@@ -74,9 +72,7 @@ defmodule Blazay.Uploader.LargeFile do
   end
 
   def handle_call(:finish, _from, state) do
-    sha1_array = Enum.map state.threads, fn thread ->
-      thread.checksum
-    end
+    sha1_array = Status.get_sha1_array(state.status)
 
     {:ok, finished} = LargeFile.finish(state.file_id, sha1_array)
 
@@ -116,24 +112,18 @@ defmodule Blazay.Uploader.LargeFile do
     end
   end
 
-  defp prepare_threads(job, file_id) do
-    alias __MODULE__.Thread
-
-    for chunk <- job.stream do
-      Task.Supervisor.async TaskSupervisor, fn ->
-        Thread.prepare(chunk, file_id)
-      end
-    end
-  end
-
   defp upload_stream(state) do
-    state.job.stream
-    |> Stream.with_index
-    |> Enum.map(&(create_upload_task(&1, state.threads, state.status)))
-    |> Task.yield_many(100_000)
-    |> Stream.with_index
-    |> Enum.map(&(verify_upload_task(&1, state.threads)))
-    |> Status.verify_and_finish(state.status, state.job, state.threads)
+    task = Task.Supervisor.async_stream(
+      TaskSupervisor,
+      Stream.with_index(state.job.stream),
+      &concurrently_upload(&1, state.file_id, state.status),
+      max_concurrency: Blazay.concurrency,
+      timeout: :infinity
+    )
+
+    task
+    |> Stream.map(&verify_thread(&1))
+    |> verify_and_finish(state.status, state.job)
   end
 
   defp cancel_upload_task(file_id) do
@@ -142,39 +132,48 @@ defmodule Blazay.Uploader.LargeFile do
     end
   end
 
-  defp create_upload_task({chunk, index}, threads, status) do
-    alias Blazay.B2.Upload
+  defp concurrently_upload({chunk, index}, file_id, status) do
+    thread = Thread.prepare(file_id, chunk)
+    url = thread.part_url.upload_url
 
-    Task.Supervisor.async TaskSupervisor, fn ->
-      thread = Enum.at(threads, index)
-      url = thread.part_url.upload_url
+    header = %{
+      authorization: thread.part_url.authorization_token,
+      x_bz_part_number: (index + 1),
+      content_length: thread.content_length,
+      x_bz_content_sha1: thread.checksum
+    }
 
-      header = %{
-        authorization: thread.part_url.authorization_token,
-        x_bz_part_number: (index + 1),
-        content_length: thread.content_length,
-        x_bz_content_sha1: thread.checksum
-      }
+    # pass a stream so we can count the bytes in between
+    chunk_stream = Stream.map chunk, fn byte ->
+      # pipe the byte through progress tracker
+      byte
+      |> byte_size
+      |> Status.add_bytes_out(status, thread)
 
-      # pass a stream so we can count the bytes in between
-      chunk_stream = Stream.map chunk, fn byte ->
-        # pipe the byte through progress tracker
-        byte
-        |> byte_size
-        |> Status.add_bytes_out(status, index, thread)
-
-        # return the original byte
-        byte
-      end
-
-      Upload.part(url, header, chunk_stream)
+      # return the original byte
+      byte
     end
+
+    {:ok, part} = Upload.part(url, header, chunk_stream)
+
+    {thread, part}
   end
 
-  defp verify_upload_task({{_task, {:ok, result}}, index}, threads) do
-    {:ok, part} = result
-    thread = Enum.at(threads, index)
+  defp verify_thread({:ok, {thread, part}}) do
     if part.content_sha1 == thread.checksum,
-      do: :ok, else: :error
+      do: {:ok, thread.checksum}, else: {:error, thread.checksum}
+  end
+
+  defp verify_and_finish(results, status, job) do
+    counted = Enum.reduce results, %{}, fn({result, _checksum}, acc) ->
+      Map.update(acc, result, 1, &(&1 + 1))
+    end
+
+    Logger.info "-----> #{counted.ok} part(s) uploaded"
+
+    if counted.ok == Status.thread_count(status) do
+      Supervisor.finish_large_file(job.name)
+      Supervisor.stop_child(job.name)
+    end
   end
 end

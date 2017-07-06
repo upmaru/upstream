@@ -13,7 +13,7 @@ defmodule Blazay.B2.Upload.PartUrl do
 
   use Blazay.B2
 
-  def url(_), do: Account.api_url |> Url.generate(:get_upload_part_url)
-  
-  def body(file_id), do: %{ fileId: file_id }
+  def url(_), do: Url.generate(Account.api_url, :get_upload_part_url)
+
+  def body(file_id), do: %{fileId: file_id}
 end

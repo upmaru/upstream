@@ -8,7 +8,7 @@ defmodule Blazay.Request do
   @spec post(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
   def post(caller_struct, url, body, headers, options \\ []) do
     case HTTPoison.post(url, body, headers, options) do
-      {:ok, response = %HTTPoison.AsyncResponse{id: _id}} -> 
+      {:ok, response = %HTTPoison.AsyncResponse{id: _id}} ->
         {:ok, response}
       {:ok, %{status_code: 200, body: body}} ->
         {:ok, struct(caller_struct, process_response(body))}

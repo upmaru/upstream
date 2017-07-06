@@ -14,7 +14,7 @@ defmodule Blazay.Uploader.LargeFile.Thread do
     part_url: PartUrl.t,
   }
 
-  def prepare(chunk, file_id) do
+  def prepare(file_id, chunk) do
     %__MODULE__{
       part_url: get_part_url(file_id),
       checksum: calculate_sha(chunk),

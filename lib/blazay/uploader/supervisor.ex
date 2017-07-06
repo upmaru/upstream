@@ -43,7 +43,7 @@ defmodule Blazay.Uploader.Supervisor do
     |> GenServer.call(:finish)
   end
 
-  def stop(file_path) do
+  def stop_child(file_path) do
     file_path
     |> child_pid
     |> GenServer.call(:stop)

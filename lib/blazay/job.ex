@@ -3,6 +3,8 @@ defmodule Blazay.Job do
   Job module for making it easy to work with upload job by exposing 
   file stats and file stream.
   """
+  alias Blazay.B2.Account
+  require IEx
 
   defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
 
@@ -18,6 +20,7 @@ defmodule Blazay.Job do
   }
 
   def create(file_path) do
+
     basename = Path.basename(file_path)
     absolute_path = Path.expand(file_path)
     stat = File.stat!(absolute_path)
@@ -34,23 +37,23 @@ defmodule Blazay.Job do
     }
   end
 
-  defp recommend_thread_count(file_size) do
-    alias Blazay.B2.Account
-
+  def recommend_thread_count(file_size) do
     to_integer((file_size / Account.recommended_part_size))
   end
 
-  defp file_stream(absolute_path, file_size, threads) do
+  def file_stream(absolute_path, file_size, threads) do
+    chunk_length = chunk_size(file_size, threads)
+
     absolute_path
     |> File.stream!([], @stream_bytes)
-    |> Stream.chunk(chunk_size(file_size, threads))
+    |> Stream.chunk(chunk_length, chunk_length, [])
   end
 
-  defp chunk_size(file_size, threads) do
+  def chunk_size(file_size, threads) do
      to_integer(((to_integer((file_size / @stream_bytes))) / threads))
   end
 
-  defp to_integer(float) when is_float(float) do
+  def to_integer(float) when is_float(float) do
     float |> Float.ceil |> round
   end
 end
