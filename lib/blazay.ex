@@ -23,6 +23,9 @@ defmodule Blazay do
   @config Application.get_env(:blazay, Blazay)
   def config, do: @config
 
+  @concurrency 2
+  def concurrency, do: config(:concurrency) || @concurrency
+
   @doc """
   Blazay.config/1 help you get to your config
 
