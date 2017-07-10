@@ -1,6 +1,6 @@
-defmodule Blazay.Uploader.File do
+defmodule Blazay.Uploader.LargeFile do
   @moduledoc """
-  Supervisor for Uploader.File
+  Supervisor for Uploader.LargeFile
   """
   use Supervisor
 
@@ -12,13 +12,14 @@ defmodule Blazay.Uploader.File do
 
   def init(_) do
     children = [
-      worker(Worker.File, [], restart: :transient)
+      worker(Worker.LargeFile, [], restart: :transient)
     ]
 
     supervise(children, strategy: :simple_one_for_one)
   end
 
   def start_uploader(job) do
-    Supervisor.start_child(__MODULE__, [job])
+    {:ok, _pid} = Supervisor.start_child(__MODULE__, [job])
+    Worker.LargeFile.upload(job.name)
   end
 end

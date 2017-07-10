@@ -53,12 +53,14 @@ defmodule Blazay.Uploader.Status do
     end
   end
 
-  def add_uploaded({:ok, {index, checksum}}, pid) do
+  def add_uploaded({index, checksum}, pid) do
     Agent.get_and_update pid, fn reports ->
       new_uploaded = List.insert_at(reports.uploaded, index, checksum)
 
       {reports, Map.put(reports, :uploaded, new_uploaded)}
     end
+
+    {index, checksum}
   end
 
   def get_uploaded_sha1(pid) do
