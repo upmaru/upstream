@@ -14,7 +14,7 @@ defmodule Blazay.Supervisor do
     children = [
       worker(Blazay.B2.Account, []),
 
-      supervisor(Uploader.Supervisor, [])
+      supervisor(Uploader, []),
     ]
 
     supervise(children, strategy: :one_for_one, name: __MODULE__)

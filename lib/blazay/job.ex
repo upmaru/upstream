@@ -20,7 +20,6 @@ defmodule Blazay.Job do
   }
 
   def create(file_path) do
-
     basename = Path.basename(file_path)
     absolute_path = Path.expand(file_path)
     stat = File.stat!(absolute_path)
