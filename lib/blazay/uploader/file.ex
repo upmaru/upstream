@@ -19,6 +19,7 @@ defmodule Blazay.Uploader.File do
   end
 
   def start_uploader(job) do
-    Supervisor.start_child(__MODULE__, [job])
+    {:ok, _pid} = Supervisor.start_child(__MODULE__, [job])
+    Worker.File.upload(job.name)
   end
 end

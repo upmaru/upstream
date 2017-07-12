@@ -176,14 +176,14 @@ defmodule Blazay.Worker.LargeFile do
     }
 
     # pass a stream so we can count the bytes in between
-    chunk_stream = Stream.map chunk, fn byte ->
+    chunk_stream = Stream.map chunk, fn bytes ->
       # pipe the byte through progress tracker
-      byte
+      bytes
       |> byte_size
       |> Status.add_bytes_out(status, thread)
 
       # return the original byte
-      byte
+      bytes
     end
 
     {:ok, _part} = Upload.part(url, header, chunk_stream)

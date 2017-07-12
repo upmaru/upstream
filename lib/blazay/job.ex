@@ -43,9 +43,10 @@ defmodule Blazay.Job do
   def file_stream(absolute_path, file_size, threads) do
     chunk_length = chunk_size(file_size, threads)
 
-    absolute_path
-    |> File.stream!([], @stream_bytes)
-    |> Stream.chunk(chunk_length, chunk_length, [])
+    stream = File.stream!(absolute_path, [], @stream_bytes)
+
+    if threads == 1, do: stream,
+      else: Stream.chunk(stream, chunk_length, chunk_length, [])
   end
 
   def chunk_size(file_size, threads) do
