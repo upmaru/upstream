@@ -1,4 +1,7 @@
 defmodule Blazay.B2.Upload.Url do
+  @moduledoc """
+  Responsible for retrieving the upload_url from b2 for simple file
+  """
   defstruct [:bucket_id, :upload_url, :authorization_token]
 
   @type t :: %__MODULE__{
@@ -9,9 +12,9 @@ defmodule Blazay.B2.Upload.Url do
 
   use Blazay.B2
 
-  def url(_), do: Account.api_url |> Url.generate(:get_upload_url)
-  
+  def url(_), do: Url.generate(Account.api_url, :get_upload_url)
+
   def body(_) do
-    %{ bucketId: Blazay.config(:bucket_id) }
+    %{bucketId: Blazay.config(:bucket_id)}
   end
 end

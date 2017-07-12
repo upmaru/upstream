@@ -1,22 +1,25 @@
-defmodule Blazay.Uploader.Worker.LargeFile do
+defmodule Blazay.Worker.LargeFile do
   @moduledoc """
   LargeFile Uploader handles all the interaction to upload a large file.
   """
   use GenServer
   require Logger
-  alias Blazay.Uploader
+  alias Blazay.{
+    Uploader,
+    Worker
+  }
+
+  alias Uploader.TaskSupervisor
 
   alias Blazay.B2.{
     LargeFile,
     Upload
   }
 
-  alias Uploader.{
-    TaskSupervisor,
+  alias Worker.{
+    Thread,
     Status
   }
-
-  alias Uploader.Thread
 
   def start_link(job) do
     GenServer.start_link(__MODULE__, job, name: via_tuple(job.name))
