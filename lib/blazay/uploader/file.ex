@@ -4,7 +4,7 @@ defmodule Blazay.Uploader.File do
   """
   use Supervisor
 
-  alias Blazay.Uploader.Worker
+  alias Blazay.Worker
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)

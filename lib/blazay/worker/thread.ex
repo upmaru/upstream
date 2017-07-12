@@ -1,4 +1,4 @@
-defmodule Blazay.Uploader.Thread do
+defmodule Blazay.Worker.Thread do
   @moduledoc """
   Responsible for preparing the thread data for uploading
   """
