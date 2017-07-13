@@ -17,7 +17,7 @@ defmodule Blazay.B2.Account do
   the data required.
   """
   def authorization do
-    __MODULE__ |> Agent.get(fn authorization -> authorization end)
+    Agent.get(__MODULE__, fn authorization -> authorization end)
   end
 
   def api_url, do: authorization().api_url
