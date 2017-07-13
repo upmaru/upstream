@@ -13,7 +13,16 @@ defmodule Blazay.Worker.Checksum do
     end)
   end
 
+  def stop(pid), do: Agent.stop(pid)
+
   def get_hash(pid) do
-    Agent.get(pid, fn hash -> :crypto.hash_final(hash) end)
+    Agent.get(pid, &hash_to_string/1)
+  end
+
+  defp hash_to_string(hash) do
+    hash
+    |> :crypto.hash_final
+    |> Base.encode16
+    |> String.downcase
   end
 end

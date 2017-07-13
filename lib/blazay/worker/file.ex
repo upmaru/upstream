@@ -22,7 +22,6 @@ defmodule Blazay.Worker.File do
 
   def init(job) do
     {:ok, status} = Status.start_link
-    {:ok, checksum} = Checksum.start_link
 
     {:ok, url} = Upload.url
 
@@ -30,7 +29,6 @@ defmodule Blazay.Worker.File do
       job: job,
       url: url,
       status: status,
-      checksum: checksum,
       current_state: :started
     }}
   end
@@ -43,6 +41,10 @@ defmodule Blazay.Worker.File do
     GenServer.call(via_tuple(job_name), :finish)
   end
 
+  def stop(job_name) do
+    GenServer.call(via_tuple(job_name), :stop)
+  end
+
   def handle_cast(:upload, state) do
     Task.Supervisor.start_child TaskSupervisor, fn ->
       upload_stream(state)
@@ -53,15 +55,24 @@ defmodule Blazay.Worker.File do
     {:noreply, new_state}
   end
 
-  def handle_call(:finish, state) do
+  def handle_call(:finish, _from, state) do
     new_state = Map.merge(state, %{current_state: :finished})
     Logger.info "-----> #{state.job.name} #{Atom.to_string(new_state.current_state)}"
     {:reply, :finished, new_state}
   end
 
+  def handle_call(:stop, _from, state) do
+    Status.stop(state.status)
+
+
+  end
+
   defp upload_stream(state) do
+    {:ok, checksum} = Checksum.start_link
+
     header = %{
       authorization: state.url.authorization_token,
+      # TODO: we need to handle spaces in name
       file_name: state.job.name,
       content_length: state.job.stat.size + 40, # for sha1 at the end
       x_bz_content_sha1: "hex_digits_at_end"
@@ -70,19 +81,14 @@ defmodule Blazay.Worker.File do
     last_bytes = get_last_bytes(state.job.stream)
 
     stream = Stream.flat_map state.job.stream, fn bytes ->
-      Checksum.add_bytes_to_hash(bytes, state.checksum)
+      Checksum.add_bytes_to_hash(bytes, checksum)
 
       bytes
       |> byte_size
       |> Status.add_bytes_out(state.status)
 
       if bytes == last_bytes do
-        hash = state.checksum
-        |> Checksum.get_hash
-        |> Base.encode16
-        |> String.downcase
-
-        [bytes, hash]
+        [bytes, Checksum.get_hash(checksum)]
       else
         [bytes]
       end
@@ -92,7 +98,9 @@ defmodule Blazay.Worker.File do
     Status.add_uploaded({0, file.content_sha1}, state.status)
 
     if Status.upload_complete?(state.status) do
+      Checksum.stop(checksum)
       __MODULE__.finish(state.job.name)
+      __MODULE__.stop(state.job.name)
     end
   end
 
