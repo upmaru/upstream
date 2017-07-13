@@ -28,8 +28,8 @@ defmodule Blazay.B2.Upload do
       header: header,
       body: body,
       options: [
-        timeout: :infinity, 
-        recv_timeout: :infinity, 
+        timeout: :infinity,
+        recv_timeout: :infinity,
         connect_timeout: :infinity
       ]
     )
