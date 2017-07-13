@@ -180,7 +180,7 @@ defmodule Blazay.Worker.LargeFile do
       # pipe the byte through progress tracker
       bytes
       |> byte_size
-      |> Status.add_bytes_out(status, thread)
+      |> Status.add_bytes_out(status, thread.checksum)
 
       # return the original byte
       bytes

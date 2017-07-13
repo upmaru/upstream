@@ -67,10 +67,10 @@ defmodule Blazay.Worker.Status do
     Agent.get pid, fn reports -> reports.uploaded end
   end
 
-  def add_bytes_out(bytes, pid, thread) do
+  def add_bytes_out(bytes, pid, key \\ 0) do
     Agent.get_and_update pid, fn reports ->
       {_old, new_progress} =
-        Map.get_and_update reports.progress, "#{thread.checksum}", fn transferred ->
+        Map.get_and_update reports.progress, "#{key}", fn transferred ->
           {transferred, (transferred || 0) + bytes}
         end
 
