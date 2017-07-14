@@ -68,7 +68,7 @@ defmodule Blazay.Worker.File do
         Logger.info "-----> Cancelling #{state.job.name}"
         {:stop, :shutdown, state}
       :finished ->
-        Logger.info "-----> #{state.job.name} #{Atom.to_string(new_state.current_state)}"
+        Logger.info "-----> #{state.job.name} #{Atom.to_string(state.current_state)}"
         {:stop, :shutdown, state}
     end
   end
