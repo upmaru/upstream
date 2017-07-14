@@ -18,16 +18,16 @@ defmodule Blazay.B2.LargeFile.Start do
     file_info: map,
     upload_timestamp: integer
   }
-  
+
   use Blazay.B2
 
-  def url(_), do: Account.api_url |> Url.generate(:start_large_file)
+  def url(_), do: Url.generate(Account.api_url, :start_large_file)
 
   def body(file_name) when is_binary(file_name) do
-    %{ 
-      bucketId: Blazay.config(:bucket_id), 
+    %{
+      bucketId: Blazay.config(:bucket_id),
       contentType: "b2/x-auto",
-      fileName: file_name
+      fileName: URI.encode(file_name)
     }
   end
 end
