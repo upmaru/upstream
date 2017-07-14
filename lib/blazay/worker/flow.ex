@@ -8,10 +8,10 @@ defmodule Blazay.Worker.Flow do
     Status
   }
 
-  def generate(chunked_stream, index, checksum_pid, status_pid) do
-    last_bytes = get_last_bytes(chunked_stream)
+  def generate(stream, index, checksum_pid, status_pid) do
+    last_bytes = get_last_bytes(stream)
 
-    Stream.flat_map chunked_stream, fn bytes ->
+    Stream.flat_map stream, fn bytes ->
       Checksum.add_bytes_to_hash(bytes, checksum_pid)
 
       bytes
