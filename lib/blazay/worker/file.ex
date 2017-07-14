@@ -57,7 +57,6 @@ defmodule Blazay.Worker.File do
 
   def handle_call(:finish, _from, state) do
     new_state = Map.merge(state, %{current_state: :finished})
-    Logger.info "-----> #{state.job.name} #{Atom.to_string(new_state.current_state)}"
     {:reply, :finished, new_state}
   end
 
@@ -69,7 +68,7 @@ defmodule Blazay.Worker.File do
         Logger.info "-----> Cancelling #{state.job.name}"
         {:stop, :shutdown, state}
       :finished ->
-        Logger.info "-----> #{state.job.name} #{Atom.to_string(state.current_state)}"
+        Logger.info "-----> #{state.job.name} #{Atom.to_string(new_state.current_state)}"
         {:stop, :shutdown, state}
     end
   end
