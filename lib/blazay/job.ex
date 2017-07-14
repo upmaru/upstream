@@ -6,7 +6,7 @@ defmodule Blazay.Job do
   alias Blazay.B2.Account
   require IEx
 
-  defstruct [:name, :full_path, :basename, :stream, :stat, :threads]
+  defstruct [:name, :full_path, :basename, :stream, :content_length, :last_content_length, :stat, :threads]
 
   @stream_bytes 2048
 
@@ -15,6 +15,8 @@ defmodule Blazay.Job do
     name: String.t,
     full_path: String.t,
     stat: File.Stat.t,
+    content_length: integer,
+    last_content_length: integer,
     stream: File.Stream.t,
     threads: integer
   }
@@ -22,15 +24,30 @@ defmodule Blazay.Job do
   def create(file_path) do
     basename = Path.basename(file_path)
     absolute_path = Path.expand(file_path)
+
     stat = File.stat!(absolute_path)
     threads = recommend_thread_count(stat.size)
-    stream = file_stream(absolute_path, stat.size, threads)
+
+    # calculates the chunk length based on how many threads
+    chunk_length = chunk_size(stat.size, threads)
+
+    # get the stream chunked or not chunked
+    stream = file_stream(absolute_path, chunk_length, threads)
+
+    # calculate the content_length
+    content_length = chunk_length * @stream_bytes
+
+    # content_length of the last thread
+    last_content_length =
+      (stat.size - (content_length * threads)) + content_length
 
     %__MODULE__{
       name: file_path,
       full_path: absolute_path,
       basename: basename,
       stat: stat,
+      content_length: content_length,
+      last_content_length: last_content_length,
       stream: stream,
       threads: threads
     }
@@ -40,9 +57,7 @@ defmodule Blazay.Job do
     to_integer((file_size / Account.recommended_part_size))
   end
 
-  def file_stream(absolute_path, file_size, threads) do
-    chunk_length = chunk_size(file_size, threads)
-
+  def file_stream(absolute_path, chunk_length, threads) do
     stream = File.stream!(absolute_path, [], @stream_bytes)
 
     if threads == 1, do: stream,

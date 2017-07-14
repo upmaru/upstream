@@ -11,7 +11,7 @@ defmodule Blazay.Worker.File do
   alias Blazay.Uploader.TaskSupervisor
 
   alias Blazay.Worker.{
-    Status, Checksum
+    Status, Checksum, Flow
   }
 
   require Logger
@@ -23,11 +23,8 @@ defmodule Blazay.Worker.File do
   def init(job) do
     {:ok, status} = Status.start_link
 
-    {:ok, url} = Upload.url
-
     {:ok, %{
       job: job,
-      url: url,
       status: status,
       current_state: :started
     }}
@@ -47,7 +44,31 @@ defmodule Blazay.Worker.File do
 
   def handle_cast(:upload, state) do
     Task.Supervisor.start_child TaskSupervisor, fn ->
-      upload_stream(state)
+      {:ok, checksum} = Checksum.start_link
+      {:ok, url} = Upload.url
+
+      # single thread
+      index = 0
+
+      header = %{
+        authorization: url.authorization_token,
+        file_name: URI.encode(state.job.name),
+        content_length: state.job.stat.size + 40, # for sha1 at the end
+        x_bz_content_sha1: "hex_digits_at_end"
+      }
+
+      body = Flow.generate(
+        state.job.stream, index, checksum, state.status
+      )
+
+      {:ok, file} = Upload.file(url.upload_url, header, body)
+      Status.add_uploaded({index, file.content_sha1}, state.status)
+
+      if Status.upload_complete?(state.status) do
+        Checksum.stop(checksum)
+        __MODULE__.finish(state.job.name)
+        __MODULE__.stop(state.job.name)
+      end
     end
 
     new_state = Map.merge(state, %{current_state: :uploading})
@@ -76,46 +97,6 @@ defmodule Blazay.Worker.File do
   def terminate(reason, state) do
     Logger.info "-----> Shutting down #{state.job.name}"
     reason
-  end
-
-  defp upload_stream(state) do
-    {:ok, checksum} = Checksum.start_link
-
-    header = %{
-      authorization: state.url.authorization_token,
-      file_name: URI.encode(state.job.name),
-      content_length: state.job.stat.size + 40, # for sha1 at the end
-      x_bz_content_sha1: "hex_digits_at_end"
-    }
-
-    last_bytes = get_last_bytes(state.job.stream)
-
-    stream = Stream.flat_map state.job.stream, fn bytes ->
-      Checksum.add_bytes_to_hash(bytes, checksum)
-
-      bytes
-      |> byte_size
-      |> Status.add_bytes_out(state.status)
-
-      if bytes == last_bytes do
-        [bytes, Checksum.get_hash(checksum)]
-      else
-        [bytes]
-      end
-    end
-
-    {:ok, file} = Upload.file(state.url.upload_url, header, stream)
-    Status.add_uploaded({0, file.content_sha1}, state.status)
-
-    if Status.upload_complete?(state.status) do
-      Checksum.stop(checksum)
-      __MODULE__.finish(state.job.name)
-      __MODULE__.stop(state.job.name)
-    end
-  end
-
-  defp get_last_bytes(stream) do
-    stream |> Stream.take(-1) |> Enum.to_list |> List.first
   end
 
   defp via_tuple(job_name) do

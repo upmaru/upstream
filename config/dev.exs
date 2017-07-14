@@ -4,5 +4,4 @@ config :blazay, Blazay,
   account_id: System.get_env("B2_ACCOUNT_ID"),
   application_key: System.get_env("B2_APPLICATION_KEY"),
   bucket_id: System.get_env("B2_BUCKET_ID"),
-  part_size: 10_000_000,
-  concurrency: 5
+  concurrency: 2

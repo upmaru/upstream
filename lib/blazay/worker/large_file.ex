@@ -17,25 +17,15 @@ defmodule Blazay.Worker.LargeFile do
   }
 
   alias Worker.{
-    Thread,
-    Status
+    Flow,
+    Status,
+    Checksum
   }
+
+  # Client API
 
   def start_link(job) do
     GenServer.start_link(__MODULE__, job, name: via_tuple(job.name))
-  end
-
-  def init(job) do
-    {:ok, status} = Status.start_link
-
-    {:ok, started} = LargeFile.start(job.name)
-
-    {:ok, %{
-      job: job,
-      file_id: started.file_id,
-      status: status,
-      current_state: :started
-    }}
   end
 
   def upload(job_name) do
@@ -56,16 +46,31 @@ defmodule Blazay.Worker.LargeFile do
     GenServer.call(via_tuple(job_name), :finish)
   end
 
-  def job(job_name) do
+  def job(pid) when is_pid(pid), do: GenServer.call(pid, :job)
+  def job(job_name) when is_binary(job_name) do
     GenServer.call(via_tuple(job_name), :job)
-  end
-
-  def threads(job_name) do
-    GenServer.call(via_tuple(job_name), :threads)
   end
 
   def progress(job_name) do
     GenServer.call(via_tuple(job_name), :progress)
+  end
+
+  # Server Callbacks
+
+  def init(job) do
+    {:ok, status} = Status.start_link
+
+    {:ok, started} = LargeFile.start(job.name)
+
+    temp_directory = Path.join(["tmp", started.file_id])
+
+    {File.mkdir_p!(temp_directory), %{
+      job: job,
+      file_id: started.file_id,
+      temp_directory: temp_directory,
+      status: status,
+      current_state: :started
+    }}
   end
 
   def handle_cast(:upload, state) do
@@ -90,10 +95,6 @@ defmodule Blazay.Worker.LargeFile do
 
   def handle_call(:job, _from, state) do
     {:reply, state.job, state}
-  end
-
-  def handle_call(:threads, _from, state) do
-    {:reply, state.threads, state}
   end
 
   def handle_call(:finish, _from, state) do
@@ -131,9 +132,12 @@ defmodule Blazay.Worker.LargeFile do
   end
 
   def terminate(reason, state) do
+    File.rmdir(state.temp_directory)
     Logger.info "-----> Shutting down #{state.job.name}"
     reason
   end
+
+  # Private Functions
 
   defp via_tuple(job_name) do
     {:via, Registry, {Blazay.Uploader.Registry, job_name}}
@@ -148,8 +152,8 @@ defmodule Blazay.Worker.LargeFile do
   defp upload_stream(state) do
     stream = Task.Supervisor.async_stream(
       TaskSupervisor,
-      Stream.with_index(state.job.stream),
-      &upload_chunk(&1, state.file_id, state.status),
+      chunk_streams(state.job.stream, state.temp_directory),
+      &upload_chunk(&1, state.file_id, state.job, state.status),
       max_concurrency: Blazay.concurrency,
       timeout: :infinity
     )
@@ -164,29 +168,42 @@ defmodule Blazay.Worker.LargeFile do
     end
   end
 
-  defp upload_chunk({chunk, index}, file_id, status) do
-    thread = Thread.prepare(file_id, chunk)
-    url = thread.part_url.upload_url
+  defp chunk_streams(stream, temp_directory) do
+    stream
+    |> Stream.with_index
+    |> Stream.map(fn {chunk, index} ->
+      path = Path.join([temp_directory, "#{index}"])
+      {Enum.into(chunk, File.stream!(path, [], 2048)), index}
+    end)
+  end
+
+  defp upload_chunk({chunked_stream, index}, file_id, job, status) do
+    {:ok, checksum} = Checksum.start_link
+    {:ok, part_url} = Upload.part_url(file_id)
+
+    content_length = if job.threads == (index + 1),
+      do: job.last_content_length, else: job.content_length
+
+    url = part_url.upload_url
 
     header = %{
-      authorization: thread.part_url.authorization_token,
+      authorization: part_url.authorization_token,
       x_bz_part_number: (index + 1),
-      content_length: thread.content_length,
-      x_bz_content_sha1: thread.checksum
+      content_length: content_length + 40,
+      x_bz_content_sha1: "hex_digits_at_end"
     }
 
-    # pass a stream so we can count the bytes in between
-    chunk_stream = Stream.map chunk, fn bytes ->
-      # pipe the byte through progress tracker
-      bytes
-      |> byte_size
-      |> Status.add_bytes_out(status, thread.checksum)
+    body = Flow.generate(
+      chunked_stream, index, checksum, status
+    )
 
-      # return the original byte
-      bytes
+    case Upload.part(url, header, body) do
+      {:ok, part} ->
+        Checksum.stop(checksum)
+        Status.add_uploaded({index, part.content_sha1}, status)
+        File.rm!(chunked_stream.path)
+      {:error, _} ->
+        Logger.info "-----> Error #{job.name} chunk: #{index}"
     end
-
-    {:ok, _part} = Upload.part(url, header, chunk_stream)
-    Status.add_uploaded({index, thread.checksum}, status)
   end
 end
