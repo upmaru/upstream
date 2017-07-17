@@ -54,6 +54,8 @@ defmodule Blazay.Mixfile do
     [
       {:httpoison, "~> 0.11.0"},
       {:gen_stage, "~> 0.11"},
+      {:cowboy, "~> 1.0"},
+      {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
