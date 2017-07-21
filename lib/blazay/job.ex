@@ -6,7 +6,8 @@ defmodule Blazay.Job do
   alias Blazay.B2.Account
   require IEx
 
-  defstruct [:name, :full_path, :basename, :stream, :content_length, :last_content_length, :stat, :threads]
+  defstruct [:name, :full_path, :basename, :stream, :content_length,
+             :last_content_length, :stat, :threads, :owner]
 
   @stream_bytes 2048
 
@@ -18,12 +19,12 @@ defmodule Blazay.Job do
     content_length: integer,
     last_content_length: integer,
     stream: File.Stream.t,
-    threads: integer
+    threads: integer,
+    owner: pid | nil
   }
 
-  def create(file_path) do
-    basename = Path.basename(file_path)
-    absolute_path = Path.expand(file_path)
+  def create(source_path, name, owner) do
+    absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)
     threads = recommend_thread_count(stat.size)
@@ -42,14 +43,14 @@ defmodule Blazay.Job do
       (stat.size - (content_length * threads)) + content_length
 
     %__MODULE__{
-      name: file_path,
+      name: name || source_path,
       full_path: absolute_path,
-      basename: basename,
       stat: stat,
       content_length: content_length,
       last_content_length: last_content_length,
       stream: stream,
-      threads: threads
+      threads: threads,
+      owner: owner
     }
   end
 

@@ -27,6 +27,8 @@ defmodule Blazay.Mixfile do
     [ 
       mod: {Blazay, []},
       extra_applications: [
+        :cowboy,
+        :plug,
         :httpoison,
         :poison,
         :logger
