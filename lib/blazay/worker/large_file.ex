@@ -17,9 +17,12 @@ defmodule Blazay.Worker.LargeFile do
   }
 
   alias Worker.{
-    Flow,
     Status,
     Checksum
+  }
+
+  alias Uploader.{
+    Flow
   }
 
   # Client API

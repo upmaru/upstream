@@ -26,6 +26,9 @@ defmodule Blazay do
   @concurrency 2
   def concurrency, do: config(:concurrency) || @concurrency
 
+  @file_param "file"
+  def file_param, do: config(:file_param) || @file_param
+
   @doc """
   Blazay.config/1 help you get to your config
 
@@ -34,5 +37,5 @@ defmodule Blazay do
     iex> Blazay.config(:account_id)
     Keyword.fetch!(Blazay.config, :account_id)
   """
-  def config(key), do: Keyword.fetch!(config(), key)
+  def config(key), do: Keyword.get(config(), key, nil)
 end

@@ -11,10 +11,16 @@ defmodule Blazay.Worker.File do
   alias Blazay.Uploader.TaskSupervisor
 
   alias Blazay.Worker.{
-    Status, Checksum, Flow
+    Status, Checksum
+  }
+
+  alias Blazay.Uploader.{
+    Flow
   }
 
   require Logger
+
+  # Client API
 
   def start_link(job) do
     GenServer.start_link(__MODULE__, job, name: via_tuple(job.name))
@@ -42,6 +48,8 @@ defmodule Blazay.Worker.File do
     GenServer.call(via_tuple(job_name), :stop)
   end
 
+  # Server Callbacks
+
   def handle_cast(:upload, state) do
     Task.Supervisor.start_child TaskSupervisor, fn ->
       {:ok, checksum} = Checksum.start_link
@@ -61,13 +69,13 @@ defmodule Blazay.Worker.File do
         state.job.stream, index, checksum, state.status
       )
 
-      {:ok, file} = Upload.file(url.upload_url, header, body)
-      Status.add_uploaded({index, file.content_sha1}, state.status)
-
-      if Status.upload_complete?(state.status) do
-        Checksum.stop(checksum)
-        __MODULE__.finish(state.job.name)
-        __MODULE__.stop(state.job.name)
+      case Upload.file(url.upload_url, header, body) do
+        {:ok, file} ->
+          Checksum.stop(checksum)
+          __MODULE__.finish(state.job.name)
+          __MODULE__.stop(state.job.name)
+        {:error, reason} -> 
+          {:error, reason} 
       end
     end
 
@@ -78,6 +86,7 @@ defmodule Blazay.Worker.File do
 
   def handle_call(:finish, _from, state) do
     new_state = Map.merge(state, %{current_state: :finished})
+    send state.job.owner, {:finished, state.job.name}
     {:reply, :finished, new_state}
   end
 
@@ -98,6 +107,8 @@ defmodule Blazay.Worker.File do
     Logger.info "-----> Shutting down #{state.job.name}"
     reason
   end
+
+  # Private functions
 
   defp via_tuple(job_name) do
     {:via, Registry, {Blazay.Uploader.Registry, job_name}}

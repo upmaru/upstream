@@ -2,20 +2,82 @@ defmodule Blazay.Router do
   import Plug.Conn
   use Plug.Router
 
+  alias Blazay.Uploader
+  alias Blazay.B2
+
   plug :match
-  plug :dispatch
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
+    parsers: [:multipart],
     pass: ["*/*"],
-    json_decoder: Poison
+    length: 100_000_000
 
-  post "/upload/chunk" do
-    
-  end
+  plug :dispatch
+
+  require IEx
 
   post "/upload/file" do
-    
+    %{path: path, filename: filename} =
+      conn.body_params[Blazay.file_param]
+
+    Uploader.upload!(path, filename, self())
+
+    case notification_loop() do
+      {:success, job_name} -> 
+        render_json(conn, 200, %{job_name: job_name})
+    end
   end
 
+  post "/upload/chunks/start" do
+    %{"file_name" => file_name} = conn.body_params
+
+    case B2.LargeFile.start(file_name) do
+      {:ok, start} ->
+        render_json(conn, 201, start)
+    end
+  end
+
+  delete "/upload/chunks/cancel" do
+    %{"file_id" => file_id} = conn.body_params
+
+    case B2.LargeFile.cancel(file_id) do
+      {:ok, cancel} ->
+        render_json(conn, 200, cancel)
+      {:error, reason} ->
+        render_json(conn, 422, reason)
+    end
+  end
+
+  post "/upload/chunks/add" do
+    # this is the endpoint for resumable or flow
+    %{"file_id" => file_id, "index" => index} =
+      conn.body_params
+
+    %{path: path, filename: filename} =
+      conn.body_params[Blazay.file_param]
+
+    Uploader.upload!(:chunk, path, filename, self())
+
+    case notification_loop() do
+      {:success, job_name} ->
+        render_json(conn, 200, %{job_name: job_name}
+    end
+  end
+
+  post "/upload/chunks/finish" do
+    %{"file_id" => fiel_id, "sha1" => sha1} = conn.body_params
+  end
+
+  defp render_json(conn, status, body) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(status, Poison.encode!(body))
+  end
+
+  defp notification_loop do
+    receive do
+      {:finished, job_name} -> {:success, job_name}
+      _ -> notification_loop()
+    end
+  end
 end

@@ -5,6 +5,8 @@ defmodule Blazay.Uploader do
 
   use Supervisor
 
+  alias Blazay.Job
+
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
@@ -21,11 +23,33 @@ defmodule Blazay.Uploader do
     supervise(children, strategy: :one_for_one)
   end
 
-  def start_uploader(:file, job) do
+  def upload!(:chunk, file_path, file_id, index) do
+    
+  end
+
+  def upload!(file_path, name \\ nil, owner \\ nil) do
+    job = Job.create(file_path, name, owner)
+
+    uploader = if job.threads == 1, do: :file, else: :large_file
+
+    case Registry.lookup(__MODULE__.Registry, job.full_path) do
+      [{pid, nil}] ->
+        {:error, :already_uploading, pid}
+      [] ->
+        start_uploader(uploader, job)
+        {:ok, uploader, job.full_path}
+    end
+  end
+
+  defp start_uploader(:chunk, job) do
+    __MODULE__.Chunk.start_uploader(job)
+  end
+
+  defp start_uploader(:file, job) do
     __MODULE__.File.start_uploader(job)
   end
 
-  def start_uploader(:large_file, job) do
+  defp start_uploader(:large_file, job) do
     __MODULE__.LargeFile.start_uploader(job)
   end
 end

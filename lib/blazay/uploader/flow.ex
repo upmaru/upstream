@@ -1,4 +1,4 @@
-defmodule Blazay.Worker.Flow do
+defmodule Blazay.Uploader.Flow do
   @moduledoc """
   Generates the chunks stream for Worker.File and Worker.LargeFile
   """
