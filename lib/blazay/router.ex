@@ -34,6 +34,8 @@ defmodule Blazay.Router do
     case B2.LargeFile.start(file_name) do
       {:ok, start} ->
         render_json(conn, 201, start)
+      {:error, reason} ->
+        render_json(conn, 422, reason)
     end
   end
 
@@ -48,19 +50,19 @@ defmodule Blazay.Router do
     end
   end
 
-  post "/upload/chunks/add" do
-    # this is the endpoint for resumable or flow
-    %{"file_id" => file_id, "index" => index} =
-      conn.body_params
+  patch "/upload/chunks/add/:file_id" do
+    %{"total_parts" => total_parts,
+      "part_size"   => part_size,
+      "part_number" => part_number} = conn.body_params
 
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
 
-    Uploader.upload!(:chunk, path, filename, self())
+    Uploader.upload!(:chunk, file_id, part_number, self())
 
     case notification_loop() do
       {:success, job_name} ->
-        render_json(conn, 200, %{job_name: job_name}
+        render_json(conn, 200, %{job_name: job_name})
     end
   end
 
