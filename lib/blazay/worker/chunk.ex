@@ -8,6 +8,10 @@ defmodule Blazay.Worker.Chunk do
     Upload
   }
 
+  alias Blazay.Uploader.{
+    Flow
+  }
+
   # Client API
 
   def start_link(job, file_id, index) do
@@ -53,7 +57,6 @@ defmodule Blazay.Worker.Chunk do
       body = Flow.generate(
         state.job.stream, index, checksum, state.status
       )
-
 
       case Upload.part(part_url.upload_url, header, body) do
         {:ok, part} ->

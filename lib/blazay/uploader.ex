@@ -23,8 +23,8 @@ defmodule Blazay.Uploader do
     supervise(children, strategy: :one_for_one)
   end
 
-  def upload!(:chunk, file_path, file_id, index) do
-    
+  def upload!(:chunk, file_path, file_id, index, owner \\ nil) do
+    job = Job.create(file_path, nil, owner)
   end
 
   def upload!(file_path, name \\ nil, owner \\ nil) do
