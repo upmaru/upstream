@@ -18,8 +18,8 @@ defmodule Blazay.Uploader.Chunk do
     supervise(children, strategy: :simple_one_for_one)
   end
 
-  def start_uploader(job, file_id, index) do
-    {:ok, _pid} = Supervisor.start_child(__MODULE__, [job, file_id, index])
-    Worker.Chunk.upload(job.name)
+  def start_uploader(job) do
+    {:ok, _pid} = Supervisor.start_child(__MODULE__, [job])
+    Worker.Chunk.upload(job.uid.name)
   end
 end
