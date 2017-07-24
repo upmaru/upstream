@@ -38,7 +38,7 @@ defmodule Blazay.Uploader do
     job = Job.create(file_path, name, owner)
 
     file_type = if job.threads == 1,
-      do: :file, else: :large_file
+      do: :standard, else: :large
 
     start_and_register job, fn ->
       start_uploader(file_type, job)
@@ -58,11 +58,11 @@ defmodule Blazay.Uploader do
     __MODULE__.Chunk.start_uploader(job)
   end
 
-  defp start_uploader(:file, job) do
-    __MODULE__.File.start_uploader(job)
+  defp start_uploader(:standard, job) do
+    __MODULE__.StandardFile.start_uploader(job)
   end
 
-  defp start_uploader(:large_file, job) do
+  defp start_uploader(:large, job) do
     __MODULE__.LargeFile.start_uploader(job)
   end
 end

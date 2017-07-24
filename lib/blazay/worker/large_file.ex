@@ -122,21 +122,21 @@ defmodule Blazay.Worker.LargeFile do
 
     case state.current_state do
       the_state when the_state in [:started, :uploading] ->
-        Logger.info "-----> Cancelling #{state.uid.name}"
+        Logger.info "-----> Cancelling #{state.job.uid.name}"
         Task.await(cancel_upload_task(state.file_id))
         {:stop, :shutdown, state}
       :finished ->
-        Logger.info "-----> #{state.uid.name} #{Atom.to_string(state.current_state)}"
+        Logger.info "-----> #{state.job.uid.name} #{Atom.to_string(state.current_state)}"
         {:stop, :shutdown, state}
       :cancelled ->
-        Logger.info "-----> Cancelled #{state.uid.name}"
+        Logger.info "-----> Cancelled #{state.job.uid.name}"
         {:stop, :shutdown, state}
     end
   end
 
   def terminate(reason, state) do
     File.rmdir(state.temp_directory)
-    Logger.info "-----> Shutting down #{state.uid.name}"
+    Logger.info "-----> Shutting down #{state.job.uid.name}"
     reason
   end
 
