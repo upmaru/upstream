@@ -13,8 +13,6 @@ defmodule Blazay.Supervisor do
   def init(:ok) do
     children = [
       worker(Blazay.B2.Account, []),
-      Plug.Adapters.Cowboy.child_spec(:http, Blazay.Router, [], [port: 4001]),
-
       supervisor(Uploader, [])
     ]
 
