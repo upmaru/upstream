@@ -55,7 +55,6 @@ defmodule Blazay.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.11.0"},
-      {:gen_stage, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
