@@ -13,7 +13,7 @@ defmodule Blazay.Job do
 
   @type t() :: %__MODULE__{
     basename: String.t,
-    uid: map | String.t,
+    uid: map,
     full_path: String.t,
     stat: File.Stat.t,
     content_length: integer,
@@ -43,7 +43,7 @@ defmodule Blazay.Job do
       (stat.size - (content_length * threads)) + content_length
 
     %__MODULE__{
-      uid: get_uid(id) || source_path,
+      uid: get_uid(id) || %{name: source_path},
       full_path: absolute_path,
       stat: stat,
       content_length: content_length,
