@@ -14,9 +14,7 @@ defmodule Blazay.Router do
 
   plug :dispatch
 
-  require IEx
-
-  post "/upload/file" do
+  post "/file" do
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
 
@@ -28,7 +26,7 @@ defmodule Blazay.Router do
     end
   end
 
-  post "/upload/chunks/start" do
+  post "/chunks/start" do
     %{"file_name" => file_name} = conn.body_params
 
     case B2.LargeFile.start(file_name) do
@@ -39,9 +37,7 @@ defmodule Blazay.Router do
     end
   end
 
-  delete "/upload/chunks/cancel" do
-    %{"file_id" => file_id} = conn.body_params
-
+  delete "/chunks/cancel/:file_id" do
     case B2.LargeFile.cancel(file_id) do
       {:ok, cancel} ->
         render_json(conn, 200, cancel)
@@ -50,7 +46,7 @@ defmodule Blazay.Router do
     end
   end
 
-  patch "/upload/chunks/add/:file_id" do
+  patch "/chunks/add/:file_id" do
     %{"total_parts" => total_parts,
       "part_size"   => part_size,
       "part_number" => part_number} = conn.body_params
@@ -58,7 +54,7 @@ defmodule Blazay.Router do
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
 
-    Uploader.upload!(:chunk, file_id, part_number, self())
+    Uploader.upload_chunk!(path, file_id, part_number, self())
 
     case notification_loop() do
       {:success, job_name} ->
@@ -66,8 +62,15 @@ defmodule Blazay.Router do
     end
   end
 
-  post "/upload/chunks/finish" do
-    %{"file_id" => fiel_id, "sha1" => sha1} = conn.body_params
+  patch "/chunks/finish/:file_id" do
+    %{"shas" => shas} = conn.body_params
+
+    case B2.LargeFile.finish(file_id, shas) do
+      {:ok, finished} ->
+        render_json(conn, 200, finished)
+      {:error, reason} ->
+        render_json(conn, 422, reason)
+    end
   end
 
   defp render_json(conn, status, body) do

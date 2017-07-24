@@ -73,8 +73,30 @@ defmodule Blazay.Worker.Chunk do
 
   def handle_call(:finish, _from, state) do
     new_state = Map.merge(state, %{current_state: :finished})
-    send state.job.owner, {:finished, state.job.name}
+
+    if state.job.owner do
+      send state.job.owner, {:finished, state.job.name}
+    end
+
     {:reply, :finished, new_state}
+  end
+
+  def handle_call(:stop, _from, state) do
+    Status.stop(state.status)
+
+    case state.current_state do
+      the_state when the_state in [:started, :uploading] ->
+        Logger.info "-----> Cancelling #{state.job.name}"
+        {:stop, :shutdown, state}
+      :finished ->
+        Logger.info "-----> #{state.job.name} #{Atom.to_string(state.current_state)}"
+        {:stop, :shutdown, state}
+    end
+  end
+
+  def terminate(reason, state) do
+    Logger.info "-----> Shutting down #{state.job.name}"
+    reason
   end
 
   # Private Functions

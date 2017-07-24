@@ -86,7 +86,11 @@ defmodule Blazay.Worker.File do
 
   def handle_call(:finish, _from, state) do
     new_state = Map.merge(state, %{current_state: :finished})
-    send state.job.owner, {:finished, state.job.name}
+
+    if state.job.owner do
+      send state.job.owner, {:finished, state.job.name}
+    end
+    
     {:reply, :finished, new_state}
   end
 

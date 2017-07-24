@@ -23,23 +23,32 @@ defmodule Blazay.Uploader do
     supervise(children, strategy: :one_for_one)
   end
 
-  def upload!(:chunk, file_path, file_id, index, owner \\ nil) do
-    job = Job.create(file_path, "#{file_id}_#{index}", owner)
-    start_uploader(:chunk, job, file_id, index)
-    {:ok, :chunk, job.name}
+  def upload_chunk!(chunk_path, file_id, index, owner \\ nil) do
+    job = Job.create(chunk_path, "#{file_id}_#{index}", owner)
+
+    start_and_register job, fn ->
+      start_uploader(:chunk, job, file_id, index)
+      {:ok, :chunk, job.name}
+    end
   end
 
-  def upload!(file_path, name \\ nil, owner \\ nil) do
+  def upload!(file_path, name, owner \\ nil) do
     job = Job.create(file_path, name, owner)
 
-    uploader = if job.threads == 1, do: :file, else: :large_file
+    uploader = if job.threads == 1,
+      do: :file, else: :large_file
 
-    case Registry.lookup(__MODULE__.Registry, job.full_path) do
+    start_and_register job, fn ->
+      start_uploader(uploader, job)
+      {:ok, uploader, job.name}
+    end
+  end
+
+  defp start_and_register(job, on_start) do
+    case Registry.lookup(__MODULE__.Registry, job.name) do
       [{pid, nil}] ->
         {:error, :already_uploading, pid}
-      [] ->
-        start_uploader(uploader, job)
-        {:ok, uploader, job.full_path}
+      [] -> on_start.()
     end
   end
 

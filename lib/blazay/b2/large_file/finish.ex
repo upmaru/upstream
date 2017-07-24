@@ -2,7 +2,7 @@ defmodule Blazay.B2.LargeFile.Finish do
   defstruct [:file_id, :file_name, :account_id, :bucket_id, 
              :content_length, :content_sha1, :content_type, 
              :file_info, :action, :upload_timestamp]
-  
+
   @type t :: %__MODULE__{
     file_id: String.t,
     file_name: String.t,
@@ -15,7 +15,7 @@ defmodule Blazay.B2.LargeFile.Finish do
     action: String.t,
     upload_timestamp: integer
   }
-  
+
   use Blazay.B2
 
   def url(_), do: Account.api_url |> Url.generate(:finish_large_file)
