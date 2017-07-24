@@ -1,4 +1,4 @@
-defmodule Blazay.Worker.File do
+defmodule Blazay.Worker.StandardFile do
   @moduledoc """
   Worker for simple file
   """
