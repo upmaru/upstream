@@ -23,7 +23,7 @@ defmodule Blazay.Router do
     Uploader.upload!(path, filename, self())
 
     case notification_loop() do
-      {:success, job_name} -> 
+      {:success, job_name} ->
         render_json(conn, 200, %{job_name: job_name})
     end
   end
