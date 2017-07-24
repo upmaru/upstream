@@ -5,7 +5,7 @@ defmodule Blazay.B2 do
   simply call `use Blazay.B2` in the module and define the url, header, body
   and use the module to make the calls.
   """
-  
+
   defmacro __using__(_) do
     quote do
       alias Blazay.Request

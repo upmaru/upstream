@@ -47,11 +47,11 @@ defmodule Blazay.Router do
   end
 
   patch "/chunks/add/:file_id" do
-    %{"total_parts" => total_parts,
-      "part_size"   => part_size,
+    %{"total_parts" => _total_parts,
+      "part_size"   => _part_size,
       "part_number" => part_number} = conn.body_params
 
-    %{path: path, filename: filename} =
+    %{path: path, filename: _filename} =
       conn.body_params[Blazay.file_param]
 
     Uploader.upload_chunk!(path, file_id, part_number, self())
@@ -82,7 +82,7 @@ defmodule Blazay.Router do
   defp wait_for_uploader() do
     receive do
       {:finished, job_name} -> {:success, job_name}
-      _ -> notification_loop()
+      _ -> wait_for_uploader()
     end
   end
 end
