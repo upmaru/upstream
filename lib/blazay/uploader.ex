@@ -13,8 +13,9 @@ defmodule Blazay.Uploader do
 
   def init(_) do
     children = [
+      supervisor(__MODULE__.Chunk, []),
       supervisor(__MODULE__.LargeFile, []),
-      supervisor(__MODULE__.File, []),
+      supervisor(__MODULE__.StandardFile, []),
 
       supervisor(Task.Supervisor, [[name: __MODULE__.TaskSupervisor]]),
       supervisor(Registry, [:unique, __MODULE__.Registry])
