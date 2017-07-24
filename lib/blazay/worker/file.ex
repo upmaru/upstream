@@ -23,8 +23,8 @@ defmodule Blazay.Worker.File do
     case Upload.file(url.upload_url, header, body) do
       {:ok, file} ->
         Checksum.stop(checksum)
-        __MODULE__.finish(state.uid.name)
-        __MODULE__.stop(state.uid.name)
+        finish(state.uid.name)
+        stop(state.uid.name)
         {:ok, file}
       {:error, reason} -> {:error, reason}
     end

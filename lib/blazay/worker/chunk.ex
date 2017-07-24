@@ -22,8 +22,8 @@ defmodule Blazay.Worker.Chunk do
     case Upload.part(part_url.upload_url, header, body) do
       {:ok, part} ->
         Checksum.stop(checksum)
-        __MODULE__.finish(state.uid.name)
-        __MODULE__.stop(state.uid.name)
+        finish(state.uid.name)
+        stop(state.uid.name)
         {:ok, part}
       {:error, reason} -> {:error, reason}
     end
