@@ -24,7 +24,9 @@ defmodule Blazay.Uploader do
   end
 
   def upload!(:chunk, file_path, file_id, index, owner \\ nil) do
-    job = Job.create(file_path, nil, owner)
+    job = Job.create(file_path, "#{file_id}_#{index}", owner)
+    start_uploader(:chunk, job, file_id, index)
+    {:ok, :chunk, job.name}
   end
 
   def upload!(file_path, name \\ nil, owner \\ nil) do
@@ -41,8 +43,8 @@ defmodule Blazay.Uploader do
     end
   end
 
-  defp start_uploader(:chunk, job) do
-    __MODULE__.Chunk.start_uploader(job)
+  defp start_uploader(:chunk, job, file_id, index) do
+    __MODULE__.Chunk.start_uploader(job, file_id, index)
   end
 
   defp start_uploader(:file, job) do

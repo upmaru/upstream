@@ -18,7 +18,7 @@ defmodule Blazay.Worker.Chunk do
     GenServer.start_link(
       __MODULE__,
       %{job: job, file_id: file_id, index: index},
-      name: via_tuple("#{file_id}_#{index}")
+      name: via_tuple(job.name)
     )
   end
 
@@ -71,8 +71,10 @@ defmodule Blazay.Worker.Chunk do
     {:noreply, new_state}
   end
 
-  def handle_call(:finish, from, state) do
-    
+  def handle_call(:finish, _from, state) do
+    new_state = Map.merge(state, %{current_state: :finished})
+    send state.job.owner, {:finished, state.job.name}
+    {:reply, :finished, new_state}
   end
 
   # Private Functions

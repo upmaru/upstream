@@ -74,8 +74,8 @@ defmodule Blazay.Worker.File do
           Checksum.stop(checksum)
           __MODULE__.finish(state.job.name)
           __MODULE__.stop(state.job.name)
-        {:error, reason} -> 
-          {:error, reason} 
+        {:error, reason} ->
+          {:error, reason}
       end
     end
 
