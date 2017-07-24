@@ -18,7 +18,7 @@ defmodule Blazay.Router do
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
 
-    Uploader.upload!(path, filename, self())
+    Uploader.upload_file!(path, filename, self())
 
     case wait_for_uploader() do
       {:success, job_name} ->
