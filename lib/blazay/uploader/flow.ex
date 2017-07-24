@@ -8,15 +8,17 @@ defmodule Blazay.Uploader.Flow do
     Status
   }
 
-  def generate(stream, index, checksum_pid, status_pid) do
+  def generate(stream, index, checksum_pid, status_pid \\ nil) do
     last_bytes = get_last_bytes(stream)
 
     Stream.flat_map stream, fn bytes ->
       Checksum.add_bytes_to_hash(bytes, checksum_pid)
 
-      bytes
-      |> byte_size
-      |> Status.add_bytes_out(status_pid, index)
+      if status_pid do
+        bytes
+        |> byte_size
+        |> Status.add_bytes_out(status_pid, index)
+      end
 
       if bytes == last_bytes do
         [bytes, Checksum.get_hash(checksum_pid)]
