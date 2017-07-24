@@ -20,7 +20,7 @@ defmodule Blazay.Router do
 
     Uploader.upload!(path, filename, self())
 
-    case notification_loop() do
+    case wait_for_uploader() do
       {:success, job_name} ->
         render_json(conn, 200, %{job_name: job_name})
     end
@@ -56,7 +56,7 @@ defmodule Blazay.Router do
 
     Uploader.upload_chunk!(path, file_id, part_number, self())
 
-    case notification_loop() do
+    case wait_for_uploader() do
       {:success, job_name} ->
         render_json(conn, 200, %{job_name: job_name})
     end
@@ -79,7 +79,7 @@ defmodule Blazay.Router do
     |> send_resp(status, Poison.encode!(body))
   end
 
-  defp notification_loop do
+  defp wait_for_uploader() do
     receive do
       {:finished, job_name} -> {:success, job_name}
       _ -> notification_loop()
