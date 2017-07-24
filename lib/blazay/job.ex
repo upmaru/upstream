@@ -6,14 +6,14 @@ defmodule Blazay.Job do
   alias Blazay.B2.Account
   require IEx
 
-  defstruct [:name, :full_path, :basename, :stream, :content_length,
+  defstruct [:uid, :full_path, :basename, :stream, :content_length,
              :last_content_length, :stat, :threads, :owner]
 
   @stream_bytes 2048
 
   @type t() :: %__MODULE__{
     basename: String.t,
-    name: String.t,
+    uid: map | String.t,
     full_path: String.t,
     stat: File.Stat.t,
     content_length: integer,
@@ -23,7 +23,7 @@ defmodule Blazay.Job do
     owner: pid | nil
   }
 
-  def create(source_path, name, owner) do
+  def create(source_path, id, owner) do
     absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)
@@ -43,7 +43,7 @@ defmodule Blazay.Job do
       (stat.size - (content_length * threads)) + content_length
 
     %__MODULE__{
-      name: name || source_path,
+      uid: get_uid(id) || source_path,
       full_path: absolute_path,
       stat: stat,
       content_length: content_length,
@@ -54,22 +54,27 @@ defmodule Blazay.Job do
     }
   end
 
-  def recommend_thread_count(file_size) do
+  defp get_uid(id) when is_binary(id), do: %{name: id}
+  defp get_uid(id) when is_map(id), do: %{
+    file_id: id.file_id, index: id.index, name: "#{id.file_id}_#{id.index}"
+  }
+
+  defp recommend_thread_count(file_size) do
     to_integer((file_size / Account.recommended_part_size))
   end
 
-  def file_stream(absolute_path, chunk_length, threads) do
+  defp file_stream(absolute_path, chunk_length, threads) do
     stream = File.stream!(absolute_path, [], @stream_bytes)
 
     if threads == 1, do: stream,
       else: Stream.chunk(stream, chunk_length, chunk_length, [])
   end
 
-  def chunk_size(file_size, threads) do
+  defp chunk_size(file_size, threads) do
      to_integer(((to_integer((file_size / @stream_bytes))) / threads))
   end
 
-  def to_integer(float) when is_float(float) do
+  defp to_integer(float) when is_float(float) do
     float |> Float.ceil |> round
   end
 end

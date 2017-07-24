@@ -24,11 +24,13 @@ defmodule Blazay.Uploader do
   end
 
   def upload_chunk!(chunk_path, file_id, index, owner \\ nil) do
-    job = Job.create(chunk_path, "#{file_id}_#{index}", owner)
+    job = Job.create(
+      chunk_path, %{file_id: file_id, index: index}, owner
+    )
 
     start_and_register job, fn ->
       start_uploader(:chunk, job, file_id, index)
-      {:ok, :chunk, job.name}
+      {:ok, :chunk, job.uid.name}
     end
   end
 
@@ -40,12 +42,12 @@ defmodule Blazay.Uploader do
 
     start_and_register job, fn ->
       start_uploader(uploader, job)
-      {:ok, uploader, job.name}
+      {:ok, uploader, job.uid.name}
     end
   end
 
   defp start_and_register(job, on_start) do
-    case Registry.lookup(__MODULE__.Registry, job.name) do
+    case Registry.lookup(__MODULE__.Registry, job.uid.name) do
       [{pid, nil}] ->
         {:error, :already_uploading, pid}
       [] -> on_start.()
