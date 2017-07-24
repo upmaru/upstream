@@ -28,7 +28,7 @@ defmodule Blazay.Worker.LargeFile do
   # Client API
 
   def start_link(job) do
-    GenServer.start_link(__MODULE__, job, name: via_tuple(job.name))
+    GenServer.start_link(__MODULE__, job, name: via_tuple(job.uid.name))
   end
 
   def upload(job_name) do
@@ -63,7 +63,7 @@ defmodule Blazay.Worker.LargeFile do
   def init(job) do
     {:ok, status} = Status.start_link
 
-    {:ok, started} = LargeFile.start(job.name)
+    {:ok, started} = LargeFile.start(job.uid.name)
 
     temp_directory = Path.join(["tmp", started.file_id])
 
@@ -122,21 +122,21 @@ defmodule Blazay.Worker.LargeFile do
 
     case state.current_state do
       the_state when the_state in [:started, :uploading] ->
-        Logger.info "-----> Cancelling #{state.job.name}"
+        Logger.info "-----> Cancelling #{state.uid.name}"
         Task.await(cancel_upload_task(state.file_id))
         {:stop, :shutdown, state}
       :finished ->
-        Logger.info "-----> #{state.job.name} #{Atom.to_string(state.current_state)}"
+        Logger.info "-----> #{state.uid.name} #{Atom.to_string(state.current_state)}"
         {:stop, :shutdown, state}
       :cancelled ->
-        Logger.info "-----> Cancelled #{state.job.name}"
+        Logger.info "-----> Cancelled #{state.uid.name}"
         {:stop, :shutdown, state}
     end
   end
 
   def terminate(reason, state) do
     File.rmdir(state.temp_directory)
-    Logger.info "-----> Shutting down #{state.job.name}"
+    Logger.info "-----> Shutting down #{state.uid.name}"
     reason
   end
 
@@ -166,8 +166,8 @@ defmodule Blazay.Worker.LargeFile do
     Logger.info "-----> #{Status.uploaded_count(state.status)} part(s) uploaded"
 
     if Status.upload_complete?(state.status) do
-      __MODULE__.finish(state.job.name)
-      __MODULE__.stop(state.job.name)
+      __MODULE__.finish(state.uid.name)
+      __MODULE__.stop(state.uid.name)
     end
   end
 
@@ -206,7 +206,7 @@ defmodule Blazay.Worker.LargeFile do
         Status.add_uploaded({index, part.content_sha1}, status)
         File.rm!(chunked_stream.path)
       {:error, _} ->
-        Logger.info "-----> Error #{job.name} chunk: #{index}"
+        Logger.info "-----> Error #{job.uid.name} chunk: #{index}"
     end
   end
 end
