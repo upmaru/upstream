@@ -40,7 +40,17 @@ defmodule Blazay.Worker.Simple do
       end
 
       def handle_cast(:upload, state) do
-        Task.Supervisor.start_child TaskSupervisor, fn -> task(state) end
+        Task.Supervisor.start_child TaskSupervisor, fn ->
+          case task(state) do
+            {:ok, result} ->
+              finish(state.uid.name)
+              {:ok, result}
+            {:error, reason} ->
+              {:error, reason}
+          end
+
+          stop(state.uid.name)
+        end
         new_state = Map.merge(state, %{current_state: :uploading})
 
         {:noreply, new_state}
@@ -59,7 +69,7 @@ defmodule Blazay.Worker.Simple do
       def handle_call(:stop, _from, state) do
         case state.current_state do
           the_state when the_state in [:started, :uploading] ->
-            Logger.info "-----> Cancelling #{state.uid.name}"
+            Logger.info "-----> Cancelling / Errored #{state.uid.name}"
             {:stop, :shutdown, state}
           :finished ->
             Logger.info "-----> #{state.uid.name} #{Atom.to_string(state.current_state)}"

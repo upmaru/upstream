@@ -19,13 +19,10 @@ defmodule Blazay.Worker.Chunk do
 
     body = Flow.generate(state.job.stream, index, checksum)
 
-    case Upload.part(part_url.upload_url, header, body) do
-      {:ok, part} ->
-        Checksum.stop(checksum)
-        finish(state.uid.name)
-        stop(state.uid.name)
-        {:ok, part}
-      {:error, reason} -> {:error, reason}
+    try do
+      Upload.part(part_url.upload_url, header, body)
+    after
+      Checksum.stop(checksum)
     end
   end
 end
