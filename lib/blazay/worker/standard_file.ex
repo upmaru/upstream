@@ -20,13 +20,10 @@ defmodule Blazay.Worker.StandardFile do
 
     body = Flow.generate(state.job.stream, index, checksum)
 
-    case Upload.file(url.upload_url, header, body) do
-      {:ok, file} ->
-        Checksum.stop(checksum)
-        finish(state.uid.name)
-        stop(state.uid.name)
-        {:ok, file}
-      {:error, reason} -> {:error, reason}
+    try  do
+      Upload.file(url.upload_url, header, body)
+    after
+      Checksum.stop(checksum)
     end
   end
 end
