@@ -18,7 +18,6 @@ defmodule Blazay.Worker.LargeFile do
 
   # Server Callbacks
 
-
   def handle_call(:cancel, _from, state) do
     {:ok, cancelled} = LargeFile.cancel(state.file_id)
     new_state = Map.merge(state, %{current_state: :cancelled})
