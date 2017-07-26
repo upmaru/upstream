@@ -18,21 +18,20 @@ defmodule Blazay.Worker.LargeFile do
 
   # Server Callbacks
 
-  def init(job) do
+  defp handle_setup(state) do
     {:ok, status} = Status.start_link
 
-    {:ok, started} = LargeFile.start(job.uid.name)
+    {:ok, started} = LargeFile.start(state.uid.name)
 
     temp_directory = Path.join(["tmp", started.file_id])
 
-    {File.mkdir_p!(temp_directory), %{
-      job: job,
-      uid: job.uid,
+    File.mkdir_p!(temp_directory)
+
+    Map.merge(state, %{
       file_id: started.file_id,
       temp_directory: temp_directory,
-      status: status,
-      current_state: :started
-    }}
+      status: status
+    })
   end
 
   def handle_call(:cancel, _from, state) do
@@ -54,23 +53,16 @@ defmodule Blazay.Worker.LargeFile do
     Stream.run(stream)
 
     Logger.info "-----> #{Status.uploaded_count(state.status)} part(s) uploaded"
-    finish_large_file(state)
+    sha1_array = Status.get_uploaded_sha1(state.status)
+    LargeFile.finish(state.file_id, sha1_array)
   end
 
-  defp before_stopping(state) do
+  defp handle_stop(state) do
     Status.stop(state.status)
     File.rmdir(state.temp_directory)
 
     if state.current_state in [:started, :uploading],
       do: LargeFile.cancel(state.file_id)
-  end
-
-  defp finish_large_file(state) do
-    sha1_array = Status.get_uploaded_sha1(state.status)
-    case LargeFile.finish(state.file_id, sha1_array) do
-      {:ok, result} -> finish(state.uid.name, result)
-      {:error, reason} -> error(state.uid.name, reason)
-    end
   end
 
   defp chunk_streams(stream, temp_directory) do
