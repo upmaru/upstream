@@ -70,6 +70,8 @@ defmodule Blazay.Worker.LargeFile do
       do: LargeFile.cancel(state.file_id)
   end
 
+  # Private Functions
+
   defp chunk_streams(stream, temp_directory) do
     stream
     |> Stream.with_index
