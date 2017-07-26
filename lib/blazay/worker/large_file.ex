@@ -18,21 +18,6 @@ defmodule Blazay.Worker.LargeFile do
 
   # Server Callbacks
 
-  defp handle_setup(state) do
-    {:ok, status} = Status.start_link
-
-    {:ok, started} = LargeFile.start(state.uid.name)
-
-    temp_directory = Path.join(["tmp", started.file_id])
-
-    File.mkdir_p!(temp_directory)
-
-    Map.merge(state, %{
-      file_id: started.file_id,
-      temp_directory: temp_directory,
-      status: status
-    })
-  end
 
   def handle_call(:cancel, _from, state) do
     {:ok, cancelled} = LargeFile.cancel(state.file_id)
@@ -40,6 +25,8 @@ defmodule Blazay.Worker.LargeFile do
 
     {:reply, cancelled, new_state}
   end
+
+  # Blazay.Worker.Base Callbacks
 
   def task(state) do
     stream = Task.Supervisor.async_stream(
@@ -55,6 +42,24 @@ defmodule Blazay.Worker.LargeFile do
     Logger.info "-----> #{Status.uploaded_count(state.status)} part(s) uploaded"
     sha1_array = Status.get_uploaded_sha1(state.status)
     LargeFile.finish(state.file_id, sha1_array)
+  end
+
+  ## Private Callbacks
+
+  defp handle_setup(state) do
+    {:ok, status} = Status.start_link
+
+    {:ok, started} = LargeFile.start(state.uid.name)
+
+    temp_directory = Path.join(["tmp", started.file_id])
+
+    File.mkdir_p!(temp_directory)
+
+    Map.merge(state, %{
+      file_id: started.file_id,
+      temp_directory: temp_directory,
+      status: status
+    })
   end
 
   defp handle_stop(state) do
