@@ -42,7 +42,7 @@ defmodule Blazay.Worker.Base do
       # Server Callbacks
 
       def init(job) do
-        {:ok, %{job: job, uid: job.uid, current_state: :started}}
+        {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
       def handle_cast(:upload, state) do
@@ -83,7 +83,7 @@ defmodule Blazay.Worker.Base do
       end
 
       def handle_call(:stop, _from, state) do
-        before_stopping(state)
+        handle_stop(state)
 
         case state.current_state do
           the_state when the_state in [:started, :uploading] ->
@@ -108,13 +108,14 @@ defmodule Blazay.Worker.Base do
 
       # Private functions
 
-      defp before_stopping(state), do: nil
+      defp handle_stop(state), do: nil
+      defp handle_setup(state), do: state
 
       defp via_tuple(job_name) do
         {:via, Registry, {Blazay.Uploader.Registry, job_name}}
       end
 
-      defoverridable [init: 1, before_stopping: 1]
+      defoverridable [init: 1, handle_stop: 1, handle_setup: 1]
     end
   end
 
