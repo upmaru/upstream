@@ -8,7 +8,7 @@ defmodule Blazay.B2.Upload.Part do
     content_sha1: String.t
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(upload_url) when is_binary(upload_url), do: upload_url
 

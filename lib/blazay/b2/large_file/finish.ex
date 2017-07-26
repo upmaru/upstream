@@ -16,15 +16,15 @@ defmodule Blazay.B2.LargeFile.Finish do
     upload_timestamp: integer
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
-  def url(_), do: Account.api_url |> Url.generate(:finish_large_file)
+  def url(_), do: Url.generate(Account.api_url, :finish_large_file)
 
   def body(body) do
     file_id = Keyword.get(body, :file_id)
     sha1_array = Keyword.get(body, :sha1_array)
-    
-    %{ 
+
+    %{
       fileId: file_id,
       partSha1Array: sha1_array
     }

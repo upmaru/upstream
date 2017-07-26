@@ -24,7 +24,7 @@ defmodule Blazay.B2.Account.Authorization do
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(_), do: Url.generate(:authorize_account)
     

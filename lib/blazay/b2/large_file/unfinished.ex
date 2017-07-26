@@ -6,7 +6,7 @@ defmodule Blazay.B2.LargeFile.Unfinished do
     next_file_id: String.t
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(_), do: Account.api_url |> Url.generate(:list_unfinished_large_files)
 

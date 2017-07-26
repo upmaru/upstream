@@ -19,7 +19,7 @@ defmodule Blazay.B2.LargeFile.Start do
     upload_timestamp: integer
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(_), do: Url.generate(Account.api_url, :start_large_file)
 

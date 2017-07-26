@@ -11,7 +11,7 @@ defmodule Blazay.B2.Upload.PartUrl do
     authorization_token: String.t
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(_), do: Url.generate(Account.api_url, :get_upload_part_url)
 

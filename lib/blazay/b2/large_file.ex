@@ -1,8 +1,12 @@
 defmodule Blazay.B2.LargeFile do
+  @moduledoc """
+  Public facing api for B2 LargeFile
+  """
+
   alias Blazay.B2.LargeFile.{
     Start,
     Cancel,
-    Finish, 
+    Finish,
     Unfinished
   }
 
@@ -15,7 +19,17 @@ defmodule Blazay.B2.LargeFile do
   end
 
   def finish(file_id, sha1_array) do
-    Finish.call(body: [file_id: file_id, sha1_array: sha1_array])
+    Finish.call(
+      body: [
+        file_id: file_id,
+        sha1_array: sha1_array
+      ],
+      options: [
+        timeout: :infinity,
+        recv_timeout: :infinity,
+        connect_timeout: :infinity
+      ]
+    )
   end
 
   @spec cancel(String.t) :: {:ok | :error, %Cancel{} | struct}
