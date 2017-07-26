@@ -1,4 +1,7 @@
 defmodule Blazay.B2.Url do
+  @moduledoc """
+  Url generation utility for b2
+  """
   import Enum, only: [join: 2]
 
   def generate(name), do: generate(Blazay.base_api, name)

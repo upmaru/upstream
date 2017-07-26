@@ -3,7 +3,7 @@ defmodule Blazay.Uploader.Flow do
   Generates the chunks stream for Worker.File and Worker.LargeFile
   """
 
-  alias Blazay.Worker.{
+  alias Blazay.Uploader.{
     Checksum,
     Status
   }

@@ -1,4 +1,4 @@
-defmodule Blazay.Worker.Status do
+defmodule Blazay.Uploader.Status do
   @moduledoc """
   used to track the status of the upload process
   """

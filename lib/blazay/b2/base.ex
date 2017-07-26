@@ -1,6 +1,6 @@
-defmodule Blazay.B2 do
+defmodule Blazay.B2.Base do
   @moduledoc """
-  B2 module for using in the api call definitions
+  Base B2 module for using in the api call definitions
 
   simply call `use Blazay.B2` in the module and define the url, header, body
   and use the module to make the calls.
@@ -24,9 +24,9 @@ defmodule Blazay.B2 do
 
         Request.post(
           %__MODULE__{},
-          __MODULE__.url(url_option),
-          process_body(__MODULE__.body(body_option)),
-          __MODULE__.header(header_option),
+          url(url_option),
+          process_body(body(body_option)),
+          header(header_option),
           request_options
         )
       end

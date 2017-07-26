@@ -7,7 +7,15 @@ defmodule Blazay.Request do
 
   @spec post(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
   def post(caller_struct, url, body, headers, options \\ []) do
-    case HTTPoison.post(url, body, headers, options) do
+    default_options = [
+      timeout: :infinity,
+      recv_timeout: :infinity,
+      connect_timeout: :infinity
+    ]
+
+    merged_options = Keyword.merge(default_options, options)
+
+    case HTTPoison.post(url, body, headers, merged_options) do
       {:ok, response = %HTTPoison.AsyncResponse{id: _id}} ->
         {:ok, response}
       {:ok, %{status_code: 200, body: body}} ->

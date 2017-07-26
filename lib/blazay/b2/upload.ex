@@ -1,4 +1,7 @@
 defmodule Blazay.B2.Upload do
+  @moduledoc """
+  Public api for B2.Upload
+  """
   alias Blazay.B2.Upload.{
     PartUrl,
     Part,

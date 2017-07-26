@@ -16,7 +16,7 @@ defmodule Blazay.B2.Upload.File do
     upload_timestamp: integer,
   }
 
-  use Blazay.B2
+  use Blazay.B2.Base
 
   def url(upload_url) when is_binary(upload_url), do: upload_url
 
