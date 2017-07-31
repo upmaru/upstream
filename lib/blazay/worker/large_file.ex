@@ -50,9 +50,10 @@ defmodule Blazay.Worker.LargeFile do
 
     {:ok, started} = LargeFile.start(state.uid.name)
 
-    ["tmp", started.file_id]
-    |> Path.join
-    |> File.mkdir_p!
+    temp_directory =
+      ["tmp", started.file_id]
+      |> Path.join
+      |> File.mkdir_p!
 
     Map.merge(state, %{
       file_id: started.file_id,
