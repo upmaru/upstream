@@ -1,4 +1,8 @@
 defmodule Blazay.B2.Upload.Part do
+  @moduledoc """
+  Handle uploading of part
+  """
+
   defstruct [:file_id, :part_number, :content_length, :content_sha1]
 
   @type t :: %__MODULE__{
