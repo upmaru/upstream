@@ -47,9 +47,7 @@ defmodule Blazay.Router do
   end
 
   patch "/chunks/add/:file_id" do
-    %{"total_parts" => _total_parts,
-      "part_size"   => _part_size,
-      "part_number" => part_number} = conn.body_params
+    part_number = conn.body_params["part_number"]
 
     %{path: path, filename: _filename} =
       conn.body_params[Blazay.file_param]

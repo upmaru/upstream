@@ -1,4 +1,8 @@
 defmodule Blazay.B2.Upload.PartUrl do
+  @moduledoc """
+  Gets the part URL from B2
+  """
+  
   defstruct [
     :file_id,
     :upload_url,
