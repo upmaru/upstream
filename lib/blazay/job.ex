@@ -43,8 +43,6 @@ defmodule Blazay.Job do
     last_content_length =
       (stat.size - (content_length * threads)) + content_length
 
-    IO.puts content_length
-
     %__MODULE__{
       uid: get_uid(params) || %{name: source_path},
       full_path: absolute_path,
