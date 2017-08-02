@@ -23,6 +23,8 @@ defmodule Blazay.Router do
     case wait_for_uploader() do
       {:ok, result} ->
         render_json(conn, 200, result)
+      {:error, reason} ->
+        render_json(conn, 422, reason)
     end
   end
 
@@ -51,14 +53,26 @@ defmodule Blazay.Router do
       conn.body_params["part_number"]
     )
 
+    chunk_size = String.to_integer(
+      conn.body_params["chunk_size"]
+    )
+
     %{path: path, filename: _filename} =
       conn.body_params[Blazay.file_param]
 
-    Uploader.upload_chunk!(path, file_id, part_number, self())
+    upload_params = %{
+      file_id: file_id,
+      part_number: part_number,
+      chunk_size: chunk_size
+    }
+
+    Uploader.upload_chunk!(path, upload_params, self())
 
     case wait_for_uploader() do
       {:ok, result} ->
         render_json(conn, 200, result)
+      {:error, reason} ->
+        render_json(conn, 422, reason)
     end
   end
 
@@ -82,6 +96,7 @@ defmodule Blazay.Router do
   defp wait_for_uploader() do
     receive do
       {:finished, result} -> {:ok, result}
+      {:errored, reason} -> {:error, reason}
       _ -> wait_for_uploader()
     end
   end

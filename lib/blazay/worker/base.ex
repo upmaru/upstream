@@ -76,7 +76,7 @@ defmodule Blazay.Worker.Base do
         })
 
         if state.job.owner do
-          send state.job.owner, {:errored, state.uid.name}
+          send state.job.owner, {:errored, reason}
         end
 
         {:reply, :errored, new_state}

@@ -23,7 +23,7 @@ defmodule Blazay.Job do
     owner: pid | nil
   }
 
-  def create(source_path, id, owner) do
+  def create(source_path, params, owner) do
     absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)
@@ -36,14 +36,17 @@ defmodule Blazay.Job do
     stream = file_stream(absolute_path, chunk_length, threads)
 
     # calculate the content_length
-    content_length = chunk_length * @stream_bytes
+    content_length =
+      get_content_length(params) || chunk_length * @stream_bytes
 
     # content_length of the last thread
     last_content_length =
       (stat.size - (content_length * threads)) + content_length
 
+    IO.puts content_length
+
     %__MODULE__{
-      uid: get_uid(id) || %{name: source_path},
+      uid: get_uid(params) || %{name: source_path},
       full_path: absolute_path,
       stat: stat,
       content_length: content_length,
@@ -54,9 +57,9 @@ defmodule Blazay.Job do
     }
   end
 
-  defp get_uid(id) when is_binary(id), do: %{name: id}
-  defp get_uid(id) when is_map(id), do: %{
-    file_id: id.file_id, index: id.index, name: "#{id.file_id}_#{id.index}"
+  defp get_uid(params) when is_binary(params), do: %{name: params}
+  defp get_uid(params) when is_map(params), do: %{
+    file_id: params.file_id, index: params.index, name: "#{params.file_id}_#{params.index}"
   }
 
   defp recommend_thread_count(file_size) do
@@ -68,6 +71,11 @@ defmodule Blazay.Job do
 
     if threads == 1, do: stream,
       else: Stream.chunk(stream, chunk_length, chunk_length, [])
+  end
+
+  defp get_content_length(params) do
+    if Map.has_key?(params, :content_length),
+      do: params.content_length, else: nil
   end
 
   defp chunk_size(file_size, threads) do
