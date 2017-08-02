@@ -21,8 +21,8 @@ defmodule Blazay.Router do
     Uploader.upload_file!(path, filename, self())
 
     case wait_for_uploader() do
-      {:success, job_name} ->
-        render_json(conn, 200, %{job_name: job_name})
+      {:ok, result} ->
+        render_json(conn, 200, result)
     end
   end
 
@@ -57,8 +57,8 @@ defmodule Blazay.Router do
     Uploader.upload_chunk!(path, file_id, part_number, self())
 
     case wait_for_uploader() do
-      {:success, job_name} ->
-        render_json(conn, 200, %{job_name: job_name})
+      {:ok, result} ->
+        render_json(conn, 200, result)
     end
   end
 
@@ -81,7 +81,7 @@ defmodule Blazay.Router do
 
   defp wait_for_uploader() do
     receive do
-      {:finished, job_name} -> {:success, job_name}
+      {:finished, result} -> {:ok, result}
       _ -> wait_for_uploader()
     end
   end
