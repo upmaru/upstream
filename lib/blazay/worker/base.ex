@@ -64,7 +64,7 @@ defmodule Blazay.Worker.Base do
         })
 
         if state.job.owner do
-          send state.job.owner, {:finished, state.uid.name}
+          send state.job.owner, {:finished, result}
         end
 
         {:reply, :finished, new_state}
