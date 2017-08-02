@@ -7,7 +7,7 @@ defmodule Blazay.Mixfile do
   def project do
     [
       app: :blazay,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -27,7 +27,7 @@ defmodule Blazay.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [ 
+    [
       mod: {Blazay, []},
       extra_applications: [
         :cowboy,
