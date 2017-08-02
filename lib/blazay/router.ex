@@ -5,6 +5,8 @@ defmodule Blazay.Router do
   alias Blazay.Uploader
   alias Blazay.B2
 
+  require IEx
+
   plug :match
 
   plug Plug.Parsers,
@@ -22,9 +24,9 @@ defmodule Blazay.Router do
 
     case wait_for_uploader() do
       {:ok, result} ->
-        render_json(conn, 200, result)
+        render_json(conn, 200, Map.merge(%{success: true}, result))
       {:error, reason} ->
-        render_json(conn, 422, reason)
+        render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
   end
 
@@ -62,17 +64,17 @@ defmodule Blazay.Router do
 
     upload_params = %{
       file_id: file_id,
-      part_number: part_number,
-      chunk_size: chunk_size
+      index: part_number,
+      content_length: chunk_size
     }
 
     Uploader.upload_chunk!(path, upload_params, self())
 
     case wait_for_uploader() do
       {:ok, result} ->
-        render_json(conn, 200, result)
+        render_json(conn, 200, Map.merge(%{success: true}, result))
       {:error, reason} ->
-        render_json(conn, 422, reason)
+        render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
   end
 
