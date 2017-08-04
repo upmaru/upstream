@@ -50,22 +50,18 @@ defmodule Blazay.Router do
     end
   end
 
-  patch "/chunks/add/:file_id" do
-    part_number = String.to_integer(
-      conn.body_params["part_number"]
-    )
-
-    chunk_size = String.to_integer(
-      conn.body_params["chunk_size"]
-    )
+  patch "/chunks/add" do
+    %{"file_id" => file_id,
+      "part_number" => part_number,
+      "chunk_size" => chunk_size} = conn.body_params
 
     %{path: path, filename: _filename} =
       conn.body_params[Blazay.file_param]
 
     upload_params = %{
       file_id: file_id,
-      index: part_number,
-      content_length: chunk_size
+      index: String.to_integer(part_number),
+      content_length: String.to_integer(chunk_size)
     }
 
     Uploader.upload_chunk!(path, upload_params, self())
@@ -78,14 +74,14 @@ defmodule Blazay.Router do
     end
   end
 
-  patch "/chunks/finish/:file_id" do
-    %{"shas" => shas} = conn.body_params
+  post "/chunks/finish" do
+    %{"file_id" => file_id, "shas" => shas} = conn.body_params
 
-    case B2.LargeFile.finish(file_id, shas) do
-      {:ok, finished} ->
-        render_json(conn, 200, finished)
+    case B2.LargeFile.finish(file_id, Enum.map(shas, fn {_k, v} -> v end)) do
+      {:ok, result} ->
+        render_json(conn, 200, Map.merge(%{success: true}, result))
       {:error, reason} ->
-        render_json(conn, 422, reason)
+        render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
   end
 
