@@ -1,4 +1,8 @@
 defmodule Blazay.B2.Account.Authorization do
+  @moduledoc """
+  Handles Authorization of B2 account.
+  """
+
   defstruct [
     :account_id, 
     :authorization_token, 
@@ -27,12 +31,12 @@ defmodule Blazay.B2.Account.Authorization do
   use Blazay.B2.Base
 
   def url(_), do: Url.generate(:authorize_account)
-    
+
   def header do
     encoded = "Basic " <> Base.encode64(
       Blazay.config(:account_id) <> ":" <> Blazay.config(:application_key)
     )
-    
+
     [{"Authorization", encoded}]
   end
 end

@@ -1,4 +1,8 @@
 defmodule Blazay.B2.LargeFile.Cancel do
+  @moduledoc """
+  Call to cancel un-finished large_files
+  """
+
   defstruct [:file_id, :account_id, :bucket_id, :file_name]
 
   @type t :: %__MODULE__{
@@ -10,7 +14,7 @@ defmodule Blazay.B2.LargeFile.Cancel do
 
   use Blazay.B2.Base
 
-  def url(_), do: Account.api_url |> Url.generate(:cancel_large_file)
-  
-  def body(file_id) when is_binary(file_id), do: %{ fileId: file_id }
+  def url(_), do:  Url.generate(Account.api_url, :cancel_large_file)
+
+  def body(file_id) when is_binary(file_id), do: %{fileId: file_id}
 end
