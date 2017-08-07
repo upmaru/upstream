@@ -5,6 +5,10 @@ defmodule Blazay do
   It specifically integrates with backblaze b2 object store service.
   """
 
+  def start(_type, _args) do
+    Blazay.Supervisor.start_link()
+  end
+
   @doc """
   Blazay.base_api returns the base api string
 
@@ -13,10 +17,6 @@ defmodule Blazay do
     iex> Blazay.base_api
     "https://api.backblazeb2.com"
   """
-  def start(_type, _args) do
-    Blazay.Supervisor.start_link()
-  end
-
   @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
 
