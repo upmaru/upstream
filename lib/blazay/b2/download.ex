@@ -7,6 +7,8 @@ defmodule Blazay.B2.Download do
     Authorization
   }
 
+  alias Blazay.B2.Account
+
   def authorize(prefix, duration) do
     Authorization.call(
       body: [
@@ -16,6 +18,10 @@ defmodule Blazay.B2.Download do
   end
 
   def url(file_name, authorization) do
-    
+    file_url = Enum.join(
+      [Account.download_url, "file", Blazay.config(:bucket_name), file_name], "/"
+    )
+
+    file_url <> "?Authorization=" <> authorization
   end
 end
