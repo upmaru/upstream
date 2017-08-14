@@ -23,11 +23,6 @@ defmodule Blazay.B2.LargeFile do
       body: [
         file_id: file_id,
         sha1_array: sha1_array
-      ],
-      options: [
-        timeout: :infinity,
-        recv_timeout: :infinity,
-        connect_timeout: :infinity
       ]
     )
   end

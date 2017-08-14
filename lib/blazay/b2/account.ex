@@ -23,6 +23,7 @@ defmodule Blazay.B2.Account do
   def api_url, do: authorization().api_url
   def minimum_part_size, do: authorization().minimum_part_size
   def recommended_part_size, do: authorization().recommended_part_size
+  def download_url, do: authorization().download_url
 
   def authorization_header do
     token = authorization().authorization_token

@@ -1,4 +1,8 @@
 defmodule Blazay.B2.LargeFile.Start do
+  @moduledoc """
+  Start a large file upload
+  """
+  
   defstruct [
     :file_id,
     :file_name,
