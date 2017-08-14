@@ -16,10 +16,6 @@ defmodule Blazay.Router do
 
   plug :dispatch
 
-  get "/download/:file_name" do
-    
-  end
-
   post "/file" do
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
