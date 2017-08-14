@@ -15,11 +15,11 @@ defmodule Blazay.B2.Download.Authorization do
 
   def url(_), do: Url.generate(Account.api_url, :get_download_authorization)
 
-  def body(prefix, duration) do
+  def body(body) do
     %{
       bucketId: Blazay.config(:bucket_id),
-      fileNamePrefix: prefix,
-      validDurationInSeconds: duration
+      fileNamePrefix: Keyword.get(body, :prefix),
+      validDurationInSeconds: Keyword.get(body, :duration)
     }
   end
 end
