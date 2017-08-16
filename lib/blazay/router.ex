@@ -17,7 +17,7 @@ defmodule Blazay.Router do
   post "/file" do
     %{"file_name" => file_name} = conn.body_params
 
-    %{path: path, filename: filename} =
+    %{path: path, filename: _filename} =
       conn.body_params[Blazay.file_param]
 
     Uploader.upload_file!(path, file_name, self())
