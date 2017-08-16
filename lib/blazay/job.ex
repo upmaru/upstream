@@ -71,7 +71,8 @@ defmodule Blazay.Job do
       else: Stream.chunk(stream, chunk_length, chunk_length, [])
   end
 
-  defp get_content_length(params) do
+  defp get_content_length(params) when is_binary(params), do: nil
+  defp get_content_length(params) when is_map(params) do
     if Map.has_key?(params, :content_length),
       do: params.content_length, else: nil
   end

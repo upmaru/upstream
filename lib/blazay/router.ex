@@ -5,8 +5,6 @@ defmodule Blazay.Router do
   alias Blazay.Uploader
   alias Blazay.B2
 
-  require IEx
-
   plug :match
 
   plug Plug.Parsers,
@@ -17,10 +15,12 @@ defmodule Blazay.Router do
   plug :dispatch
 
   post "/file" do
+    %{"file_name" => file_name} = conn.body_params
+
     %{path: path, filename: filename} =
       conn.body_params[Blazay.file_param]
 
-    Uploader.upload_file!(path, filename, self())
+    Uploader.upload_file!(path, file_name, self())
 
     case wait_for_uploader() do
       {:ok, result} ->
