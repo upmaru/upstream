@@ -1,6 +1,8 @@
 # Blazay
 
-**TODO: Add description**
+Module for handling file upload can be mounted in any `Phoenix` app via the phoenix router.
+
+It supports simple single thread uploading or multi-threaded uploading provided the client supports it. More details coming soon, as we add tests and finalize the module.
 
 ## Installation
 
