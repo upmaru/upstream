@@ -17,7 +17,10 @@ defmodule Blazay.CDN do
     render_json(conn, 200, %{
       id: authorization.authorization_token,
       sequences: [%{
-        clips: [%{type: "source", path: Enum.join(location, "/")}]
+        clips: [%{
+          type: "source", 
+          path: Enum.join(location, "/")
+        }]
       }]
     })
   end
