@@ -4,8 +4,6 @@ defmodule Blazay.CDN do
   plug :match
   plug :dispatch
 
-  require IEx
-
   get "/:prefix/*path" do
     {:ok, %{authorization_token: token}} =
       Blazay.B2.Download.authorize(prefix, 3600)
