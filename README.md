@@ -11,7 +11,7 @@ by adding `blazay` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:blazay, "~> 0.1.0"}]
+  [{:blazay, "~> 1.1.0"}]
 end
 ```
 
