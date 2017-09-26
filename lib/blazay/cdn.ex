@@ -6,20 +6,21 @@ defmodule Blazay.CDN do
 
   require IEx
 
-  get "/nimbus/:prefix/*path" do
+  get "/:prefix/*path" do
     {:ok, %{authorization_token: token}} =
       Blazay.B2.Download.authorize(prefix, 3600)
 
     location =
-      [token, Blazay.config(:bucket_name), 
-       prefix, List.flatten(path)]
+      ["/" <> Blazay.config(:bucket_name), 
+       prefix, path, token]
+      |> List.flatten
+      |> Enum.join("/")
 
     render_json(conn, 200, %{
-      id: authorization.authorization_token,
       sequences: [%{
         clips: [%{
           type: "source", 
-          path: Enum.join(location, "/")
+          path: location
         }]
       }]
     })
