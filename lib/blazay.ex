@@ -20,8 +20,7 @@ defmodule Blazay do
   @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
 
-  @config Application.get_env(:blazay, Blazay)
-  def config, do: @config
+  def config, do: Application.get_env(:blazay, Blazay)
 
   @concurrency 2
   def concurrency, do: config(:concurrency) || @concurrency
