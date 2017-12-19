@@ -1,4 +1,4 @@
-defmodule Blazay.Upload do
+defmodule Blazay.Upstream do
   import Blazay.Endpoint
 
   use Plug.Router
