@@ -1,5 +1,6 @@
-defmodule Blazay.Router do
-  import Plug.Conn
+defmodule Blazay.Upload do
+  import Blazay.Endpoint
+
   use Plug.Router
 
   alias Blazay.Uploader
@@ -83,12 +84,6 @@ defmodule Blazay.Router do
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
-  end
-
-  defp render_json(conn, status, body) do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(status, Poison.encode!(body))
   end
 
   defp wait_for_uploader() do
