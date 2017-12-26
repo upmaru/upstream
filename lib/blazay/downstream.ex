@@ -1,4 +1,8 @@
 defmodule Blazay.Downstream do
+  @moduledoc """
+  Represents the downstream json creation for VOD HLS Player
+  """
+
   import Blazay.Endpoint
   use Plug.Router
 
@@ -11,7 +15,7 @@ defmodule Blazay.Downstream do
     render_json(conn, 200, %{
       sequences: [%{
         clips: [%{
-          type: "source", 
+          type: "source",
           path: get_location(prefix, path)
         }]
       }]
@@ -22,7 +26,7 @@ defmodule Blazay.Downstream do
     {:ok, %{authorization_token: token}} =
       B2.Download.authorize(prefix, 3600)
 
-    ["/" <> Blazay.config(:bucket_name), 
+    ["/" <> Blazay.config(:bucket_name),
       prefix, path, token]
     |> List.flatten
     |> Enum.join("/")
