@@ -5,14 +5,19 @@ defmodule Blazay.Supervisor do
   use Supervisor
 
   alias Blazay.Uploader
+  alias Blazay.B2.Account
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  def stop do
+    Supervisor.stop(__MODULE__, :normal)
+  end
+
   def init(:ok) do
     children = [
-      worker(Blazay.B2.Account, []),
+      worker(Account, []),
       supervisor(Uploader, [])
     ]
 
