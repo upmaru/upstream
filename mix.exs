@@ -74,7 +74,7 @@ defmodule Blazay.Mixfile do
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       maintainers: ["Zack Siri"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/artellectual/blazay"}
+      links: %{"GitHub" => "https://github.com/upmaru/blazay"}
     ]
   end
 end
