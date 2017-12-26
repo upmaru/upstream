@@ -8,7 +8,13 @@ defmodule Blazay.B2.Account do
   require Logger
 
   def start_link do
-    Agent.start_link(&authorize/0, name: __MODULE__)
+    case Application.fetch_env(:blazay, Blazay) do
+      {:ok, _config} ->
+        Agent.start_link(&authorize/0, name: __MODULE__)
+      :error ->
+        Logger.info "No config set, your Uploaders won't work. (╯°□°）╯︵ ┻━┻"
+        Agent.start_link(fn -> {:error, :no_config_set} end, name: __MODULE__)
+    end
   end
 
   @spec authorization :: %Authorization{}
@@ -17,7 +23,15 @@ defmodule Blazay.B2.Account do
   the data required.
   """
   def authorization do
-    Agent.get(__MODULE__, fn authorization -> authorization end)
+    Agent.get(__MODULE__, &ensure_correct_auth_data/1)
+  end
+
+  defp ensure_correct_auth_data(auth) do
+    case auth do
+      %Authorization{} -> auth
+      {:error, :no_config_set} ->
+        raise "No Configuration Set"
+    end
   end
 
   def api_url, do: authorization().api_url
