@@ -5,6 +5,8 @@ defmodule Blazay do
   It specifically integrates with backblaze b2 object store service.
   """
 
+  require Logger
+
   def start(_type, _args) do
     Blazay.Supervisor.start_link()
   end
