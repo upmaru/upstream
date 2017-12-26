@@ -8,8 +8,6 @@ defmodule Blazay.Worker.LargeFile do
   alias Blazay.B2.LargeFile
   alias Blazay.Worker.Chunk
 
-  require IEx
-
   # Client API
 
   def cancel(job_name) do

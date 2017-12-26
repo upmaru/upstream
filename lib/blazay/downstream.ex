@@ -7,7 +7,7 @@ defmodule Blazay.Downstream do
   plug :match
   plug :dispatch
 
-  get "/vod/:prefix/*path" do
+  get "/:prefix/*path" do
     render_json(conn, 200, %{
       sequences: [%{
         clips: [%{
@@ -15,12 +15,6 @@ defmodule Blazay.Downstream do
           path: get_location(prefix, path)
         }]
       }]
-    })
-  end
-
-  get "/download/:prefix/*path" do
-    render_json(conn, 200, %{
-      data: %{ url: get_location(prefix, path) }
     })
   end
 
