@@ -4,11 +4,15 @@ defmodule Blazay.Supervisor do
   """
   use Supervisor
 
-  alias Blazay.B2.Account
   alias Blazay.Uploader
+  alias Blazay.B2.Account
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  def stop do
+    Supervisor.stop(__MODULE__, :normal)
   end
 
   def init(:ok) do
@@ -17,6 +21,6 @@ defmodule Blazay.Supervisor do
       supervisor(Uploader, [])
     ]
 
-    supervise(children, strategy: :simple_one_for_one, name: __MODULE__)
+    supervise(children, strategy: :one_for_one, name: __MODULE__)
   end
 end
