@@ -37,4 +37,11 @@ defmodule Blazay do
     Keyword.fetch!(Blazay.config, :account_id)
   """
   def config(key), do: Keyword.get(config(), key, nil)
+
+  def set_config(config) do
+    Logger.info "-----> Setting config and restarting Blazay"
+    with :ok <- Application.put_env(:blazay, Blazay, config),
+         :ok <- Blazay.Supervisor.stop(),
+         do: Blazay.Supervisor.start_link()
+  end
 end
