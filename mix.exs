@@ -7,7 +7,7 @@ defmodule Blazay.Mixfile do
   def project do
     [
       app: :blazay,
-      version: "1.1.6",
+      version: "1.2.0",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
