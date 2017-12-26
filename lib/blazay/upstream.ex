@@ -1,4 +1,8 @@
 defmodule Blazay.Upstream do
+  @moduledoc """
+  Provides the Endpoints for uploading
+  """
+
   import Blazay.Endpoint
 
   use Plug.Router

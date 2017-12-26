@@ -9,7 +9,7 @@ defmodule Blazay.B2.Download do
 
   alias Blazay.B2.Account
 
-  def authorize(prefix, duration) do
+  def authorize(prefix, duration \\ 3600) do
     Authorization.call(
       body: [
         prefix: prefix, duration: duration

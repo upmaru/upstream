@@ -4,9 +4,9 @@ defmodule Blazay.B2.Account.Authorization do
   """
 
   defstruct [
-    :account_id, 
-    :authorization_token, 
-    :api_url, 
+    :account_id,
+    :authorization_token,
+    :api_url,
     :download_url,
     :recommended_part_size,
     :absolute_minimum_part_size
