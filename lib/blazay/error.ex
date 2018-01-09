@@ -1,4 +1,4 @@
-defmodule Blazay.Error do
+defmodule Upstream.Error do
   @moduledoc """
   for handling error from the b2 server calls
   """

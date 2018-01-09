@@ -1,4 +1,4 @@
-defmodule Blazay.B2.Download.Authorization do
+defmodule Upstream.B2.Download.Authorization do
   @moduledoc """
   This will get_download_authorization for us
   """
@@ -11,13 +11,13 @@ defmodule Blazay.B2.Download.Authorization do
     authorization_token: String.t
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(_), do: Url.generate(Account.api_url, :get_download_authorization)
 
   def body(body) do
     %{
-      bucketId: Blazay.config(:bucket_id),
+      bucketId: Upstream.config(:bucket_id),
       fileNamePrefix: Keyword.get(body, :prefix),
       validDurationInSeconds: Keyword.get(body, :duration)
     }

@@ -1,4 +1,4 @@
-defmodule Blazay.B2.LargeFile.Start do
+defmodule Upstream.B2.LargeFile.Start do
   @moduledoc """
   Start a large file upload
   """
@@ -23,13 +23,13 @@ defmodule Blazay.B2.LargeFile.Start do
     upload_timestamp: integer
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(_), do: Url.generate(Account.api_url, :start_large_file)
 
   def body(file_name) when is_binary(file_name) do
     %{
-      bucketId: Blazay.config(:bucket_id),
+      bucketId: Upstream.config(:bucket_id),
       contentType: "b2/x-auto",
       fileName: URI.encode(file_name)
     }

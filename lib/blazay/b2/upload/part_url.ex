@@ -1,4 +1,4 @@
-defmodule Blazay.B2.Upload.PartUrl do
+defmodule Upstream.B2.Upload.PartUrl do
   @moduledoc """
   Gets the part URL from B2
   """
@@ -15,7 +15,7 @@ defmodule Blazay.B2.Upload.PartUrl do
     authorization_token: String.t
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(_), do: Url.generate(Account.api_url, :get_upload_part_url)
 

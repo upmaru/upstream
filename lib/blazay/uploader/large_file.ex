@@ -1,10 +1,10 @@
-defmodule Blazay.Uploader.LargeFile do
+defmodule Upstream.Uploader.LargeFile do
   @moduledoc """
   Supervisor for Uploader.LargeFile
   """
   use Supervisor
 
-  alias Blazay.Worker
+  alias Upstream.Worker
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)

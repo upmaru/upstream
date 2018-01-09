@@ -1,4 +1,4 @@
-defmodule Blazay.B2.LargeFile.Cancel do
+defmodule Upstream.B2.LargeFile.Cancel do
   @moduledoc """
   Call to cancel un-finished large_files
   """
@@ -12,7 +12,7 @@ defmodule Blazay.B2.LargeFile.Cancel do
     file_name: String.t
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(_), do:  Url.generate(Account.api_url, :cancel_large_file)
 

@@ -1,4 +1,4 @@
-defmodule Blazay.Uploader.Checksum do
+defmodule Upstream.Uploader.Checksum do
   @moduledoc """
   Calculates the sha from the streaming chunk.
   """

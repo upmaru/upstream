@@ -1,4 +1,4 @@
-defmodule Blazay.B2.Upload.File do
+defmodule Upstream.B2.Upload.File do
   defstruct [:file_id, :file_name, :account_id, 
              :bucket_id, :content_length, :content_sha1,
              :content_type, :file_info, :action, :upload_timestamp]
@@ -16,7 +16,7 @@ defmodule Blazay.B2.Upload.File do
     upload_timestamp: integer,
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(upload_url) when is_binary(upload_url), do: upload_url
 

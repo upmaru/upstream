@@ -1,4 +1,4 @@
-defmodule Blazay.Endpoint do
+defmodule Upstream.Endpoint do
   import Plug.Conn
 
   def render_json(conn, status, body) do

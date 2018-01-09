@@ -1,4 +1,4 @@
-defmodule Blazay.B2.Account.Authorization do
+defmodule Upstream.B2.Account.Authorization do
   @moduledoc """
   Handles Authorization of B2 account.
   """
@@ -24,17 +24,17 @@ defmodule Blazay.B2.Account.Authorization do
   Authorize#call function will make a call to the api and authorize based on the
   account_id, and application_key passed in from the config.
 
-  config :blazay, Blazay, 
+  config :upstream, Upstream, 
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(_), do: Url.generate(:authorize_account)
 
   def header do
     encoded = "Basic " <> Base.encode64(
-      Blazay.config(:account_id) <> ":" <> Blazay.config(:application_key)
+      Upstream.config(:account_id) <> ":" <> Upstream.config(:application_key)
     )
 
     [{"Authorization", encoded}]

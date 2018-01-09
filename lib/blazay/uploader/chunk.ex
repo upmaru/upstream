@@ -1,10 +1,10 @@
-defmodule Blazay.Uploader.Chunk do
+defmodule Upstream.Uploader.Chunk do
   @moduledoc """
   Supervisor for Uploader.File
   """
   use Supervisor
 
-  alias Blazay.Worker
+  alias Upstream.Worker
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)

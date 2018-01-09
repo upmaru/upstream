@@ -1,4 +1,4 @@
-defmodule Blazay.Worker.Base do
+defmodule Upstream.Worker.Base do
   @moduledoc """
   Simple Worker for single threaded uploading
   """
@@ -8,8 +8,8 @@ defmodule Blazay.Worker.Base do
 
       @behaviour unquote(__MODULE__)
 
-      alias Blazay.B2.Upload
-      alias Blazay.Uploader.{
+      alias Upstream.B2.Upload
+      alias Upstream.Uploader.{
         TaskSupervisor,
         Checksum,
         Flow
@@ -112,7 +112,7 @@ defmodule Blazay.Worker.Base do
       defp handle_setup(state), do: state
 
       defp via_tuple(job_name) do
-        {:via, Registry, {Blazay.Uploader.Registry, job_name}}
+        {:via, Registry, {Upstream.Uploader.Registry, job_name}}
       end
 
       defoverridable [init: 1, handle_stop: 1, handle_setup: 1]

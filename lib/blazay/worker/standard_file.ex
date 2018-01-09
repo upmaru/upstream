@@ -1,8 +1,8 @@
-defmodule Blazay.Worker.StandardFile do
+defmodule Upstream.Worker.StandardFile do
   @moduledoc """
   Worker for simple file
   """
-  use Blazay.Worker.Base
+  use Upstream.Worker.Base
 
   def task(state) do
     {:ok, checksum} = Checksum.start_link

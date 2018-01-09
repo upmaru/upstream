@@ -1,14 +1,14 @@
-defmodule Blazay.B2.Account do
+defmodule Upstream.B2.Account do
   @moduledoc """
   Authorizes the b2 account and start agent so we can access the data
   without making another authorize_account call.
   """
-  alias Blazay.B2.Account.Authorization
+  alias Upstream.B2.Account.Authorization
 
   require Logger
 
   def start_link do
-    case Application.fetch_env(:blazay, Blazay) do
+    case Application.fetch_env(:upstream, Upstream) do
       {:ok, _config} ->
         Agent.start_link(&authorize/0, name: __MODULE__)
       :error ->

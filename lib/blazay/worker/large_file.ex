@@ -1,12 +1,12 @@
-defmodule Blazay.Worker.LargeFile do
+defmodule Upstream.Worker.LargeFile do
   @moduledoc """
   LargeFile Uploader handles all the interaction to upload a large file.
   """
-  use Blazay.Worker.Base
+  use Upstream.Worker.Base
 
-  alias Blazay.Uploader.Status
-  alias Blazay.B2.LargeFile
-  alias Blazay.Worker.Chunk
+  alias Upstream.Uploader.Status
+  alias Upstream.B2.LargeFile
+  alias Upstream.Worker.Chunk
 
   # Client API
 
@@ -23,14 +23,14 @@ defmodule Blazay.Worker.LargeFile do
     {:reply, cancelled, new_state}
   end
 
-  # Blazay.Worker.Base Callbacks
+  # Upstream.Worker.Base Callbacks
 
   def task(state) do
     stream = Task.Supervisor.async_stream(
       TaskSupervisor,
       chunk_streams(state.job.stream, state.temp_directory),
       &upload_chunk(&1, state.file_id, state.job, state.status),
-      max_concurrency: Blazay.concurrency,
+      max_concurrency: Upstream.concurrency,
       timeout: 100_000_000
     )
 
