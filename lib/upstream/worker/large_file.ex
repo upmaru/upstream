@@ -48,10 +48,8 @@ defmodule Upstream.Worker.LargeFile do
 
     {:ok, started} = LargeFile.start(state.uid.name)
 
-    temp_directory =
-      ["tmp", started.file_id]
-      |> Path.join
-      |> File.mkdir_p!
+    temp_directory = Path.join(["tmp", started.file_id])
+    :ok = File.mkdir_p!(temp_directory)
 
     Map.merge(state, %{
       file_id: started.file_id,
