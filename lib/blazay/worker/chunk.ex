@@ -1,8 +1,8 @@
-defmodule Blazay.Worker.Chunk do
+defmodule Upstream.Worker.Chunk do
   @moduledoc """
   Handles uploading of chunks (pieces from the client)
   """
-  use Blazay.Worker.Base
+  use Upstream.Worker.Base
 
   def task(state) do
     {:ok, checksum} = Checksum.start_link

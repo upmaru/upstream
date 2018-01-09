@@ -1,15 +1,15 @@
-defmodule Blazay.B2.Base do
+defmodule Upstream.B2.Base do
   @moduledoc """
   Base B2 module for using in the api call definitions
 
-  simply call `use Blazay.B2` in the module and define the url, header, body
+  simply call `use Upstream.B2` in the module and define the url, header, body
   and use the module to make the calls.
   """
 
   defmacro __using__(_) do
     quote do
-      alias Blazay.Request
-      alias Blazay.B2.{
+      alias Upstream.Request
+      alias Upstream.B2.{
         Url, Account
       }
 

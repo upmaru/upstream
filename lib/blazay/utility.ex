@@ -1,8 +1,8 @@
-defmodule Blazay.Utility do
+defmodule Upstream.Utility do
   @moduledoc """
-  Utilities for accessing the blazay upload system
+  Utilities for accessing the upstream upload system
   """
-  alias Blazay.B2
+  alias Upstream.B2
 
   def cancel_unfinished_large_files do
     {:ok, unfinished} = B2.LargeFile.unfinished

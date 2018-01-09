@@ -1,11 +1,11 @@
-defmodule Blazay.Supervisor do
+defmodule Upstream.Supervisor do
   @moduledoc """
-  Supervisor for the Blazay App
+  Supervisor for the Upstream App
   """
   use Supervisor
 
-  alias Blazay.Uploader
-  alias Blazay.B2.Account
+  alias Upstream.Uploader
+  alias Upstream.B2.Account
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)

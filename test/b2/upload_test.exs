@@ -1,8 +1,8 @@
-defmodule Blazay.B2.UploadTest do
+defmodule Upstream.B2.UploadTest do
   use ExUnit.Case
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
-  alias Blazay.B2.{
+  alias Upstream.B2.{
     LargeFile, 
     Upload
   }

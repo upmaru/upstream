@@ -1,11 +1,11 @@
-defmodule Blazay.Uploader do
+defmodule Upstream.Uploader do
   @moduledoc """
   Manages Supervisors for Uploaders
   """
 
   use Supervisor
 
-  alias Blazay.Job
+  alias Upstream.Job
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)

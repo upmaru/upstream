@@ -1,10 +1,9 @@
-defmodule Blazay.Job do
+defmodule Upstream.Job do
   @moduledoc """
   Job module for making it easy to work with upload job by exposing 
   file stats and file stream.
   """
-  alias Blazay.B2.Account
-  require IEx
+  alias Upstream.B2.Account
 
   defstruct [:uid, :full_path, :basename, :stream, :content_length,
              :last_content_length, :stat, :threads, :owner]

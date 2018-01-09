@@ -1,14 +1,14 @@
-defmodule Blazay.Upstream do
+defmodule Upstream.Upstream do
   @moduledoc """
   Provides the Endpoints for uploading
   """
 
-  import Blazay.Endpoint
+  import Upstream.Endpoint
 
   use Plug.Router
 
-  alias Blazay.Uploader
-  alias Blazay.B2
+  alias Upstream.Uploader
+  alias Upstream.B2
 
   plug :match
 
@@ -23,7 +23,7 @@ defmodule Blazay.Upstream do
     %{"file_name" => file_name} = conn.body_params
 
     %{path: path, filename: _filename} =
-      conn.body_params[Blazay.file_param]
+      conn.body_params[Upstream.file_param]
 
     Uploader.upload_file!(path, file_name, self())
 
@@ -61,7 +61,7 @@ defmodule Blazay.Upstream do
       "chunk_size" => chunk_size} = conn.body_params
 
     %{path: path, filename: _filename} =
-      conn.body_params[Blazay.file_param]
+      conn.body_params[Upstream.file_param]
 
     upload_params = %{
       file_id: file_id,

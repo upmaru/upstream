@@ -1,9 +1,9 @@
-defmodule Blazay.B2.LargeFile do
+defmodule Upstream.B2.LargeFile do
   @moduledoc """
   Public facing api for B2 LargeFile
   """
 
-  alias Blazay.B2.LargeFile.{
+  alias Upstream.B2.LargeFile.{
     Start,
     Cancel,
     Finish,
@@ -12,7 +12,7 @@ defmodule Blazay.B2.LargeFile do
 
   @spec start(String.t) :: {:ok | :error, %Start{} | struct}
   @doc """
-  `Blazay.B2.LargeFile.start/1` Starts the uploading of the large_file on b2
+  `Upstream.B2.LargeFile.start/1` Starts the uploading of the large_file on b2
   """
   def start(file_name) do
     Start.call(body: file_name)

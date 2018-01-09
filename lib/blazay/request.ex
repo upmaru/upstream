@@ -1,9 +1,9 @@
-defmodule Blazay.Request do
+defmodule Upstream.Request do
   @moduledoc """
   Request module for making and handling network request to b2
   """
 
-  alias Blazay.Error
+  alias Upstream.Error
 
   @spec post(struct, String.t, List.t, Keyword.t) :: {:ok | :error, %Error{} | struct}
   def post(caller_struct, url, body, headers, options \\ []) do

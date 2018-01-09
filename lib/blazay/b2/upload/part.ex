@@ -1,4 +1,4 @@
-defmodule Blazay.B2.Upload.Part do
+defmodule Upstream.B2.Upload.Part do
   @moduledoc """
   Handle uploading of part
   """
@@ -12,7 +12,7 @@ defmodule Blazay.B2.Upload.Part do
     content_sha1: String.t
   }
 
-  use Blazay.B2.Base
+  use Upstream.B2.Base
 
   def url(upload_url) when is_binary(upload_url), do: upload_url
 

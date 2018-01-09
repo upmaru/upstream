@@ -1,9 +1,9 @@
-defmodule Blazay.Uploader.Flow do
+defmodule Upstream.Uploader.Flow do
   @moduledoc """
   Generates the chunks stream for Worker.File and Worker.LargeFile
   """
 
-  alias Blazay.Uploader.{
+  alias Upstream.Uploader.{
     Checksum,
     Status
   }
