@@ -36,7 +36,7 @@ defmodule Upstream.Worker.LargeFile do
 
     Stream.run(stream)
 
-    Logger.info "-----> #{Status.uploaded_count(state.status)} part(s) uploaded"
+    Logger.info "[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded"
     sha1_array = Status.get_uploaded_sha1(state.status)
     LargeFile.finish(state.file_id, sha1_array)
   end
@@ -91,7 +91,7 @@ defmodule Upstream.Worker.LargeFile do
         Status.add_uploaded({index, part.content_sha1}, status)
         File.rm!(chunked_stream.path)
       {:error, _} ->
-        Logger.info "-----> Error #{job.uid.name} chunk: #{index}"
+        Logger.info "[Upstream] Error #{job.uid.name} chunk: #{index}"
     end
   end
 end
