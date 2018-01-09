@@ -87,22 +87,22 @@ defmodule Upstream.Worker.Base do
 
         case state.current_state do
           the_state when the_state in [:started, :uploading] ->
-            Logger.info "-----> Stopping #{state.uid.name}"
+            Logger.info "[Upstream] Stopping #{state.uid.name}"
             {:stop, :shutdown, state}
           :errored ->
-            Logger.info "-----> Errored #{state.uid.name}"
+            Logger.info "[Upstream] Errored #{state.uid.name}"
             {:stop, :shutdown, state}
           :finished ->
-            Logger.info "-----> #{state.uid.name} #{Atom.to_string(state.current_state)}"
+            Logger.info "[Upstream] #{state.uid.name} #{Atom.to_string(state.current_state)}"
             {:stop, :shutdown, state}
           :cancelled ->
-            Logger.info "-----> Cancelled #{state.job.uid.name}"
+            Logger.info "[Upstream] Cancelled #{state.job.uid.name}"
             {:stop, :shutdown, state}
         end
       end
 
       def terminate(reason, state) do
-        Logger.info "-----> Shutting down #{state.uid.name}"
+        Logger.info "[Upstream] Shutting down #{state.uid.name}"
         reason
       end
 

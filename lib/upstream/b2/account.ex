@@ -12,7 +12,7 @@ defmodule Upstream.B2.Account do
       {:ok, _config} ->
         Agent.start_link(&authorize/0, name: __MODULE__)
       :error ->
-        Logger.info "No config set, your Uploaders won't work. (╯°□°）╯︵ ┻━┻"
+        Logger.info "[Upstream] No config set, your Uploaders won't work. (╯°□°）╯︵ ┻━┻"
         Agent.start_link(fn -> {:error, :no_config_set} end, name: __MODULE__)
     end
   end
@@ -46,7 +46,7 @@ defmodule Upstream.B2.Account do
   end
 
   defp authorize do
-    Logger.info "Authorizing B2 account..."
+    Logger.info "[Upstream] Authorizing B2 account..."
 
     case Authorization.call do
       {:ok, authorization} -> authorization
