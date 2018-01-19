@@ -5,13 +5,14 @@ defmodule Upstream.Utility do
   alias Upstream.B2
 
   def cancel_unfinished_large_files do
-    {:ok, unfinished} = B2.LargeFile.unfinished
+    {:ok, unfinished} = B2.LargeFile.unfinished()
 
-    tasks = Enum.map(unfinished.files, fn file ->
-      Task.async(fn ->
-        B2.LargeFile.cancel(file["fileId"])
+    tasks =
+      Enum.map(unfinished.files, fn file ->
+        Task.async(fn ->
+          B2.LargeFile.cancel(file["fileId"])
+        end)
       end)
-    end)
 
     results = Task.yield_many(tasks, 10_000)
     {:ok, results}

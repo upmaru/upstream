@@ -1,5 +1,6 @@
 defmodule Upstream do
   use Application
+
   @moduledoc """
   Upstream is a utility for working with file upload.
   It specifically integrates with backblaze b2 object store service.
@@ -41,7 +42,8 @@ defmodule Upstream do
   def config(key), do: Keyword.get(config(), key, nil)
 
   def set_config(config) do
-    Logger.info "[Upstream] -----> Setting config and restarting Upstream"
+    Logger.info("[Upstream] -----> Setting config and restarting Upstream")
+
     with :ok <- Application.put_env(:upstream, Upstream, config),
          :ok <- Upstream.Supervisor.stop(),
          do: Upstream.Supervisor.start_link()

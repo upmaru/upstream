@@ -21,8 +21,8 @@ defmodule Upstream.Uploader.Checksum do
 
   defp hash_to_string(hash) do
     hash
-    |> :crypto.hash_final
-    |> Base.encode16
-    |> String.downcase
+    |> :crypto.hash_final()
+    |> Base.encode16()
+    |> String.downcase()
   end
 end

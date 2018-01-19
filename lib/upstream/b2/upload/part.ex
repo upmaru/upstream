@@ -6,11 +6,11 @@ defmodule Upstream.B2.Upload.Part do
   defstruct [:file_id, :part_number, :content_length, :content_sha1]
 
   @type t :: %__MODULE__{
-    file_id: String.t,
-    part_number: String.t,
-    content_length: String.t,
-    content_sha1: String.t
-  }
+          file_id: String.t(),
+          part_number: String.t(),
+          content_length: String.t(),
+          content_sha1: String.t()
+        }
 
   use Upstream.B2.Base
 

@@ -5,14 +5,14 @@ defmodule Upstream.Worker.Chunk do
   use Upstream.Worker.Base
 
   def task(state) do
-    {:ok, checksum} = Checksum.start_link
+    {:ok, checksum} = Checksum.start_link()
     {:ok, part_url} = Upload.part_url(state.uid.file_id)
 
     index = state.uid.index
 
     header = %{
       authorization: part_url.authorization_token,
-      x_bz_part_number: (index + 1),
+      x_bz_part_number: index + 1,
       content_length: state.job.content_length + 40,
       x_bz_content_sha1: "hex_digits_at_end"
     }

@@ -11,7 +11,7 @@ defmodule Upstream.Uploader.Flow do
   def generate(stream, index, checksum_pid, status_pid \\ nil) do
     last_bytes = get_last_bytes(stream)
 
-    Stream.flat_map stream, fn bytes ->
+    Stream.flat_map(stream, fn bytes ->
       Checksum.add_bytes_to_hash(bytes, checksum_pid)
 
       if status_pid do
@@ -25,10 +25,10 @@ defmodule Upstream.Uploader.Flow do
       else
         [bytes]
       end
-    end
+    end)
   end
 
   defp get_last_bytes(stream) do
-    stream |> Stream.take(-1) |> Enum.to_list |> List.first
+    stream |> Stream.take(-1) |> Enum.to_list() |> List.first()
   end
 end
