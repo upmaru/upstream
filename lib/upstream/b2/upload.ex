@@ -10,6 +10,7 @@ defmodule Upstream.B2.Upload do
   }
 
   def part_url(file_id), do: PartUrl.call(body: file_id)
+
   def part(url, header, body) do
     Part.call(
       url: url,
@@ -23,7 +24,7 @@ defmodule Upstream.B2.Upload do
     )
   end
 
-  def url, do: Url.call
+  def url, do: Url.call()
 
   def file(url, header, body) do
     File.call(

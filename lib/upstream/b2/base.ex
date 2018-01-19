@@ -9,17 +9,19 @@ defmodule Upstream.B2.Base do
   defmacro __using__(_) do
     quote do
       alias Upstream.Request
+
       alias Upstream.B2.{
-        Url, Account
+        Url,
+        Account
       }
 
       @behaviour unquote(__MODULE__)
 
-      @spec call(Keyword.t) :: {:ok | :error, %__MODULE__{} | struct}
+      @spec call(Keyword.t()) :: {:ok | :error, %__MODULE__{} | struct}
       def call(options \\ []) do
-        url_option      = Keyword.get(options, :url, nil)
-        header_option   = Keyword.get(options, :header, nil)
-        body_option     = Keyword.get(options, :body, nil)
+        url_option = Keyword.get(options, :url, nil)
+        header_option = Keyword.get(options, :header, nil)
+        body_option = Keyword.get(options, :body, nil)
         request_options = Keyword.get(options, :options, [])
 
         Request.post(
@@ -32,18 +34,18 @@ defmodule Upstream.B2.Base do
       end
 
       def header(nil), do: header()
-      def header, do: [Account.authorization_header]
+      def header, do: [Account.authorization_header()]
 
       def body(nil), do: %{}
 
       defp process_body(%{} = body), do: Poison.encode!(body)
       defp process_body(body), do: body
 
-      defoverridable [header: 0, body: 1]
+      defoverridable header: 0, body: 1
     end
   end
 
-  @callback url(nil | String.t | map | none) :: String.t
-  @callback body(nil | String.t | map | any) :: map | any
-  @callback header(nil | String.t | map | none) :: List.t
+  @callback url(nil | String.t() | map | none) :: String.t()
+  @callback body(nil | String.t() | map | any) :: map | any
+  @callback header(nil | String.t() | map | none) :: List.t()
 end

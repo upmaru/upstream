@@ -9,15 +9,15 @@ defmodule Upstream.Mixfile do
       app: :upstream,
       version: "1.2.1",
       elixir: "~> 1.5",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/upmaru/upstream",
       name: "Upstream",
       description: description(),
       deps: deps(),
       package: package(),
       dialyzer: [
-        plt_add_deps: true,
+        plt_add_deps: true
       ]
     ]
   end

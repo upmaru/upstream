@@ -10,26 +10,28 @@ defmodule Upstream.Upstream do
   alias Upstream.Uploader
   alias Upstream.B2
 
-  plug :match
+  plug(:match)
 
-  plug Plug.Parsers,
+  plug(
+    Plug.Parsers,
     parsers: [:multipart],
     pass: ["*/*"],
     length: 100_000_000
+  )
 
-  plug :dispatch
+  plug(:dispatch)
 
   post "/file" do
     %{"file_name" => file_name} = conn.body_params
 
-    %{path: path, filename: _filename} =
-      conn.body_params[Upstream.file_param]
+    %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
     Uploader.upload_file!(path, file_name, self())
 
     case wait_for_uploader() do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
+
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
@@ -41,6 +43,7 @@ defmodule Upstream.Upstream do
     case B2.LargeFile.start(file_name) do
       {:ok, start} ->
         render_json(conn, 201, start)
+
       {:error, reason} ->
         render_json(conn, 422, reason)
     end
@@ -50,18 +53,17 @@ defmodule Upstream.Upstream do
     case B2.LargeFile.cancel(file_id) do
       {:ok, cancel} ->
         render_json(conn, 200, cancel)
+
       {:error, reason} ->
         render_json(conn, 422, reason)
     end
   end
 
   patch "/chunks/add" do
-    %{"file_id" => file_id,
-      "part_number" => part_number,
-      "chunk_size" => chunk_size} = conn.body_params
+    %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
+      conn.body_params
 
-    %{path: path, filename: _filename} =
-      conn.body_params[Upstream.file_param]
+    %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
     upload_params = %{
       file_id: file_id,
@@ -74,6 +76,7 @@ defmodule Upstream.Upstream do
     case wait_for_uploader() do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
+
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
@@ -85,6 +88,7 @@ defmodule Upstream.Upstream do
     case B2.LargeFile.finish(file_id, Enum.map(shas, fn {_k, v} -> v end)) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
+
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
     end

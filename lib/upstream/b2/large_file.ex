@@ -10,7 +10,7 @@ defmodule Upstream.B2.LargeFile do
     Unfinished
   }
 
-  @spec start(String.t) :: {:ok | :error, %Start{} | struct}
+  @spec start(String.t()) :: {:ok | :error, %Start{} | struct}
   @doc """
   `Upstream.B2.LargeFile.start/1` Starts the uploading of the large_file on b2
   """
@@ -27,8 +27,8 @@ defmodule Upstream.B2.LargeFile do
     )
   end
 
-  @spec cancel(String.t) :: {:ok | :error, %Cancel{} | struct}
+  @spec cancel(String.t()) :: {:ok | :error, %Cancel{} | struct}
   def cancel(file_id), do: Cancel.call(body: file_id)
 
-  def unfinished, do: Unfinished.call
+  def unfinished, do: Unfinished.call()
 end

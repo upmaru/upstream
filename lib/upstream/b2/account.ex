@@ -11,8 +11,9 @@ defmodule Upstream.B2.Account do
     case Application.fetch_env(:upstream, Upstream) do
       {:ok, _config} ->
         Agent.start_link(&authorize/0, name: __MODULE__)
+
       :error ->
-        Logger.info "[Upstream] No config set, your Uploaders won't work. (╯°□°）╯︵ ┻━┻"
+        Logger.info("[Upstream] No config set, your Uploaders won't work. (╯°□°）╯︵ ┻━┻")
         Agent.start_link(fn -> {:error, :no_config_set} end, name: __MODULE__)
     end
   end
@@ -28,7 +29,9 @@ defmodule Upstream.B2.Account do
 
   defp ensure_correct_auth_data(auth) do
     case auth do
-      %Authorization{} -> auth
+      %Authorization{} ->
+        auth
+
       {:error, :no_config_set} ->
         raise "No Configuration Set"
     end
@@ -46,9 +49,9 @@ defmodule Upstream.B2.Account do
   end
 
   defp authorize do
-    Logger.info "[Upstream] Authorizing B2 account..."
+    Logger.info("[Upstream] Authorizing B2 account...")
 
-    case Authorization.call do
+    case Authorization.call() do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

@@ -2,7 +2,7 @@ defmodule Upstream.B2.LargeFile.Start do
   @moduledoc """
   Start a large file upload
   """
-  
+
   defstruct [
     :file_id,
     :file_name,
@@ -14,18 +14,18 @@ defmodule Upstream.B2.LargeFile.Start do
   ]
 
   @type t :: %__MODULE__{
-    file_id: String.t,
-    file_name: String.t,
-    account_id: String.t,
-    bucket_id: String.t,
-    content_type: String.t,
-    file_info: map,
-    upload_timestamp: integer
-  }
+          file_id: String.t(),
+          file_name: String.t(),
+          account_id: String.t(),
+          bucket_id: String.t(),
+          content_type: String.t(),
+          file_info: map,
+          upload_timestamp: integer
+        }
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url, :start_large_file)
+  def url(_), do: Url.generate(Account.api_url(), :start_large_file)
 
   def body(file_name) when is_binary(file_name) do
     %{
