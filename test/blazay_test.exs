@@ -1,4 +1,4 @@
-defmodule BlazayTest do
+defmodule UpstreamTest do
   use ExUnit.Case
-  doctest Blazay
+  doctest Upstream
 end

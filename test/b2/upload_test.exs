@@ -1,9 +1,9 @@
-defmodule Blazay.B2.UploadTest do
+defmodule Upstream.B2.UploadTest do
   use ExUnit.Case
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
-  alias Blazay.B2.{
-    LargeFile, 
+  alias Upstream.B2.{
+    LargeFile,
     Upload
   }
 
@@ -23,12 +23,12 @@ defmodule Blazay.B2.UploadTest do
 
   test "get upload_url" do
     use_cassette "b2_get_upload_url" do
-      {:ok, url} = Upload.url
+      {:ok, url} = Upload.url()
 
       assert is_binary(url.upload_url)
     end
   end
- 
+
   @tag :skip
   test "upload file", %{file_name: file_name} do
     # generate an arbitary stream of data in this case 10_000 bytes
@@ -39,17 +39,17 @@ defmodule Blazay.B2.UploadTest do
     # once i have some time I will create a PR for this
     stream = Stream.map(1..10_000, fn n -> <<n>> end)
 
-    sha1 = 
-      stream 
-        |> Enum.reduce(:crypto.hash_init(:sha), fn(bytes, acc) -> 
-          :crypto.hash_update(acc, bytes)
-        end)
-        |> :crypto.hash_final 
-        |> Base.encode16
-        |> String.downcase
+    sha1 =
+      stream
+      |> Enum.reduce(:crypto.hash_init(:sha), fn bytes, acc ->
+        :crypto.hash_update(acc, bytes)
+      end)
+      |> :crypto.hash_final()
+      |> Base.encode16()
+      |> String.downcase()
 
     use_cassette "b2_upload_file" do
-      {:ok, url} = Upload.url
+      {:ok, url} = Upload.url()
 
       header = %{
         authorization: url.authorization_token,

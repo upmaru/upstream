@@ -1,4 +1,4 @@
-defmodule Blazay.Mixfile do
+defmodule Upstream.Mixfile do
   @moduledoc """
   Mixfile for project.
   """
@@ -6,18 +6,18 @@ defmodule Blazay.Mixfile do
 
   def project do
     [
-      app: :blazay,
-      version: "1.2.0",
-      elixir: "~> 1.5",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      source_url: "https://github.com/upmaru/blazay",
-      name: "Blazay",
+      app: :upstream,
+      version: "1.2.1",
+      elixir: "~> 1.6.0",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      source_url: "https://github.com/upmaru/upstream",
+      name: "Upstream",
       description: description(),
       deps: deps(),
       package: package(),
       dialyzer: [
-        plt_add_deps: true,
+        plt_add_deps: true
       ]
     ]
   end
@@ -28,7 +28,7 @@ defmodule Blazay.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [
-      mod: {Blazay, []},
+      mod: {Upstream, []},
       extra_applications: [
         :cowboy,
         :plug,
@@ -41,8 +41,9 @@ defmodule Blazay.Mixfile do
 
   defp description do
     """
-    Blazay is for integrating into projects that need to do large 
-    file uploads to B2 service. It integrates tightly with Backblaze B2.
+    Upstream is for integrating into projects that need to do large 
+    file uploads to B2 service. It integrates tightly with Backblaze B2 for now,
+    with plans to support Amazon S3.
     """
   end
 
@@ -70,11 +71,11 @@ defmodule Blazay.Mixfile do
 
   defp package do
     [
-      name: :blazay,
+      name: :upstream,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       maintainers: ["Zack Siri"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/artellectual/blazay"}
+      links: %{"GitHub" => "https://github.com/upmaru/upstream"}
     ]
   end
 end
