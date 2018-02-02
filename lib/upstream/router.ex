@@ -1,4 +1,4 @@
-defmodule Upstream.Upstream do
+defmodule Upstream.Router do
   @moduledoc """
   Provides the Endpoints for uploading
   """
