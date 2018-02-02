@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :blazay, key: :value
+#     config :upstream, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:blazay, :key)
+#     Application.get_env(:upstream, :key)
 #
 # Or configure a 3rd-party app:
 #

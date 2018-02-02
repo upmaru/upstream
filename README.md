@@ -1,4 +1,4 @@
-# Blazay
+# Upstream
 
 Module for handling file upload can be mounted in any `Phoenix` app via the phoenix router.
 
@@ -7,15 +7,14 @@ It supports simple single thread uploading or multi-threaded uploading provided 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `blazay` to your list of dependencies in `mix.exs`:
+by adding `upstream` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:blazay, "~> 1.1.0"}]
+  [{:upstream, "~> 1.2.0"}]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/blazay](https://hexdocs.pm/blazay).
-
+be found at [https://hexdocs.pm/upstream](https://hexdocs.pm/upstream).
