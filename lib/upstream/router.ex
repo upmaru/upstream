@@ -21,6 +21,29 @@ defmodule Upstream.Router do
 
   plug(:dispatch)
 
+  get "/:prefix/*path" do
+    render_json(conn, 200, %{
+      sequences: [
+        %{
+          clips: [
+            %{
+              type: "source",
+              path: get_location(prefix, path)
+            }
+          ]
+        }
+      ]
+    })
+  end
+
+  defp get_location(prefix, path) do
+    {:ok, %{authorization_token: token}} = B2.Download.authorize(prefix, 3600)
+
+    ["/" <> Upstream.config(:bucket_name), prefix, path, token]
+    |> List.flatten()
+    |> Enum.join("/")
+  end
+
   post "/file" do
     %{"file_name" => file_name} = conn.body_params
 
