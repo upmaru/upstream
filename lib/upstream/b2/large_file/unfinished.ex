@@ -15,7 +15,7 @@ defmodule Upstream.B2.LargeFile.Unfinished do
 
   use Upstream.B2.Base
 
-  def url(_), do:  Url.generate(Account.api_url(), :list_unfinished_large_files)
+  def url(_), do: Url.generate(Account.api_url(), :list_unfinished_large_files)
 
   def body(_) do
     %{bucketId: Upstream.config(:bucket_id)}
