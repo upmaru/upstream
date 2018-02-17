@@ -7,7 +7,6 @@ defmodule Upstream.Worker.Chunk do
   def task(state) do
     with {:ok, checksum} <- Checksum.start_link(),
          {:ok, part_url} <- Upload.part_url(state.uid.file_id) do
-
       index = state.uid.index
 
       header = %{
