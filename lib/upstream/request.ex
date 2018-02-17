@@ -24,6 +24,9 @@ defmodule Upstream.Request do
 
       {:ok, %{status_code: _, body: body}} ->
         {:error, struct(Error, process_response(body))}
+
+      {:error, %HTTPoison.Error{id: _id, reason: reason}} ->
+        {:error, %{error: reason}}
     end
   end
 
