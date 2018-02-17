@@ -103,11 +103,7 @@ defmodule Upstream.Router do
     end
   end
 
-  require IEx
-
   patch "/chunks/add" do
-    IEx.pry()
-
     %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
       conn.body_params
 
