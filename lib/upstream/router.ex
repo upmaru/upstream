@@ -21,7 +21,28 @@ defmodule Upstream.Router do
 
   plug(:dispatch)
 
-  get "/:prefix/*path" do
+  get "/chunks/unfinished" do
+    case B2.LargeFile.Unfinished.call do
+      {:ok, unfinished} ->
+        render_json(conn, 200, unfinished)
+
+      {:error, reason} ->
+        render_json(conn, 422, reason)
+    end
+  end
+
+  get "/chunks/resume/:file_id" do
+    case B2.LargeFile.ListParts.call(body: file_id) do
+      {:ok, %B2.LargeFile.ListParts{parts: parts}} ->
+        shas = B2.LargeFile.ListParts.extract_shas(parts)
+        render_json(conn, 200, %{shas: shas})
+        
+      {:error, reason} ->
+        render_json(conn, 422, reason)
+    end
+  end
+
+  get "/source/:prefix/*path" do
     render_json(conn, 200, %{
       sequences: [
         %{
@@ -82,11 +103,15 @@ defmodule Upstream.Router do
     end
   end
 
+  require IEx
   patch "/chunks/add" do
+    IEx.pry
+
     %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
       conn.body_params
 
-    %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
+    %{path: path,
+      filename: _filename} = conn.body_params[Upstream.file_param()]
 
     upload_params = %{
       file_id: file_id,
