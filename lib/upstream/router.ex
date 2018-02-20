@@ -129,7 +129,12 @@ defmodule Upstream.Router do
   post "/chunks/finish" do
     %{"file_id" => file_id, "shas" => shas} = conn.body_params
 
-    case B2.LargeFile.finish(file_id, Enum.map(shas, fn {_k, v} -> v end)) do
+    shas_list =
+      shas
+      |> Enum.sort_by(fn {k, _v} -> Integer.parse(k) end)
+      |> Enum.map(fn {_k, v} -> v end)
+
+    case B2.LargeFile.finish(file_id, shas_list) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
