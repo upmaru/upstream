@@ -22,7 +22,7 @@ defmodule Upstream.Router do
   plug(:dispatch)
 
   get "/chunks/unfinished" do
-    case B2.LargeFile.Unfinished.call() do
+    case B2.LargeFile.unfinished() do
       {:ok, unfinished} ->
         render_json(conn, 200, unfinished)
 
