@@ -41,11 +41,21 @@ defmodule Upstream do
   """
   def config(key), do: Keyword.get(config(), key, nil)
 
-  def set_config(config) do
-    Logger.info("[Upstream] -----> Setting config and restarting Upstream")
+  def reboot do
+    Upstream.Supervisor.stop()
+    Application.ensure_all_started(:upstream)
+    Upstream.Supervisor.start_link()
+  end
 
-    with :ok <- Application.put_env(:upstream, Upstream, config),
-         :ok <- Upstream.Supervisor.stop(),
-         do: Upstream.Supervisor.start_link()
+  def reset do
+    Logger.info("[Upstream] -----> Flushing config and restarting")
+    Application.delete_env(:upstream, Upstream)
+    reboot()
+  end
+
+  def set_config(config) do
+    Logger.info("[Upstream] -----> Setting config and restarting")
+    Application.put_env(:upstream, Upstream, config)
+    reboot()
   end
 end

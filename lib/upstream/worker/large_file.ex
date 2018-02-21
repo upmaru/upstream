@@ -47,7 +47,7 @@ defmodule Upstream.Worker.LargeFile do
   defp handle_setup(state) do
     {:ok, status} = Status.start_link()
 
-    {:ok, started} = LargeFile.start(state.uid.name, state.metadata)
+    {:ok, started} = LargeFile.start(state.uid.name, state.job.metadata)
 
     temp_directory = Path.join(["tmp", started.file_id])
     :ok = File.mkdir_p!(temp_directory)
