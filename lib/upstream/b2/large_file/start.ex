@@ -34,4 +34,13 @@ defmodule Upstream.B2.LargeFile.Start do
       fileName: URI.encode(file_name)
     }
   end
+
+  def body(params) when is_map(params) do
+    %{
+      bucketId: Upstream.config(:bucket_id),
+      contentType: "b2/x-auto",
+      fileName: URI.encode(params.file_name),
+      fileInfo: params.file_info
+    }
+  end
 end
