@@ -18,6 +18,10 @@ defmodule Upstream.B2.LargeFile do
     Start.call(body: file_name)
   end
 
+  def start(file_name, metadata) do
+    Start.call(body: %{file_name: file_name, file_info: metadata})
+  end
+
   def finish(file_id, sha1_array) do
     Finish.call(
       body: [
