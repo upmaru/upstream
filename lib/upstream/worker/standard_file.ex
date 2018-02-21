@@ -14,6 +14,7 @@ defmodule Upstream.Worker.StandardFile do
     header = %{
       authorization: url.authorization_token,
       file_name: URI.encode(state.uid.name),
+      file_info: state.metadata,
       # for sha1 at the end
       content_length: state.job.stat.size + 40,
       x_bz_content_sha1: "hex_digits_at_end"
