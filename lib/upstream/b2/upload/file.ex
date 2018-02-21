@@ -1,4 +1,8 @@
 defmodule Upstream.B2.Upload.File do
+  @moduledoc """
+  Upload Standard File
+  """
+
   defstruct [
     :file_id,
     :file_name,
@@ -30,12 +34,18 @@ defmodule Upstream.B2.Upload.File do
   def url(upload_url) when is_binary(upload_url), do: upload_url
 
   def header(file_data) do
+    metadata =
+      file_data
+      |> Map.get(:file_info, %{})
+      |> Enum.map(fn {key, val} -> {"X-Bz-Info-#{key}", val} end)
+
     [
       {"Authorization", file_data.authorization},
       {"X-Bz-File-Name", file_data.file_name},
       {"Content-Type", "b2/x-auto"},
       {"Content-Length", file_data.content_length},
       {"X-Bz-Content-Sha1", file_data.x_bz_content_sha1}
+      | metadata
     ]
   end
 

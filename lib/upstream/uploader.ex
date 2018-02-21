@@ -32,8 +32,8 @@ defmodule Upstream.Uploader do
     end)
   end
 
-  def upload_file!(file_path, name, owner \\ nil) do
-    job = Job.create(file_path, name, owner)
+  def upload_file!(file_path, name, owner \\ nil, metadata \\ %{}) do
+    job = Job.create(file_path, name, owner, metadata)
 
     file_type = if job.threads == 1, do: :standard, else: :large
 
