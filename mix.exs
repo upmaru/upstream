@@ -60,7 +60,7 @@ defmodule Upstream.Mixfile do
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:exvcr, "~> 0.10", only: :test},
+      {:exvcr, "~> 0.10", only: :test, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
