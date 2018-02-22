@@ -7,9 +7,8 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.3.4",
+      version: "1.3.5",
       elixir: "~> 1.6.0",
-      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/upmaru/upstream",
       name: "Upstream",
@@ -28,14 +27,14 @@ defmodule Upstream.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [
-      mod: {Upstream, []},
       extra_applications: [
         :cowboy,
         :plug,
         :httpoison,
         :poison,
         :logger
-      ]
+      ],
+      mod: {Upstream.Application, []}
     ]
   end
 

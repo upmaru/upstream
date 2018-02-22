@@ -1,5 +1,4 @@
 defmodule Upstream do
-  use Application
 
   @moduledoc """
   Upstream is a utility for working with file upload.
@@ -7,10 +6,6 @@ defmodule Upstream do
   """
 
   require Logger
-
-  def start(_type, _args) do
-    Upstream.Supervisor.start_link()
-  end
 
   @doc """
   Upstream.base_api returns the base api string
@@ -42,9 +37,8 @@ defmodule Upstream do
   def config(key), do: Keyword.get(config(), key, nil)
 
   def reboot do
-    Upstream.Supervisor.stop()
+    Application.stop(:upstream)
     Application.ensure_all_started(:upstream)
-    Upstream.Supervisor.start_link()
   end
 
   def reset do
