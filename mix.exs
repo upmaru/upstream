@@ -28,7 +28,6 @@ defmodule Upstream.Mixfile do
     # Specify extra applications you'll use from Erlang/Elixir
     [
       extra_applications: [
-        :cowboy,
         :plug,
         :httpoison,
         :poison,
@@ -58,7 +57,6 @@ defmodule Upstream.Mixfile do
   defp deps do
     [
       {:httpoison, ">= 0.11.0"},
-      {:cowboy, "~> 1.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
