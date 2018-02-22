@@ -3,6 +3,8 @@ defmodule Upstream.B2.Account do
   Authorizes the b2 account and start agent so we can access the data
   without making another authorize_account call.
   """
+  use Agent
+
   alias Upstream.B2.Account.Authorization
 
   require Logger
