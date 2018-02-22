@@ -7,7 +7,7 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.3.6",
+      version: "1.3.7",
       elixir: "~> 1.6.0",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/upmaru/upstream",
@@ -56,7 +56,7 @@ defmodule Upstream.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 1.0", override: true},
+      {:httpoison, "~> 0.13"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
