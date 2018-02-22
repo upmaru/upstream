@@ -7,7 +7,7 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.3.5",
+      version: "1.3.6",
       elixir: "~> 1.6.0",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/upmaru/upstream",
@@ -28,7 +28,6 @@ defmodule Upstream.Mixfile do
     # Specify extra applications you'll use from Erlang/Elixir
     [
       extra_applications: [
-        :cowboy,
         :plug,
         :httpoison,
         :poison,
@@ -57,12 +56,11 @@ defmodule Upstream.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, ">= 0.11.0"},
-      {:cowboy, "~> 1.0"},
+      {:httpoison, "~> 1.0", override: true},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:exvcr, "~> 0.8", only: :test},
+      {:exvcr, "~> 0.10", only: :test, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
