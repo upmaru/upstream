@@ -7,7 +7,7 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.3.7",
+      version: "1.4.0",
       elixir: "~> 1.6.0",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/upmaru/upstream",
