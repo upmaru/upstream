@@ -2,10 +2,9 @@ defmodule Upstream.Vod do
   @moduledoc """
   Endpoint for Nginx Vod Module
   """
+  import Upstream.Endpoint
 
   use Plug.Router
-
-  alias Upstream.B2
 
   plug(:match)
   plug(:dispatch)
@@ -23,13 +22,5 @@ defmodule Upstream.Vod do
         }
       ]
     })
-  end
-
-  defp get_location(prefix, path) do
-    {:ok, %{authorization_token: token}} = B2.Download.authorize(prefix, 3600)
-
-    ["/" <> Upstream.config(:bucket_name), prefix, path, token]
-    |> List.flatten()
-    |> Enum.join("/")
   end
 end
