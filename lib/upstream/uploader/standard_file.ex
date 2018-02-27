@@ -18,8 +18,12 @@ defmodule Upstream.Uploader.StandardFile do
     supervise(children, strategy: :simple_one_for_one)
   end
 
-  def start_uploader(job) do
-    {:ok, _pid} = Supervisor.start_child(__MODULE__, [job])
-    Worker.StandardFile.upload(job.uid.name)
+  def perform(job) do
+    with {:ok, _pid} <- Supervisor.start_child(__MODULE__, [job]),
+         {:ok, result} <- Worker.StandardFile.upload(job.uid.name) do
+      {:ok, result}
+    else
+      {:error, reason} -> {:error, reason}
+    end
   end
 end

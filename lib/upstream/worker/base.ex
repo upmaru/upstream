@@ -25,19 +25,7 @@ defmodule Upstream.Worker.Base do
       end
 
       def upload(job_name) do
-        GenServer.cast(via_tuple(job_name), :upload)
-      end
-
-      def finish(job_name, result) do
-        GenServer.call(via_tuple(job_name), {:finish, result})
-      end
-
-      def error(job_name, reason) do
-        GenServer.call(via_tuple(job_name), {:error, reason})
-      end
-
-      def stop(job_name) do
-        GenServer.call(via_tuple(job_name), :stop)
+        GenServer.call(via_tuple(job_name), :upload, :infinity)
       end
 
       # Server Callbacks
@@ -46,72 +34,22 @@ defmodule Upstream.Worker.Base do
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
-      def handle_cast(:upload, state) do
-        Task.Supervisor.start_child(TaskSupervisor, fn ->
-          case task(state) do
-            {:ok, result} -> finish(state.uid.name, result)
-            {:error, reason} -> error(state.uid.name, reason)
-          end
+      def handle_call(:upload, _from, state) do
+        case task(state) do
+          {:ok, result} ->
+            {:stop, :normal, {:ok, result}, Map.merge(state, %{
+              current_state: :uploaded
+            })}
 
-          stop(state.uid.name)
-        end)
-
-        new_state = Map.merge(state, %{current_state: :uploading})
-
-        {:noreply, new_state}
-      end
-
-      def handle_call({:finish, result}, _from, state) do
-        new_state =
-          Map.merge(state, %{
-            current_state: :finished,
-            result: result
-          })
-
-        if state.job.owner do
-          send(state.job.owner, {:finished, result})
-        end
-
-        {:reply, :finished, new_state}
-      end
-
-      def handle_call({:error, reason}, _from, state) do
-        new_state =
-          Map.merge(state, %{
-            current_state: :errored,
-            result: reason
-          })
-
-        if state.job.owner do
-          send(state.job.owner, {:errored, reason})
-        end
-
-        {:reply, :errored, new_state}
-      end
-
-      def handle_call(:stop, _from, state) do
-        handle_stop(state)
-
-        case state.current_state do
-          the_state when the_state in [:started, :uploading] ->
-            Logger.info("[Upstream] Stopping #{state.uid.name}")
-            {:stop, :shutdown, state}
-
-          :errored ->
-            Logger.info("[Upstream] Errored #{state.uid.name}")
-            {:stop, :shutdown, state}
-
-          :finished ->
-            Logger.info("[Upstream] #{state.uid.name} #{Atom.to_string(state.current_state)}")
-            {:stop, :shutdown, state}
-
-          :cancelled ->
-            Logger.info("[Upstream] Cancelled #{state.job.uid.name}")
-            {:stop, :shutdown, state}
+          {:error, reason} ->
+            {:stop, {:error, reason}, {:error, reason}, Map.merge(state, %{
+              current_state: :upload_failed
+            })}
         end
       end
 
       def terminate(reason, state) do
+        handle_stop(state)
         Logger.info("[Upstream] Shutting down #{state.uid.name}")
         reason
       end

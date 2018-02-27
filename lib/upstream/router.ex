@@ -70,9 +70,7 @@ defmodule Upstream.Router do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
-    Uploader.upload_file!(path, file_name, self())
-
-    case wait_for_uploader() do
+    case Uploader.upload_file!(path, file_name, self()) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -115,9 +113,7 @@ defmodule Upstream.Router do
       content_length: String.to_integer(chunk_size)
     }
 
-    Uploader.upload_chunk!(path, upload_params, self())
-
-    case wait_for_uploader() do
+    case Uploader.upload_chunk!(path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -140,14 +136,6 @@ defmodule Upstream.Router do
 
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
-    end
-  end
-
-  defp wait_for_uploader() do
-    receive do
-      {:finished, result} -> {:ok, result}
-      {:errored, reason} -> {:error, reason}
-      _ -> wait_for_uploader()
     end
   end
 end
