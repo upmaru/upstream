@@ -14,8 +14,7 @@ defmodule Upstream.Job do
     :last_content_length,
     :stat,
     :metadata,
-    :threads,
-    :owner
+    :threads
   ]
 
   @stream_bytes 2048
@@ -30,10 +29,9 @@ defmodule Upstream.Job do
           stream: File.Stream.t(),
           threads: integer,
           metadata: map,
-          owner: pid | nil
         }
 
-  def create(source_path, params, owner, metadata \\ %{}) do
+  def create(source_path, params, metadata \\ %{}) do
     absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)
@@ -59,8 +57,7 @@ defmodule Upstream.Job do
       last_content_length: last_content_length,
       stream: stream,
       threads: threads,
-      metadata: metadata,
-      owner: owner
+      metadata: metadata
     }
   end
 
