@@ -23,23 +23,21 @@ defmodule Upstream.Uploader do
     supervise(children, strategy: :one_for_one)
   end
 
-  def upload_chunk!(chunk_path, params, owner \\ nil) do
-    job = Job.create(chunk_path, params, owner)
+  def upload_chunk!(chunk_path, params) do
+    job = Job.create(chunk_path, params)
 
     start_and_register(job, fn ->
       start_uploader(:chunk, job)
-      {:ok, :chunk, job.uid.name}
     end)
   end
 
-  def upload_file!(file_path, name, owner \\ nil, metadata \\ %{}) do
-    job = Job.create(file_path, name, owner, metadata)
+  def upload_file!(file_path, name, metadata \\ %{}) do
+    job = Job.create(file_path, name, metadata)
 
     file_type = if job.threads == 1, do: :standard, else: :large
 
     start_and_register(job, fn ->
       start_uploader(file_type, job)
-      {:ok, file_type, job.uid.name}
     end)
   end
 
@@ -54,14 +52,14 @@ defmodule Upstream.Uploader do
   end
 
   defp start_uploader(:chunk, job) do
-    __MODULE__.Chunk.start_uploader(job)
+    __MODULE__.Chunk.perform(job)
   end
 
   defp start_uploader(:standard, job) do
-    __MODULE__.StandardFile.start_uploader(job)
+    __MODULE__.StandardFile.perform(job)
   end
 
   defp start_uploader(:large, job) do
-    __MODULE__.LargeFile.start_uploader(job)
+    __MODULE__.LargeFile.perform(job)
   end
 end
