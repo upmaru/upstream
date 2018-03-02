@@ -7,7 +7,7 @@ defmodule Upstream.Uploader do
 
   alias Upstream.Job
 
-  def start_link do
+  def start_link(_args) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
