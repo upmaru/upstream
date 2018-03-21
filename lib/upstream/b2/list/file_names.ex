@@ -12,7 +12,8 @@ defmodule Upstream.B2.List.FileNames do
   def body(file_name) when is_binary(file_name) do
     %{
       bucketId: Upstream.config(:bucket_id),
-      startFileName: URI.encode(file_name)
+      startFileName: URI.encode(Path.basename(file_name)),
+      prefix: Path.dirname(file_name)
     }
   end
 end
