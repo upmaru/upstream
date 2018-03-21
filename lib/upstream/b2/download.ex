@@ -25,6 +25,6 @@ defmodule Upstream.B2.Download do
         "/"
       )
 
-    file_url <> "?Authorization=" <> authorization
+    URI.encode(file_url) <> "?Authorization=" <> authorization
   end
 end
