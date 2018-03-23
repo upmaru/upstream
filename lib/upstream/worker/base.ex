@@ -51,6 +51,7 @@ defmodule Upstream.Worker.Base do
       def terminate(reason, state) do
         handle_stop(state)
         Logger.info("[Upstream] Shutting down #{state.uid.name}")
+        Registry.unregister(Upstream.Uploader.Registry, state.uid.name)
         reason
       end
 
