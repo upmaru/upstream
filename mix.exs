@@ -57,7 +57,7 @@ defmodule Upstream.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 0.13"},
+      {:httpoison, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
