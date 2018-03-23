@@ -78,6 +78,8 @@ defmodule Upstream.Router do
     end
   end
 
+  require IEx
+
   patch "/chunks/add" do
     %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
       conn.body_params
@@ -93,6 +95,9 @@ defmodule Upstream.Router do
     case Uploader.upload_chunk!(path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
+
+      {:error, :already_uploading, _pid} ->
+        render_json(conn, 200, %{success: true})
 
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
