@@ -47,7 +47,7 @@ defmodule Upstream.Router do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
-    case Uploader.upload_file!(path, file_name, self()) do
+    case Uploader.upload_file!(path, file_name) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -94,7 +94,7 @@ defmodule Upstream.Router do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
-      {:error, :already_uploading, _pid} ->
+      {:error, :already_uploading, _job_name} ->
         render_json(conn, 200, %{success: true})
 
       {:error, reason} ->
