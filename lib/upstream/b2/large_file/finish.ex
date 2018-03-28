@@ -1,4 +1,8 @@
 defmodule Upstream.B2.LargeFile.Finish do
+  @moduledoc """
+  Handles finishing large file uploading
+  """
+
   defstruct [
     :file_id,
     :file_name,
