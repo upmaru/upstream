@@ -44,7 +44,7 @@ defmodule Upstream.Uploader do
   defp start_and_register(job, on_start) do
     case Registry.lookup(__MODULE__.Registry, job.uid.name) do
       [{pid, nil}] ->
-        {:error, :already_uploading, pid}
+        {:error, :already_uploading, job.uid.name}
 
       [] ->
         on_start.()
