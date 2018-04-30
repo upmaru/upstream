@@ -38,10 +38,6 @@ defmodule Upstream.Store do
     GenServer.call(__MODULE__, {:whereis_name, key})
   end
 
-  def clear() do
-    GenServer.call(__MODULE__, :clear)
-  end
-
   # Callbacks
 
   def init({conn, type}) do
@@ -90,7 +86,7 @@ defmodule Upstream.Store do
   end
 
   def handle_call({:whereis_name, key}, _from, {conn, :redis}) do
-    case Redix.command(conn, ["GET", get_key(key)]) do
+    case Redix.command(conn, ["GET", get_named(key)]) do
       {:ok, nil} -> {:reply, :undefined, {conn, :redis}}
       {:ok, value} ->
         "#PID" <> string = value
@@ -99,11 +95,7 @@ defmodule Upstream.Store do
           |> :erlang.binary_to_list
           |> :erlang.list_to_pid
 
-        if Process.alive?(pid) do
-          {:reply, pid, {conn, :redis}}
-        else
-          {:reply, :undefined, {conn, :redis}}
-        end
+        {:reply, pid, {conn, :redis}}
     end
   end
 
@@ -112,9 +104,9 @@ defmodule Upstream.Store do
   end
 
   def handle_call({:register_name, key, pid}, _from, {conn, :redis}) do
-    case Redix.command(conn, ["SET", get_key(key), inspect(pid)]) do
-      {:ok, "OK"} -> {:reply, :yes, {conn, :redis}}
-      {:ok, nil} -> {:reply, :no, {conn, :redis}}
+    case Redix.command(conn, ["SETNX", get_named(key), inspect(pid)]) do
+      {:ok, 1} -> {:reply, :yes, {conn, :redis}}
+      {:ok, 0} -> {:reply, :no, {conn, :redis}}
     end
   end
 
@@ -122,24 +114,25 @@ defmodule Upstream.Store do
     {:reply, Registry.register_name({conn, key}, pid), {conn, :registry}}
   end
 
-  def handle_call(:clear, _from, {conn, :redis}) do
-    with {:ok, keys} <- Redix.command(conn, ["KEYS", prefix() <> ":*"]) do
-      {:reply, Redix.command(conn, ["DEL", keys]), {conn, :redis}}
-    end
-  end
-
   defp create_store() do
     if is_nil(Upstream.config(:redis_url)) do
       {:ok, conn} = Registry.start_link(keys: :unique)
       {:ok, conn, :registry}
     else
-      {:ok, conn} = Redix.start_link(Upstream.config(:redis_url))
-      {:ok, conn, :redis}
+      with {:ok, conn} <- Redix.start_link(Upstream.config(:redis_url)),
+           {:ok, keys} <- Redix.command(conn, ["KEYS", prefix() <> ":named:*"]),
+           {:ok, _} <- Redix.command(conn, ["DEL", keys]) do
+        {:ok, conn, :redis}
+      end
     end
   end
 
   defp get_key(key) do
     prefix() <> ":" <> key
+  end
+
+  def get_named(key) do
+    prefix() <> ":named:" <> key
   end
 
   defp prefix do

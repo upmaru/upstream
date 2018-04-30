@@ -14,9 +14,4 @@ defmodule Upstream.Application do
     opts = [strategy: :one_for_one, name: Upstream.Supervisor]
     Supervisor.start_link(children, opts)
   end
-
-  def prep_stop(state) do
-    {:ok, _} = Upstream.Store.clear()
-    state
-  end
 end
