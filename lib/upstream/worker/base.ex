@@ -64,7 +64,7 @@ defmodule Upstream.Worker.Base do
       defp handle_setup(state), do: state
 
       defp via_tuple(job_name) do
-        {:via, Store, {Upstream.Store, job_name}}
+        {:via, Registry, {Upstream.Registry, job_name}}
       end
 
       defoverridable init: 1, handle_stop: 1, handle_setup: 1
