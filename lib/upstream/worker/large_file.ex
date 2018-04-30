@@ -4,7 +4,7 @@ defmodule Upstream.Worker.LargeFile do
   """
   use Upstream.Worker.Base
 
-  alias Upstream.Uploader.Status
+  alias __MODULE__.Status
   alias Upstream.B2.LargeFile
   alias Upstream.Worker.Chunk
 
