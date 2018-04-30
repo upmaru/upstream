@@ -5,10 +5,7 @@ defmodule Upstream.Uploader do
 
   use Supervisor
 
-  alias Upstream.{
-    Job,
-    Store
-  }
+  alias Upstream.Job
 
   def start_link(_args) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
@@ -28,9 +25,9 @@ defmodule Upstream.Uploader do
   def upload_chunk!(chunk_path, params) do
     job = Job.create(chunk_path, params)
 
-    start_and_register job do
+    start_and_register(job, fn ->
       start_uploader(:chunk, job)
-    end
+    end)
   end
 
   def upload_file!(file_path, name, metadata \\ %{}) do
@@ -38,15 +35,19 @@ defmodule Upstream.Uploader do
 
     file_type = if job.threads == 1, do: :standard, else: :large
 
-    start_and_register job do
+    start_and_register(job, fn ->
       start_uploader(file_type, job)
-    end
+    end)
   end
 
-  defp start_and_register(job, do: block) do
-    if Store.exist?(job.uid.name),
-      do: {:error, :already_uploading, job.uid.name},
-      else: block
+  defp start_and_register(job, on_start) do
+    case Registry.lookup(Upstream.Registry, job.uid.name) do
+      [{_pid, nil}] ->
+        {:error, :already_uploading, job.uid.name}
+
+      [] ->
+        on_start.()
+    end
   end
 
   defp start_uploader(:chunk, job) do
