@@ -1,5 +1,4 @@
 defmodule Upstream do
-
   @moduledoc """
   Upstream is a utility for working with file upload.
   It specifically integrates with backblaze b2 object store service.

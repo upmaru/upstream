@@ -28,7 +28,7 @@ defmodule Upstream.Job do
           last_content_length: integer,
           stream: File.Stream.t(),
           threads: integer,
-          metadata: map,
+          metadata: map
         }
 
   def create(source_path, params, metadata \\ %{}) do
