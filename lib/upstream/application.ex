@@ -18,10 +18,10 @@ defmodule Upstream.Application do
   end
 
   def start_store(children) do
-    unless is_nil(Upstream.config(:redis_url)) do
-      [Upstream.Store | children]
-    else
+    if is_nil(Upstream.config(:redis_url)) do
       children
+    else
+      [Upstream.Store | children]
     end
   end
 end
