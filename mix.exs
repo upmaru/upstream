@@ -60,6 +60,7 @@ defmodule Upstream.Mixfile do
       {:httpoison, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.0"},
+      {:redix, "~> 0.7.1"},
 
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.10", only: :test, runtime: false},
