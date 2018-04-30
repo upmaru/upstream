@@ -1,4 +1,4 @@
-defmodule Upstream.Uploader.Status do
+defmodule Upstream.Worker.LargeFile.Status do
   @moduledoc """
   used to track the status of the upload process
   """
