@@ -9,17 +9,19 @@ defmodule Upstream.Store do
   @namespace "upstream_store"
 
   def start_link(_) do
-    with {:ok, conn, type} <- create_store() do
-      GenServer.start_link(__MODULE__, {conn, type}, name: __MODULE__)
-    end
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def exist?(key) do
     GenServer.call(__MODULE__, {:exist?, key})
   end
 
-  def store(key, value) do
-    GenServer.call(__MODULE__, {:store, key, value})
+  def get(key) do
+    GenServer.call(__MODULE__, {:get, key})
+  end
+
+  def set(key, value) do
+    GenServer.call(__MODULE__, {:set, key, value})
   end
 
   def remove(key) do
@@ -28,8 +30,10 @@ defmodule Upstream.Store do
 
   # Callbacks
 
-  def init({conn, type}) do
-    {:ok, {conn, type}}
+  def init(:ok) do
+    with {:ok, conn, type} <- create_store() do
+      {:ok, {conn, type}}
+    end
   end
 
   def handle_call({:exist?, key}, _from, {conn, :redis}) do
@@ -39,10 +43,24 @@ defmodule Upstream.Store do
     end
   end
 
-  def handl_ecall({:exist?, key}, _from, {conn, :ets}) do
+  def handle_call({:exist?, key}, _from, {conn, :ets}) do
     case :ets.lookup(conn, key) do
-      [{k, value}] -> {:reply, true, {conn, :ets}}
+      [{_k, _value}] -> {:reply, true, {conn, :ets}}
       [] -> {:reply, false, {conn, :ets}}
+    end
+  end
+
+  def handle_call({:get, key}, _from, {conn, :ets}) do
+    case :ets.lookup(conn, key) do
+      [{_k, value}] -> {:reply, {:ok, value}, {conn, :ets}}
+      [] -> {:reply, {:ok, nil}, {conn, :ets}}
+    end
+  end
+
+  def handle_call({:get, key}, _from, {conn, :redis}) do
+    case Redix.command(conn, ["GET", key]) do
+      {:ok, nil} -> {:reply, {:ok, nil}, {conn, :redis}}
+      {:ok, value} -> {:reply, {:ok, value}, {conn, :redis}}
     end
   end
 
@@ -51,24 +69,28 @@ defmodule Upstream.Store do
     {:reply, :ok, {conn, :redis}}
   end
 
-  def handle_call({:store, key, value}, _from, {conn, :redis}) do
+  def handle_call({:remove, key}, _from, {conn, :ets}) do
+    :ets.delete(conn, key)
+    {:reply, :ok, {conn, :redis}}
+  end
+
+  def handle_call({:set, key, value}, _from, {conn, :redis}) do
     case Redix.command(conn, ["SETNX", get_key(key), value]) do
       {:ok, 1} -> {:reply, {:ok, value}, {conn, :redis}}
       {:ok, 0} -> {:reply, {:error, :already_set}, {conn, :redis}}
     end
   end
 
-  def handle_call({:store, key, value}, _from, {conn, :ets}) do
+  def handle_call({:set, key, value}, _from, {conn, :ets}) do
     case :ets.insert_new(conn, {key, value}) do
       true -> {:reply, {:ok, value}, {conn, :ets}}
       false -> {:reply, {:error, :already_set}, {conn, :ets}}
     end
   end
 
-  defp create_store() do
+  defp create_store do
     if is_nil(Upstream.config(:redis_url)) do
-      conn = :ets.new(@namespace, [:set, :protected, :named_table])
-      {:ok, conn, :ets}
+      {:ok, :ets.new(String.to_atom(@namespace), [:set, :private, :named_table]), :ets}
     else
       {:ok, conn} = Redix.start_link(Upstream.config(:redis_url))
       {:ok, conn, :redis}
