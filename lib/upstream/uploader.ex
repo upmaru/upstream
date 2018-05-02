@@ -41,14 +41,10 @@ defmodule Upstream.Uploader do
   end
 
   defp start_and_register(job, on_start) do
-    case Registry.lookup(Upstream.Registry, job.uid.name) do
-      [{_pid, nil}] -> Job.get_result(job)
-      [] ->
-        if Job.errored?(job) || Job.completed?(job) do
-          Job.get_result(job)
-        else
-          on_start.()
-        end
+    if Job.uploading?(job) || Job.done?(job) do
+      Job.get_result(job)
+    else
+      on_start.()
     end
   end
 
