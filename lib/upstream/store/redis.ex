@@ -23,6 +23,14 @@ defmodule Upstream.Store.Redis do
     end
   end
 
+  def get("none", conn, _key), do: {:reply, {:ok, nil}, {conn, :redis}}
+
+  def get("set", conn, key) do
+    case Redix.command(conn, ["SMEMBERS", namespace(key)]) do
+      {:ok, members} -> {:reply, {:ok, members}, {conn, :redis}}
+    end
+  end
+
   def get("string", conn, key) do
     case Redix.command(conn, ["GET", namespace(key)]) do
       {:ok, nil} -> {:reply, {:ok, nil}, {conn, :redis}}

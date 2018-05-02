@@ -15,6 +15,18 @@ defmodule Upstream.Store do
     GenServer.call(__MODULE__, {:exist?, key})
   end
 
+  def add_member(key, value) do
+    GenServer.call(__MODULE__, {:add_member, key, value})
+  end
+
+  def is_member?(key, value) do
+    GenServer.call(__MODULE__, {:is_member?, key, value})
+  end
+
+  def remove_member(key, value) do
+    GetServer.call(__MODULE__, {:remove_member, key, value})
+  end
+
   def get(key) do
     GenServer.call(__MODULE__, {:get, key})
   end
@@ -61,10 +73,61 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:add_member, key, value}, _from, {conn, :ets}) do
+    case :ets.lookup(conn, key) do
+      [{_k, existing}] ->
+        :ets.insert(conn, {key, [value | existing]})
+        {:reply, {:ok, value}, {conn, :ets}}
+      [] ->
+        :ets.insert_new(conn, {key, [value]})
+        {:reply, {:ok, value}, {conn, :ets}}
+    end
+  end
+
+  def handle_call({:is_member?, key, value}, _from, {conn, :ets}) do
+    case :ets.lookup(conn, key) do
+      [{_k, existing}] ->
+        {:reply, Enum.member?(existing, value), {conn, :ets}}
+      [] ->
+        {:reply, false, {conn, :ets}}
+    end
+  end
+
+  def handle_call(:remove_member, key, value}, _from, {conn, :ets}) do
+    case :ets.lookup(conn, key) do
+      [{_k, existing}] ->
+        :ets.insert(conn, {key, Enum.reject(existing, fn v -> v == value end)})
+        {:reply, :ok, {conn, :ets}}
+      [] ->
+        {:reply, :error, {conn, :ets}}
+    end
+  end
+
   def handle_call({:exist?, key}, _from, {conn, :redis}) do
     case Redix.command(conn, ["EXISTS", Redis.namespace(key)]) do
       {:ok, 0} -> {:reply, false, {conn, :redis}}
       {:ok, 1} -> {:reply, true, {conn, :redis}}
+    end
+  end
+
+  def handle_call({:is_member?, key, value}, _from, {conn, :redis}) do
+    case Redix.command(conn, ["SISMEMBER", Redis.namespace(key), value]) do
+      {:ok, 1} -> {:reply, true, {conn, :redis}}
+      {:ok, 0} -> {:reply, false, {conn, :redis}}
+    end
+  end
+
+  def handle_call({:add_member, key, value}, _from, {conn, :redis}) do
+    case Redix.command(conn, ["SADD", Redis.namespace(key), value]) do
+      {:ok, 1} -> {:reply, {:ok, value}, {conn, :redis}}
+      {:ok, 0} -> {:reply, {:error, :already_exists}, {conn, :redis}}
+    end
+  end
+
+  def handle_call({:remove_member, key, value}, _from, {conn, :redis}) do
+    case Redix.command(conn, ["SREM", key, value]) do
+      {:ok, 1} -> {:reply, :ok, {conn, :redis}}
+      {:ok, 0} -> {:reply, :error, {conn, :redis}}
     end
   end
 
