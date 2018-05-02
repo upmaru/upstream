@@ -24,7 +24,7 @@ defmodule Upstream.Store do
   end
 
   def remove_member(key, value) do
-    GetServer.call(__MODULE__, {:remove_member, key, value})
+    GenServer.call(__MODULE__, {:remove_member, key, value})
   end
 
   def get(key) do
@@ -93,7 +93,7 @@ defmodule Upstream.Store do
     end
   end
 
-  def handle_call(:remove_member, key, value}, _from, {conn, :ets}) do
+  def handle_call({:remove_member, key, value}, _from, {conn, :ets}) do
     case :ets.lookup(conn, key) do
       [{_k, existing}] ->
         :ets.insert(conn, {key, Enum.reject(existing, fn v -> v == value end)})
