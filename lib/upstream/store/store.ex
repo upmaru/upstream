@@ -94,16 +94,8 @@ defmodule Upstream.Store do
         :ets.insert(conn, {from_key, Enum.reject(from_value, fn v -> v == value end)})
         :ets.insert(conn, {to_key, [value | to_existing]})
         {:reply, :ok, {conn, :ets}}
-      {[{from_key, from_value}], []} ->
-        :ets.insert(conn, {from_key, Enum.reject(from_value, fn v -> v == value end)})
-        :ets.insert_new(conn, {to, [value]})
-        {:reply, :ok, {conn, :ets}}
-      {[], [{to_key, to_existing}]} ->
-        :ets.insert(conn, {to_key, [value | to_existing]})
-        {:reply, :ok, {conn, :ets}}
-      {[], []} ->
-        :ets.insert_new(conn, {to, [value]})
-        {:reply, :ok, {conn, :ets}}
+      _ ->
+        {:reply, :error, {conn, :ets}}
     end
   end
 
