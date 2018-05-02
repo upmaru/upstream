@@ -8,8 +8,7 @@ defmodule Upstream.Worker.Base do
 
       @behaviour unquote(__MODULE__)
 
-      alias Upstream.Store
-
+      alias Upstream.Job
       alias Upstream.B2.Upload
 
       alias Upstream.Uploader.{
@@ -37,14 +36,18 @@ defmodule Upstream.Worker.Base do
       end
 
       def handle_call(:upload, _from, state) do
+        Job.start(state)
+
         case task(state) do
           {:ok, result} ->
+            Job.complete(state, result)
             {:stop, :normal, {:ok, result},
              Map.merge(state, %{
                current_state: :uploaded
              })}
 
           {:error, reason} ->
+            Job.error(state, reason)
             {:stop, {:error, reason}, {:error, reason},
              Map.merge(state, %{
                current_state: :upload_failed

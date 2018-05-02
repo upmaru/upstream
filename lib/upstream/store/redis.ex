@@ -9,7 +9,7 @@ defmodule Upstream.Store.Redis do
   def get("hash", conn, key) do
     case Redix.command(conn, ["HGETALL", namespace(key)]) do
       {:ok, []} ->
-        {:reply, {:ok, nil}, {conn, :redis}}
+        {:reply, nil, {conn, :redis}}
 
       {:ok, value} ->
         {
@@ -23,18 +23,18 @@ defmodule Upstream.Store.Redis do
     end
   end
 
-  def get("none", conn, _key), do: {:reply, {:ok, nil}, {conn, :redis}}
+  def get("none", conn, _key), do: {:reply, nil, {conn, :redis}}
 
   def get("set", conn, key) do
     case Redix.command(conn, ["SMEMBERS", namespace(key)]) do
-      {:ok, members} -> {:reply, {:ok, members}, {conn, :redis}}
+      {:ok, members} -> {:reply, members, {conn, :redis}}
     end
   end
 
   def get("string", conn, key) do
     case Redix.command(conn, ["GET", namespace(key)]) do
-      {:ok, nil} -> {:reply, {:ok, nil}, {conn, :redis}}
-      {:ok, value} -> {:reply, {:ok, value}, {conn, :redis}}
+      {:ok, nil} -> {:reply, nil, {conn, :redis}}
+      {:ok, value} -> {:reply, value, {conn, :redis}}
     end
   end
 
