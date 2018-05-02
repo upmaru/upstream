@@ -56,8 +56,8 @@ defmodule Upstream.Store do
 
   def handle_call({:get, key}, _from, {conn, :ets}) do
     case :ets.lookup(conn, key) do
-      [{_k, value}] -> {:reply, {:ok, value}, {conn, :ets}}
-      [] -> {:reply, {:ok, nil}, {conn, :ets}}
+      [{_k, value}] -> {:reply, value, {conn, :ets}}
+      [] -> {:reply, nil, {conn, :ets}}
     end
   end
 
@@ -125,7 +125,7 @@ defmodule Upstream.Store do
   end
 
   def handle_call({:remove_member, key, value}, _from, {conn, :redis}) do
-    case Redix.command(conn, ["SREM", key, value]) do
+    case Redix.command(conn, ["SREM", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, :ok, {conn, :redis}}
       {:ok, 0} -> {:reply, :error, {conn, :redis}}
     end
