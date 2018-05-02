@@ -73,6 +73,10 @@ defmodule Upstream.Job do
     Store.exist?(job.uid.name) && not(Store.is_member?(@errored, job.uid.name))
   end
 
+  def done?(job) do
+    completed?(job) || errored?(job) && not(uploading?(job))
+  end
+
   def errored?(job) do
     Store.is_member?(@errored, job.uid.name)
   end
@@ -92,8 +96,7 @@ defmodule Upstream.Job do
   end
 
   def error(job, reason) do
-    Store.remove_member(@uploading, job.uid.name)
-    Store.add_member(@errored, job.uid.name)
+    Store.move_member(@uploading, @errored, job.uid.name)
     Store.set(job.uid.name, reason)
   end
 
@@ -103,13 +106,10 @@ defmodule Upstream.Job do
   end
 
   defp wait_for_result(job) do
-    case Store.exist?(job.uid.name) do
-      true ->
-        if completed?(job),
-          do: {:ok, Store.get(job.uid.name)},
-            else: {:error, Store.get(job.uid.name)}
-
-      false -> wait_for_result(job)
+    cond do
+      completed?(job) -> {:ok, Store.get(job.uid.name)}
+      errored?(job) -> {:error, Store.get(job.uid.name)}
+      true -> wait_for_result(job)
     end
   end
 

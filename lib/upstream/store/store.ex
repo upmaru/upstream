@@ -27,6 +27,10 @@ defmodule Upstream.Store do
     GenServer.call(__MODULE__, {:remove_member, key, value})
   end
 
+  def move_member(from, to, value) do
+    GenServer.call(__MODULE__, {:move_member, from, to, value})
+  end
+
   def get(key) do
     GenServer.call(__MODULE__, {:get, key})
   end
@@ -84,12 +88,29 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:move_member, from, to, value}, _from, {conn, :ets}) do
+    case {:ets.lookup(conn, from), :ets.lookup(conn, to)} do
+      {[{from_key, from_value}], [{to_key, to_existing}]} ->
+        :ets.insert(conn, {from_key, Enum.reject(from_value, fn v -> v == value end)})
+        :ets.insert(conn, {to_key, [value | to_existing]})
+        {:reply, :ok, {conn, :ets}}
+      {[{from_key, from_value}], []} ->
+        :ets.insert(conn, {from_key, Enum.reject(from_value, fn v -> v == value end)})
+        :ets.insert_new(conn, {to, [value]})
+        {:reply, :ok, {conn, :ets}}
+      {[], [{to_key, to_existing}]} ->
+        :ets.insert(conn, {to_key, [value | to_existing]})
+        {:reply, :ok, {conn, :ets}}
+      {[], []} ->
+        :ets.insert_new(conn, {to, [value]})
+        {:reply, :ok, {conn, :ets}}
+    end
+  end
+
   def handle_call({:is_member?, key, value}, _from, {conn, :ets}) do
     case :ets.lookup(conn, key) do
-      [{_k, existing}] ->
-        {:reply, Enum.member?(existing, value), {conn, :ets}}
-      [] ->
-        {:reply, false, {conn, :ets}}
+      [{_, existing}] -> {:reply, Enum.member?(existing, value), {conn, :ets}}
+      [] -> {:reply, false, {conn, :ets}}
     end
   end
 
@@ -114,6 +135,13 @@ defmodule Upstream.Store do
     case Redix.command(conn, ["SISMEMBER", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, true, {conn, :redis}}
       {:ok, 0} -> {:reply, false, {conn, :redis}}
+    end
+  end
+
+  def handle_call({:move_member, from, to, value}, _from, {conn, :redis}) do
+    case Redix.command(conn, ["SMOVE", Redis.namespace(from), Redis.namespace(to), value]) do
+      {:ok, 1} -> {:reply, :ok, {conn, :redis}}
+      {:ok, 0} -> {:reply, :error, {conn, :redis}}
     end
   end
 

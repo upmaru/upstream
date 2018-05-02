@@ -5,5 +5,4 @@ config :upstream, Upstream,
   application_key: System.get_env("B2_APPLICATION_KEY"),
   bucket_id: System.get_env("B2_BUCKET_ID"),
   bucket_name: System.get_env("B2_BUCKET_NAME"),
-  redis_url: "redis://127.0.0.1:6379/1",
   concurrency: 2
