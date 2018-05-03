@@ -18,6 +18,9 @@ defmodule Upstream.Mixfile do
       package: package(),
       dialyzer: [
         plt_add_deps: true
+      ],
+      preferred_cli_env: [
+        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
       ]
     ]
   end
