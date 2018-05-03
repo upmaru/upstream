@@ -51,9 +51,6 @@ defmodule Upstream.Router do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
-      {:error, :already_uploading, _job_name} ->
-        render_json(conn, 200, %{success: true})
-
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
     end
@@ -96,9 +93,6 @@ defmodule Upstream.Router do
     case Uploader.upload_chunk!(path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
-
-      {:error, :already_uploading, _job_name} ->
-        render_json(conn, 200, %{success: true})
 
       {:error, reason} ->
         render_json(conn, 422, Map.merge(%{success: false}, reason))
