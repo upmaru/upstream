@@ -17,7 +17,7 @@ defmodule Upstream do
   @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
 
-  def config, do: Application.get_env(:upstream, Upstream)
+  def config, do: Application.get_env(:upstream, Upstream) || []
 
   @concurrency 2
   def concurrency, do: config(:concurrency) || @concurrency
