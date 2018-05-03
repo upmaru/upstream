@@ -39,6 +39,6 @@ defmodule Upstream.Store.Redis do
   end
 
   def namespace(k) do
-    @namespace <> ":" <> k
+    @namespace <>  ":#{Upstream.config(:bucket_name)}:" <> k
   end
 end

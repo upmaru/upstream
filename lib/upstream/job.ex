@@ -82,8 +82,7 @@ defmodule Upstream.Job do
   end
 
   def get_result(job, timeout \\ 5000) do
-    {:ok, task} = Task.async(fn -> wait_for_result(job) end)
-    Task.await(task, timeout)
+    Task.await(Task.async(fn -> wait_for_result(job) end), timeout)
   end
 
   def flush(job) do
@@ -98,18 +97,18 @@ defmodule Upstream.Job do
 
   def error(job, reason) do
     Store.move_member(@uploading, @errored, job.uid.name)
-    Store.set(job.uid.name, reason)
+    Store.set(job.uid.name, Poison.encode!(reason))
   end
 
   def complete(job, result) do
     Store.remove_member(@uploading, job.uid.name)
-    Store.set(job.uid.name, result)
+    Store.set(job.uid.name, Poison.encode!(result))
   end
 
   defp wait_for_result(job) do
     cond do
-      completed?(job) -> {:ok, Store.get(job.uid.name)}
-      errored?(job) -> {:error, Store.get(job.uid.name)}
+      completed?(job) -> {:ok, Poison.decode!(Store.get(job.uid.name))}
+      errored?(job) -> {:error, Poison.decode!(Store.get(job.uid.name))}
       true -> wait_for_result(job)
     end
   end
