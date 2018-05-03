@@ -70,7 +70,9 @@ defmodule Upstream.Job do
   end
 
   def completed?(job) do
-    Store.exist?(job.uid.name) && not(Store.is_member?(@errored, job.uid.name))
+    Store.exist?(job.uid.name)
+    && not(Store.is_member?(@errored, job.uid.name))
+    && not(Store.is_member?(@uploading, job.uid.name))
   end
 
   def done?(job) do

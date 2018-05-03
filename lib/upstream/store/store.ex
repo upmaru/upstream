@@ -5,7 +5,9 @@ defmodule Upstream.Store do
   set the redis_url: option for upstream, as uploads can happen from any of your node.
   """
   use GenServer
-  alias Upstream.Store.Redis
+  alias Upstream.Store.{
+    Redis, Ets
+  }
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -91,8 +93,12 @@ defmodule Upstream.Store do
   def handle_call({:move_member, from, to, value}, _from, {conn, :ets}) do
     case {:ets.lookup(conn, from), :ets.lookup(conn, to)} do
       {[{from_key, from_value}], [{to_key, to_existing}]} ->
-        :ets.insert(conn, {from_key, Enum.reject(from_value, fn v -> v == value end)})
+        Ets.remove_member(conn, from_key, from_value, value)
         :ets.insert(conn, {to_key, [value | to_existing]})
+        {:reply, :ok, {conn, :ets}}
+      {[{from_key, from_value}], []} ->
+        Ets.remove_member(conn, from_key, from_value, value)
+        :ets.insert_new(conn, {to, [value]})
         {:reply, :ok, {conn, :ets}}
       _ ->
         {:reply, :error, {conn, :ets}}
@@ -109,7 +115,7 @@ defmodule Upstream.Store do
   def handle_call({:remove_member, key, value}, _from, {conn, :ets}) do
     case :ets.lookup(conn, key) do
       [{_k, existing}] ->
-        :ets.insert(conn, {key, Enum.reject(existing, fn v -> v == value end)})
+        Ets.remove_member(conn, key, existing, value)
         {:reply, :ok, {conn, :ets}}
       [] ->
         {:reply, :error, {conn, :ets}}

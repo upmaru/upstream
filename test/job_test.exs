@@ -27,11 +27,11 @@ defmodule Upstream.JobTest do
     end
 
     test "job errored" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_2.jpg")
+      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
       Job.start(job)
       Job.error(job, "something_failed")
 
-      assert Job.get_result(job) == {:ok, "something_failed"}
+      assert Job.get_result(job) == {:error, "something_failed"}
     end
 
     test "job completed" do
