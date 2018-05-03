@@ -8,6 +8,7 @@ defmodule Upstream.Worker.Base do
 
       @behaviour unquote(__MODULE__)
 
+      alias Upstream.Job
       alias Upstream.B2.Upload
 
       alias Upstream.Uploader.{
@@ -35,16 +36,22 @@ defmodule Upstream.Worker.Base do
       end
 
       def handle_call(:upload, _from, state) do
+        Job.start(state)
+
         case task(state) do
           {:ok, result} ->
-            {:stop, :normal, {:ok, result}, Map.merge(state, %{
-              current_state: :uploaded
-            })}
+            Job.complete(state, result)
+            {:stop, :normal, {:ok, result},
+             Map.merge(state, %{
+               current_state: :uploaded
+             })}
 
           {:error, reason} ->
-            {:stop, {:error, reason}, {:error, reason}, Map.merge(state, %{
-              current_state: :upload_failed
-            })}
+            Job.error(state, reason)
+            {:stop, {:error, reason}, {:error, reason},
+             Map.merge(state, %{
+               current_state: :upload_failed
+             })}
         end
       end
 
@@ -60,7 +67,7 @@ defmodule Upstream.Worker.Base do
       defp handle_setup(state), do: state
 
       defp via_tuple(job_name) do
-        {:via, Registry, {Upstream.Uploader.Registry, job_name}}
+        {:via, Registry, {Upstream.Registry, job_name}}
       end
 
       defoverridable init: 1, handle_stop: 1, handle_setup: 1

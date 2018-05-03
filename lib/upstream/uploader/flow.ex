@@ -3,10 +3,8 @@ defmodule Upstream.Uploader.Flow do
   Generates the chunks stream for Worker.File and Worker.LargeFile
   """
 
-  alias Upstream.Uploader.{
-    Checksum,
-    Status
-  }
+  alias Upstream.Uploader.Checksum
+  alias Upstream.Worker.LargeFile.Status
 
   def generate(stream, index, checksum_pid, status_pid \\ nil) do
     last_bytes = get_last_bytes(stream)

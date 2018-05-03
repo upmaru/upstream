@@ -16,8 +16,7 @@ defmodule Upstream.Uploader do
       supervisor(__MODULE__.Chunk, []),
       supervisor(__MODULE__.LargeFile, []),
       supervisor(__MODULE__.StandardFile, []),
-      supervisor(Task.Supervisor, [[name: __MODULE__.TaskSupervisor]]),
-      supervisor(Registry, [:unique, __MODULE__.Registry])
+      supervisor(Task.Supervisor, [[name: __MODULE__.TaskSupervisor]])
     ]
 
     supervise(children, strategy: :one_for_one)
@@ -42,12 +41,10 @@ defmodule Upstream.Uploader do
   end
 
   defp start_and_register(job, on_start) do
-    case Registry.lookup(__MODULE__.Registry, job.uid.name) do
-      [{_pid, nil}] ->
-        {:error, :already_uploading, job.uid.name}
-
-      [] ->
-        on_start.()
+    if Job.uploading?(job) || Job.done?(job) do
+      Job.get_result(job)
+    else
+      on_start.()
     end
   end
 
