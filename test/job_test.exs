@@ -10,7 +10,7 @@ defmodule Upstream.JobTest do
   }
 
   test "create job" do
-    job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
+    job = Job.create("../test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
     {:ok, stat} = File.stat("test/fixtures/cute_baby.jpg")
 
     assert job.uid.name == "cute_baby_0.jpg"
@@ -20,14 +20,14 @@ defmodule Upstream.JobTest do
 
   describe "job state change" do
     test "start job" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
+      job = Job.create("../test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
       Job.start(job)
 
       assert Job.uploading?(job) == true
     end
 
     test "job errored" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
+      job = Job.create("../test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
       Job.start(job)
       Job.error(job, "something_failed")
 
@@ -36,7 +36,7 @@ defmodule Upstream.JobTest do
 
     test "job completed" do
       use_cassette "b2_get_upload_part_url" do
-        job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
+        job = Job.create("../test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
         Job.start(job)
 
         {:ok, started} = LargeFile.start(job.uid.name)
