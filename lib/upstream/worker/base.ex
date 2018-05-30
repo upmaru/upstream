@@ -36,6 +36,7 @@ defmodule Upstream.Worker.Base do
       end
 
       def handle_call(:upload, _from, state) do
+        Job.flush(state)
         Job.start(state)
 
         case task(state) do
