@@ -1,5 +1,7 @@
 # Upstream
 
+[![Build Status](https://travis-ci.org/upmaru/upstream.svg?branch=develop)](https://travis-ci.org/upmaru/upstream)
+
 Module for handling file upload can be mounted in any `Phoenix` app via the phoenix router.
 
 It supports simple single thread uploading or multi-threaded uploading provided the client supports it. More details coming soon, as we add tests and finalize the module.
@@ -11,7 +13,7 @@ by adding `upstream` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:upstream, "~> 1.4.0"}]
+  [{:upstream, "~> 1.5.2"}]
 end
 ```
 

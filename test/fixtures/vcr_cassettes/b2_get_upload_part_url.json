@@ -1,0 +1,58 @@
+[
+  {
+    "request": {
+      "body": "{\"fileName\":\"test_file.txt\",\"contentType\":\"b2/x-auto\",\"bucketId\":\"6c4c58770d52643752ca0913\"}",
+      "headers": {
+        "Authorization": "3_20180503054756_190dfb13dd3914d314a9cc83_a08b819e347876a8f27db62a1e9910659fdd7737_001_acct"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": "infinity",
+        "connect_timeout": "infinity"
+      },
+      "request_body": "",
+      "url": "https://api001.backblazeb2.com/b2api/v1/b2_start_large_file"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\n  \"accountId\": \"cc87d2472a93\",\n  \"bucketId\": \"6c4c58770d52643752ca0913\",\n  \"contentType\": \"text/plain\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\",\n  \"fileInfo\": {},\n  \"fileName\": \"test_file.txt\",\n  \"uploadTimestamp\": 1525326482000\n}\n",
+      "headers": {
+        "Server": "Apache-Coyote/1.1",
+        "Cache-Control": "max-age=0, no-cache, no-store",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Content-Length": "291",
+        "Date": "Thu, 03 May 2018 05:48:02 GMT"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "{\"fileId\":\"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\"}",
+      "headers": {
+        "Authorization": "3_20180503054756_190dfb13dd3914d314a9cc83_a08b819e347876a8f27db62a1e9910659fdd7737_001_acct"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": "infinity",
+        "connect_timeout": "infinity"
+      },
+      "request_body": "",
+      "url": "https://api001.backblazeb2.com/b2api/v1/b2_get_upload_part_url"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\n  \"authorizationToken\": \"3_20180503054803_e3fb44ff2b798628c1ed0554_897daa4398490ef0e25d915cc2a102f10eb2e122_001_uplg\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\",\n  \"uploadUrl\": \"https://pod-000-1103-10.backblaze.com/b2api/v1/b2_upload_part/4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059/0017\"\n}\n",
+      "headers": {
+        "Server": "Apache-Coyote/1.1",
+        "Cache-Control": "max-age=0, no-cache, no-store",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Content-Length": "390",
+        "Date": "Thu, 03 May 2018 05:48:03 GMT"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]
