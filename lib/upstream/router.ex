@@ -87,7 +87,8 @@ defmodule Upstream.Router do
     upload_params = %{
       file_id: file_id,
       index: String.to_integer(part_number),
-      content_length: String.to_integer(chunk_size)
+      content_length: String.to_integer(chunk_size),
+      attempt: conn.body_params["attempt"] || 0
     }
 
     case Uploader.upload_chunk!(path, upload_params) do
