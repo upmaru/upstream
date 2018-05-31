@@ -32,6 +32,7 @@ defmodule Upstream.Job do
           last_content_length: integer,
           stream: File.Stream.t(),
           threads: integer,
+          attempt: integer,
           metadata: map
         }
 
@@ -61,6 +62,7 @@ defmodule Upstream.Job do
       last_content_length: last_content_length,
       stream: stream,
       threads: threads,
+      attempt: params.attempt,
       metadata: metadata
     }
   end
@@ -76,6 +78,7 @@ defmodule Upstream.Job do
   end
 
   def done?(job) do
+    # this is not right
     completed?(job) || errored?(job) && not(uploading?(job))
   end
 
