@@ -15,6 +15,7 @@ defmodule Upstream.Job do
     :last_content_length,
     :stat,
     :metadata,
+    :attempt,
     :threads
   ]
 
@@ -54,6 +55,9 @@ defmodule Upstream.Job do
     # content_length of the last thread
     last_content_length = stat.size - content_length * threads + content_length
 
+    attempt = 
+      if is_binary(params), do: 0, else: params.attempt
+
     %__MODULE__{
       uid: get_uid(params) || %{name: source_path},
       full_path: absolute_path,
@@ -62,7 +66,7 @@ defmodule Upstream.Job do
       last_content_length: last_content_length,
       stream: stream,
       threads: threads,
-      attempt: params.attempt,
+      attempt: attempt,
       metadata: metadata
     }
   end
