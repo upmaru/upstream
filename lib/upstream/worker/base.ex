@@ -32,6 +32,8 @@ defmodule Upstream.Worker.Base do
       # Server Callbacks
 
       def init(job) do
+        Job.start(job)
+
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
@@ -68,7 +70,7 @@ defmodule Upstream.Worker.Base do
         {:via, Registry, {Upstream.Registry, job_name}}
       end
 
-      defoverridable init: 1, handle_stop: 1, handle_setup: 1
+      defoverridable handle_stop: 1, handle_setup: 1
     end
   end
 
