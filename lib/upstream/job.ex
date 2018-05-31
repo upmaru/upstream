@@ -87,7 +87,7 @@ defmodule Upstream.Job do
     Task.await(Task.async(fn -> wait_for_result(job) end), timeout)
   end
 
-  def flush(job) do
+  def retry(job) do
     Store.remove_member(@errored, job.uid.name)
     Store.remove(job.uid.name)
   end
