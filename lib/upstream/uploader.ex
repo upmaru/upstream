@@ -25,10 +25,6 @@ defmodule Upstream.Uploader do
   def upload_chunk!(chunk_path, params) do
     job = Job.create(chunk_path, params)
 
-    if job.attempt > 0 do
-      Job.flush(job)
-    end
-
     start_and_register(job, fn ->
       start_uploader(:chunk, job)
     end)
