@@ -121,7 +121,7 @@ defmodule Upstream.Job do
     do: %{
       file_id: params.file_id,
       index: params.index,
-      name: "#{params.file_id}_#{params.index}_#{params.attempt}"
+      name: "#{params.file_id}_#{params.index}"
     }
 
   defp recommend_thread_count(file_size) do
