@@ -27,6 +27,8 @@ defmodule Upstream.Uploader do
     if Job.errored?(job), do: Job.flush(job)
 
     start_and_register(job, fn ->
+      Job.start(job)
+
       start_uploader(:chunk, job)
     end)
   end
@@ -38,6 +40,8 @@ defmodule Upstream.Uploader do
     file_type = if job.threads == 1, do: :standard, else: :large
 
     start_and_register(job, fn ->
+      Job.start(job)
+
       start_uploader(file_type, job)
     end)
   end

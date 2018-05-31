@@ -88,7 +88,6 @@ defmodule Upstream.Job do
   end
 
   def flush(job) do
-    Store.remove_member(@uploading, job.uid.name)
     Store.remove_member(@errored, job.uid.name)
     Store.remove(job.uid.name)
   end
