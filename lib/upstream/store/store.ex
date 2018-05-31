@@ -152,7 +152,8 @@ defmodule Upstream.Store do
 
   def handle_call({:remove_member, key, value}, _from, {conn, :redis}) do
     case Redix.command(conn, ["SREM", Redis.namespace(key), value]) do
-      {:ok, _} -> {:reply, :ok, {conn, :redis}}
+      {:ok, 1} -> {:reply, :ok, {conn, :redis}}
+      {:ok, 0} -> {:reply, :error, {conn, :redis}}
     end
   end
 

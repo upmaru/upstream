@@ -78,7 +78,6 @@ defmodule Upstream.Job do
   end
 
   def done?(job) do
-    # this is not right
     completed?(job) || errored?(job) && not(uploading?(job))
   end
 
