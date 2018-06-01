@@ -70,26 +70,21 @@ defmodule Upstream.Job do
   end
 
   def completed?(job) do
-    Store.exist?(job.uid.name)
-    && not(Store.is_member?(@errored, job.uid.name))
-    && not(Store.is_member?(@uploading, job.uid.name))
+    Store.exist?(job.uid.name) && not Store.is_member?(@errored, job.uid.name) &&
+      not Store.is_member?(@uploading, job.uid.name)
   end
 
   def done?(job) do
-    completed?(job) || errored?(job) && not(uploading?(job))
+    completed?(job) || (errored?(job) && not uploading?(job))
   end
 
   def errored?(job) do
     Store.is_member?(@errored, job.uid.name)
   end
 
-  def get_result(job, timeout \\ 5000) do
-    Task.await(Task.async(fn -> wait_for_result(job) end), timeout)
-  end
-
   def retry(job) do
-    Store.remove_member(@errored, job.uid.name)
     Store.remove(job.uid.name)
+    Store.remove_member(@errored, job.uid.name)
   end
 
   def start(job) do
@@ -97,22 +92,48 @@ defmodule Upstream.Job do
   end
 
   def error(job, reason) do
-    Store.move_member(@uploading, @errored, job.uid.name)
     Store.set(job.uid.name, Poison.encode!(reason))
+    Store.move_member(@uploading, @errored, job.uid.name)
   end
 
   def complete(job, result) do
-    Store.remove_member(@uploading, job.uid.name)
     Store.set(job.uid.name, Poison.encode!(result))
+    Store.remove_member(@uploading, job.uid.name)
+  end
+
+  def get_result(job, timeout \\ 5000) do
+    if waited_times(job) >= 2 do
+      error(job, %{waited: waited_times(job)})
+      clear_wait(job)
+      wait_for_result(job)
+    else
+      track_wait(job)
+      task = Task.async(fn -> wait_for_result(job) end)
+      Task.await(task, timeout)
+    end
   end
 
   defp wait_for_result(job) do
     cond do
-      completed?(job) -> {:ok, Poison.decode!(Store.get(job.uid.name))}
-      errored?(job) -> {:error, Poison.decode!(Store.get(job.uid.name))}
-      true -> wait_for_result(job)
+      completed?(job) ->
+        {:ok, Poison.decode!(Store.get(job.uid.name))}
+
+      errored?(job) ->
+        {:error, Poison.decode!(Store.get(job.uid.name))}
+
+      true ->
+        wait_for_result(job)
     end
   end
+
+  defp clear_wait(job), do: Store.remove(wait_key(job))
+  defp track_wait(job), do: Store.increment(wait_key(job))
+
+  def waited_times(job) do
+    String.to_integer(job |> wait_key() |> Store.get() || "0")
+  end
+
+  defp wait_key(job), do: "waited_times:#{job.uid.name}"
 
   defp get_uid(params) when is_binary(params), do: %{name: params}
 

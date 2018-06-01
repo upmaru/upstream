@@ -20,7 +20,10 @@ defmodule Upstream.Mixfile do
         plt_add_deps: true
       ],
       preferred_cli_env: [
-        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
+        vcr: :test,
+        "vcr.delete": :test,
+        "vcr.check": :test,
+        "vcr.show": :test
       ]
     ]
   end

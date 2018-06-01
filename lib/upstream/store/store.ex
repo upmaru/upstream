@@ -5,6 +5,7 @@ defmodule Upstream.Store do
   set the redis_url: option for upstream, as uploads can happen from any of your node.
   """
   use GenServer
+
   alias Upstream.Store.{
     Redis
   }
@@ -15,6 +16,10 @@ defmodule Upstream.Store do
 
   def exist?(key) do
     GenServer.call(__MODULE__, {:exist?, key})
+  end
+
+  def flush_all do
+    GenServer.call(__MODULE__, :flush_all)
   end
 
   def add_member(key, value) do
@@ -62,6 +67,17 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call(:flush_all, _from, conn) do
+    {:ok, keys} = Redix.command(conn, ["KEYS", Redis.namespace("*")])
+
+    if Enum.empty?(keys) do
+      {:reply, :ok, conn}
+    else
+      {:ok, _count} = Redix.command(conn, ["DEL" | keys])
+      {:reply, :ok, conn}
+    end
+  end
+
   def handle_call({:is_member?, key, value}, _from, conn) do
     case Redix.command(conn, ["SISMEMBER", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, true, conn}
@@ -92,7 +108,7 @@ defmodule Upstream.Store do
 
   def handle_call({:get, key}, _from, conn) do
     with {:ok, type} <- Redix.command(conn, ["TYPE", Redis.namespace(key)]),
-      do: Redis.get(type, conn, key)
+         do: Redis.get(type, conn, key)
   end
 
   def handle_call({:increment, key}, _from, conn) do
@@ -106,7 +122,8 @@ defmodule Upstream.Store do
   end
 
   def handle_call({:set, key, value}, _from, conn) when is_map(value) do
-    command = Enum.reduce(value, [Redis.namespace(key), "HMSET"], fn {k, v}, acc -> [[v, k] | acc] end)
+    command =
+      Enum.reduce(value, [Redis.namespace(key), "HMSET"], fn {k, v}, acc -> [[v, k] | acc] end)
 
     case Redix.command(conn, command |> List.flatten() |> Enum.reverse()) do
       {:ok, "OK"} -> {:reply, {:ok, value}, conn}
