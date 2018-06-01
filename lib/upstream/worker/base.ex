@@ -57,7 +57,14 @@ defmodule Upstream.Worker.Base do
 
       def terminate(reason, state) do
         handle_stop(state)
-        Logger.info("[Upstream] Shutting down #{state.uid.name}")
+        cond do
+          Job.completed?(state) ->
+            Logger.info("[Upstream] Completed #{state.uid.name}")
+          Job.errored?(state) ->
+            Logger.info("[Upstream] Errored #{state.uid.name}")
+          true -> 
+            Job.error(state, reason)
+        end
         reason
       end
 
