@@ -22,7 +22,8 @@ defmodule Upstream.StoreTest do
     Store.add_member("errored", "another_job")
     Store.move_member("uploading", "errored", "some_job")
 
-    assert Store.get("errored") == ["some_job", "another_job"]
+    assert Enum.member?(Store.get("errored"), "some_job") == true
+    assert Enum.member?(Store.get("errored"), "another_job") == true
   end
 
   test "remove item from list" do

@@ -24,24 +24,20 @@ defmodule Upstream.Uploader do
 
   def upload_chunk!(chunk_path, params) do
     job = Job.create(chunk_path, params)
-    if Job.errored?(job), do: Job.flush(job)
+    if Job.errored?(job), do: Job.retry(job)
 
     start_and_register(job, fn ->
-      Job.start(job)
-
       start_uploader(:chunk, job)
     end)
   end
 
   def upload_file!(file_path, name, metadata \\ %{}) do
     job = Job.create(file_path, name, metadata)
-    if Job.errored?(job), do: Job.flush(job)
+    if Job.errored?(job), do: Job.retry(job)
 
     file_type = if job.threads == 1, do: :standard, else: :large
 
     start_and_register(job, fn ->
-      Job.start(job)
-
       start_uploader(file_type, job)
     end)
   end
