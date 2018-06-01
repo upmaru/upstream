@@ -129,7 +129,7 @@ defmodule Upstream.Job do
   defp clear_wait(job), do: Store.remove(wait_key(job))
   defp track_wait(job), do: Store.increment(wait_key(job))
 
-  def waited_times(job) do
+  defp waited_times(job) do
     String.to_integer(job |> wait_key() |> Store.get() || "0")
   end
 
