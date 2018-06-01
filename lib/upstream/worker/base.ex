@@ -32,12 +32,12 @@ defmodule Upstream.Worker.Base do
       # Server Callbacks
 
       def init(job) do
-        Job.start(job)
-
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
       def handle_call(:upload, _from, state) do
+        Job.start(job)
+
         case task(state) do
           {:ok, result} ->
             Job.complete(state, result)
