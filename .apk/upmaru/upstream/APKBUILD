@@ -1,0 +1,70 @@
+# Contributor: Zack Siri <zack@artellectual.com>
+# Maintainer: Zack Siri <zack@artellectual.com>
+
+DESCRIBE=`git describe --tags --always`
+
+# increment the build number (ie 115 to 116)
+VERSION=`echo $DESCRIBE | awk '{split($0,a,"-"); print a[1]}'`
+BUILD=`echo $DESCRIBE | awk '{split($0,a,"-"); print a[2]}'`
+PATCH=`echo $DESCRIBE | awk '{split($0,a,"-"); print a[3]}'`
+
+if [[ `printf "${DESCRIBE}" | grep -E ^[A-Fa-f0-9]+$` ]]; then
+    VERSION="0.0.0"
+    BUILD=`git rev-list HEAD --count`
+    PATCH=${DESCRIBE}
+fi
+
+if [ "${BUILD}" = "" ]; then
+    BUILD='0'
+fi
+
+if [ "${BUILD}" = "" ]; then
+    PATCH=$DESCRIBE
+fi
+
+pkgname=upstream
+pkgver=$VERSION
+pkgrel=$BUILD
+pkgdesc="Upstream Library"
+url="https://github.com/upmaru/upstream"
+arch="x86_64"
+options="!check"
+pkgusers="upstream"
+pkggroups="upstream"
+license="MIT"
+
+depends="
+  bash
+  curl
+"
+
+makedepends="
+  elixir
+  erlang-crypto
+  erlang-syntax-tools
+  erlang-parsetools
+  erlang-tools
+"
+
+install=""
+
+source="
+  $pkgname-$pkgver.tar
+"
+
+root=../../..
+
+check() {
+  abuild clean
+  abuild deps
+
+  echo "--- Preparing for Tests"
+  cd "$root"
+
+  mix local.hex --force
+  mix local.rebar --force
+  MIX_ENV=test mix deps.get --only test
+
+  echo "--- Running Tests"
+  MIX_ENV=test mix test
+}
