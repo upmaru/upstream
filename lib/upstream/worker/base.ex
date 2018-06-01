@@ -41,6 +41,7 @@ defmodule Upstream.Worker.Base do
         case task(state) do
           {:ok, result} ->
             Job.complete(state, result)
+
             {:stop, :normal, {:ok, result},
              Map.merge(state, %{
                current_state: :uploaded
@@ -48,6 +49,7 @@ defmodule Upstream.Worker.Base do
 
           {:error, reason} ->
             Job.error(state, reason)
+
             {:stop, {:error, reason}, {:error, reason},
              Map.merge(state, %{
                current_state: :upload_failed
@@ -57,14 +59,18 @@ defmodule Upstream.Worker.Base do
 
       def terminate(reason, state) do
         handle_stop(state)
+
         cond do
           Job.completed?(state) ->
             Logger.info("[Upstream] Completed #{state.uid.name}")
+
           Job.errored?(state) ->
             Logger.info("[Upstream] Errored #{state.uid.name}")
-          true -> 
+
+          true ->
             Job.error(state, reason)
         end
+
         reason
       end
 
