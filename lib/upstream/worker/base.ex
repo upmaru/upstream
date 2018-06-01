@@ -32,12 +32,12 @@ defmodule Upstream.Worker.Base do
       # Server Callbacks
 
       def init(job) do
+        Job.start(job)
+
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
       def handle_call(:upload, _from, state) do
-        Job.start(state)
-
         case task(state) do
           {:ok, result} ->
             Job.complete(state, result)
@@ -64,6 +64,8 @@ defmodule Upstream.Worker.Base do
             Logger.info("[Upstream] Errored #{state.uid.name}")
           Job.uploading?(state) ->
             Job.error(state, reason)
+          true -> 
+            Job.error(state, reason)
         end
         reason
       end
@@ -71,7 +73,7 @@ defmodule Upstream.Worker.Base do
       # Private functions
 
       defp handle_stop(state), do: nil
-      defp handle_setup(state), do: state
+      defp handle_setup(state) do: state
 
       defp via_tuple(job_name) do
         {:via, Registry, {Upstream.Registry, job_name}}
