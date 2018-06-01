@@ -9,6 +9,11 @@ defmodule Upstream.JobTest do
     Upload
   }
 
+  setup do
+    Upstream.Store.start_link([])
+    Upstream.Store.flush_all()
+  end
+
   test "create job" do
     job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
     {:ok, stat} = File.stat("test/fixtures/cute_baby.jpg")
@@ -47,6 +52,24 @@ defmodule Upstream.JobTest do
         assert Job.completed?(job) == true
         assert Job.get_result(job) == {:ok, Poison.decode!(Poison.encode!(part_url))}
       end
+    end
+
+    test "job waiting mechanism" do
+      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_99887.jpg")
+
+      Job.start(job)
+
+      catch_exit do
+        Job.get_result(job, 0)
+      end
+
+      catch_exit do
+        Job.get_result(job, 0)
+      end
+
+      Job.get_result(job, 0)
+
+      assert Job.errored?(job) == true
     end
   end
 end
