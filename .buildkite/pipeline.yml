@@ -1,0 +1,8 @@
+env:
+  REPODEST: /home/builder/packages/${BUILDKITE_BRANCH}
+
+steps:
+  - label: ":elixir:"
+    command:
+      - "cd .apk/upmaru/upstream"
+      - "abuild check"

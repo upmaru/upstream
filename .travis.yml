@@ -1,5 +1,0 @@
-language: elixir
-services:
-  - redis
-elixir: 
-  - '1.6.0'
