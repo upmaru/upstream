@@ -62,8 +62,6 @@ defmodule Upstream.Worker.Base do
             Logger.info("[Upstream] Completed #{state.uid.name}")
           Job.errored?(state) ->
             Logger.info("[Upstream] Errored #{state.uid.name}")
-          Job.uploading?(state) ->
-            Job.error(state, reason)
           true -> 
             Job.error(state, reason)
         end
