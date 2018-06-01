@@ -71,7 +71,7 @@ defmodule Upstream.Worker.Base do
       # Private functions
 
       defp handle_stop(state), do: nil
-      defp handle_setup(state) do: state
+      defp handle_setup(state), do: state
 
       defp via_tuple(job_name) do
         {:via, Registry, {Upstream.Registry, job_name}}
