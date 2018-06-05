@@ -102,7 +102,7 @@ defmodule Upstream.Job do
   end
 
   def get_result(job, timeout \\ 5000) do
-    if waited_times(job) >= 2 do
+    if waited_times(job) >= 1 do
       error(job, %{waited: waited_times(job)})
       clear_wait(job)
       wait_for_result(job)

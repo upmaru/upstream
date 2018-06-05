@@ -5,6 +5,11 @@ defmodule Upstream.StoreTest do
   use ExUnit.Case
   alias Upstream.Store
 
+  setup do
+    Upstream.Store.start_link([])
+    Upstream.Store.flush_all()
+  end
+
   test "store value in key" do
     Store.set("blah", "test")
 

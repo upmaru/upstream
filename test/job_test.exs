@@ -63,10 +63,6 @@ defmodule Upstream.JobTest do
         Job.get_result(job, 0)
       end
 
-      catch_exit do
-        Job.get_result(job, 0)
-      end
-
       Job.get_result(job, 0)
 
       assert Job.errored?(job) == true
