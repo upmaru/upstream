@@ -5,7 +5,6 @@ defmodule Upstream.Uploader.LargeFile do
   use Supervisor
 
   alias Upstream.Worker
-  alias Upstream.Job
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
