@@ -103,8 +103,11 @@ defmodule Upstream.Job do
 
   def get_result(job, timeout \\ 5000) do
     task = Task.async(fn -> wait_for_result(job) end)
+
     case Task.yield(task, timeout) || Task.shutdown(task) do
-      {:ok, reply} -> reply
+      {:ok, reply} ->
+        reply
+
       nil ->
         message = %{error: :no_reply}
         error(job, message)
