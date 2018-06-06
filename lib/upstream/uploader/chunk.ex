@@ -12,7 +12,7 @@ defmodule Upstream.Uploader.Chunk do
 
   def init(_) do
     children = [
-      worker(Worker.Chunk, [], restart: :transient)
+      worker(Worker.Chunk, [], restart: :temporary)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

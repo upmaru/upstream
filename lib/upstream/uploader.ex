@@ -44,9 +44,20 @@ defmodule Upstream.Uploader do
 
   defp start_and_register(job, on_start) do
     if Job.uploading?(job) || Job.done?(job) do
-      Job.get_result(job)
+      get_result_or_start(job, on_start)
     else
       on_start.()
+    end
+  end
+
+  defp get_result_or_start(job, on_start) do
+    case Job.get_result(job) do
+      {:ok, reply} ->
+        {:ok, reply}
+
+      {:error, :no_reply} ->
+        Job.retry(job)
+        on_start.()
     end
   end
 

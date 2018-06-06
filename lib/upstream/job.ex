@@ -101,13 +101,15 @@ defmodule Upstream.Job do
     Store.remove_member(@uploading, job.uid.name)
   end
 
-  def get_result(job, timeout \\ 1000) do
-    try do
-      task = Task.async(fn -> wait_for_result(job) end)
-      Task.await(task, timeout)
-    catch
-      :exit, _ ->
-        message = %{error: :timeout}
+  def get_result(job, timeout \\ 5000) do
+    task = Task.async(fn -> wait_for_result(job) end)
+
+    case Task.yield(task, timeout) || Task.shutdown(task) do
+      {:ok, reply} ->
+        reply
+
+      nil ->
+        message = %{error: :no_reply}
         error(job, message)
         {:error, message}
     end
