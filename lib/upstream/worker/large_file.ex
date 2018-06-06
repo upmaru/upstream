@@ -8,21 +8,6 @@ defmodule Upstream.Worker.LargeFile do
   alias Upstream.B2.LargeFile
   alias Upstream.Worker.Chunk
 
-  # Client API
-
-  def cancel(job_name) do
-    GenServer.call(via_tuple(job_name), :cancel)
-  end
-
-  # Server Callbacks
-
-  def handle_call(:cancel, _from, state) do
-    {:ok, cancelled} = LargeFile.cancel(state.file_id)
-    new_state = Map.merge(state, %{current_state: :cancelled})
-
-    {:reply, cancelled, new_state}
-  end
-
   # Upstream.Worker.Base Callbacks
 
   def task(state) do
