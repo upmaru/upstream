@@ -1,9 +1,9 @@
 [
   {
     "request": {
-      "body": "{\"fileName\":\"test_file.txt\",\"contentType\":\"b2/x-auto\",\"bucketId\":\"6c4c58770d52643752ca0913\"}",
+      "body": "{\"fileName\":\"cute_baby_234.jpg\",\"contentType\":\"b2/x-auto\",\"bucketId\":\"6c4c58770d52643752ca0913\"}",
       "headers": {
-        "Authorization": "3_20180503054756_190dfb13dd3914d314a9cc83_a08b819e347876a8f27db62a1e9910659fdd7737_001_acct"
+        "Authorization": "3_20180606052754_84ada718a62f03f97e2dfdcd_b67088d6ac3e562e7fc32b2e679b742fa7b4771f_001_acct"
       },
       "method": "post",
       "options": {
@@ -15,13 +15,12 @@
     },
     "response": {
       "binary": false,
-      "body": "{\n  \"accountId\": \"cc87d2472a93\",\n  \"bucketId\": \"6c4c58770d52643752ca0913\",\n  \"contentType\": \"text/plain\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\",\n  \"fileInfo\": {},\n  \"fileName\": \"test_file.txt\",\n  \"uploadTimestamp\": 1525326482000\n}\n",
+      "body": "{\n  \"accountId\": \"cc87d2472a93\",\n  \"bucketId\": \"6c4c58770d52643752ca0913\",\n  \"contentType\": \"image/jpeg\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f207f09c516ed27c9_d20180606_m052755_c001_v0001105_t0008\",\n  \"fileInfo\": {},\n  \"fileName\": \"cute_baby_234.jpg\",\n  \"uploadTimestamp\": 1528262875000\n}\n",
       "headers": {
-        "Server": "Apache-Coyote/1.1",
         "Cache-Control": "max-age=0, no-cache, no-store",
         "Content-Type": "application/json;charset=UTF-8",
-        "Content-Length": "291",
-        "Date": "Thu, 03 May 2018 05:48:02 GMT"
+        "Content-Length": "295",
+        "Date": "Wed, 06 Jun 2018 05:27:54 GMT"
       },
       "status_code": 200,
       "type": "ok"
@@ -29,9 +28,9 @@
   },
   {
     "request": {
-      "body": "{\"fileId\":\"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\"}",
+      "body": "{\"fileId\":\"4_z6c4c58770d52643752ca0913_f207f09c516ed27c9_d20180606_m052755_c001_v0001105_t0008\"}",
       "headers": {
-        "Authorization": "3_20180503054756_190dfb13dd3914d314a9cc83_a08b819e347876a8f27db62a1e9910659fdd7737_001_acct"
+        "Authorization": "3_20180606052754_84ada718a62f03f97e2dfdcd_b67088d6ac3e562e7fc32b2e679b742fa7b4771f_001_acct"
       },
       "method": "post",
       "options": {
@@ -43,13 +42,12 @@
     },
     "response": {
       "binary": false,
-      "body": "{\n  \"authorizationToken\": \"3_20180503054803_e3fb44ff2b798628c1ed0554_897daa4398490ef0e25d915cc2a102f10eb2e122_001_uplg\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059\",\n  \"uploadUrl\": \"https://pod-000-1103-10.backblaze.com/b2api/v1/b2_upload_part/4_z6c4c58770d52643752ca0913_f200870956c0867cd_d20180503_m054802_c001_v0001103_t0059/0017\"\n}\n",
+      "body": "{\n  \"authorizationToken\": \"3_20180606052755_5f2e1c1b8bf8cf68dfc89de7_9b693ce76afcb561edb200c863a0703d12972a90_001_uplg\",\n  \"fileId\": \"4_z6c4c58770d52643752ca0913_f207f09c516ed27c9_d20180606_m052755_c001_v0001105_t0008\",\n  \"uploadUrl\": \"https://pod-000-1105-06.backblaze.com/b2api/v1/b2_upload_part/4_z6c4c58770d52643752ca0913_f207f09c516ed27c9_d20180606_m052755_c001_v0001105_t0008/0017\"\n}\n",
       "headers": {
-        "Server": "Apache-Coyote/1.1",
         "Cache-Control": "max-age=0, no-cache, no-store",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "390",
-        "Date": "Thu, 03 May 2018 05:48:03 GMT"
+        "Date": "Wed, 06 Jun 2018 05:27:54 GMT"
       },
       "status_code": 200,
       "type": "ok"

@@ -6,6 +6,8 @@ defmodule Upstream.Worker.Base do
     quote do
       use GenServer
 
+      @upload_timeout 10_000
+
       @behaviour unquote(__MODULE__)
 
       alias Upstream.Job
@@ -26,14 +28,12 @@ defmodule Upstream.Worker.Base do
       end
 
       def upload(job_name) do
-        GenServer.call(via_tuple(job_name), :upload, :infinity)
+        GenServer.call(via_tuple(job_name), :upload, @upload_timeout)
       end
 
       # Server Callbacks
 
       def init(job) do
-        Job.start(job)
-
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
