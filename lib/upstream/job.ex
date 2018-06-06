@@ -107,7 +107,9 @@ defmodule Upstream.Job do
       Task.await(task, timeout)
     catch
       :exit, _ ->
-        error(job, %{error: :timeout})
+        message = %{error: :timeout}
+        error(job, message)
+        {:error, message}
     end
   end
 
