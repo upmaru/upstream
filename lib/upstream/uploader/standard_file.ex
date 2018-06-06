@@ -25,8 +25,14 @@ defmodule Upstream.Uploader.StandardFile do
          {:ok, result} <- Worker.StandardFile.upload(job.uid.name) do
       {:ok, result}
     else
-      {:error, {reason, _}} -> {:error, %{error: reason}}
-      {:error, reason} -> {:error, reason}
+      {:error, {:already_started, _}} -> {:error, %{error: :already_started}}
+      {:error, {reason, _}} ->
+        message = %{error: reason}
+        Job.error(job, message)
+        {:error, message}
+      {:error, reason} ->
+        Job.error(job, reason)
+        {:error, reason}
     end
   end
 end
