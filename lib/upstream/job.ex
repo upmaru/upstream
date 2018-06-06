@@ -101,15 +101,13 @@ defmodule Upstream.Job do
     Store.remove_member(@uploading, job.uid.name)
   end
 
-  def get_result(job, timeout \\ 5000) do
-    if waited_times(job) >= 1 do
-      error(job, %{waited: waited_times(job)})
-      clear_wait(job)
-      wait_for_result(job)
-    else
-      track_wait(job)
+  def get_result(job, timeout \\ 10_000) do
+    try do
       task = Task.async(fn -> wait_for_result(job) end)
       Task.await(task, timeout)
+    catch
+      :exit, _ ->
+        error(job, %{error: :timeout})
     end
   end
 
@@ -125,15 +123,6 @@ defmodule Upstream.Job do
         wait_for_result(job)
     end
   end
-
-  defp clear_wait(job), do: Store.remove(wait_key(job))
-  defp track_wait(job), do: Store.increment(wait_key(job))
-
-  defp waited_times(job) do
-    String.to_integer(job |> wait_key() |> Store.get() || "0")
-  end
-
-  defp wait_key(job), do: "waited_times:#{job.uid.name}"
 
   defp get_uid(params) when is_binary(params), do: %{name: params}
 
