@@ -9,7 +9,6 @@ defmodule Upstream.Application do
       Upstream.B2.Account,
       Upstream.Uploader,
       Upstream.Store,
-      {Registry, keys: :unique, name: Upstream.Registry}
     ]
 
     opts = [strategy: :one_for_one, name: Upstream.Supervisor]

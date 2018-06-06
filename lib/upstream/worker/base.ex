@@ -24,16 +24,18 @@ defmodule Upstream.Worker.Base do
       # Client API
 
       def start_link(job) do
-        GenServer.start_link(__MODULE__, job, name: via_tuple(job.uid.name))
+        GenServer.start_link(__MODULE__, job)
       end
 
-      def upload(job_name) do
-        GenServer.call(via_tuple(job_name), :upload, @upload_timeout)
+      def upload(pid) do
+        GenServer.call(pid, :upload, @upload_timeout)
       end
 
       # Server Callbacks
 
       def init(job) do
+        Job.start(job)
+
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
@@ -68,7 +70,7 @@ defmodule Upstream.Worker.Base do
             Logger.info("[Upstream] Errored #{state.uid.name}")
 
           true ->
-            Job.error(state, reason)
+            Job.error(state, %{error: reason})
         end
 
         reason
@@ -78,10 +80,6 @@ defmodule Upstream.Worker.Base do
 
       defp handle_stop(state), do: nil
       defp handle_setup(state), do: state
-
-      defp via_tuple(job_name) do
-        {:via, Registry, {Upstream.Registry, job_name}}
-      end
 
       defoverridable handle_stop: 1, handle_setup: 1
     end
