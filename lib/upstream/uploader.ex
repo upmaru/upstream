@@ -52,7 +52,9 @@ defmodule Upstream.Uploader do
 
   defp get_result_or_start(job, on_start) do
     case Job.get_result(job) do
-      {:ok, reply} -> {:ok, reply}
+      {:ok, reply} ->
+        {:ok, reply}
+
       {:error, :no_reply} ->
         Job.retry(job)
         on_start.()
