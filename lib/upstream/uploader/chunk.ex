@@ -27,12 +27,8 @@ defmodule Upstream.Uploader.Chunk do
     else
       {:error, {:already_started, _}} -> {:error, %{error: :already_started}}
       {:error, {reason, _}} ->
-        message = %{error: reason}
-        Job.error(job, message)
-        {:error, message}
-      {:error, reason} ->
-        Job.error(job, reason)
-        {:error, reason}
+        {:error, %{error: reason}}
+      {:error, reason} -> {:error, reason}
     end
   end
 end
