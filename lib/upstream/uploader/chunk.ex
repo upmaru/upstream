@@ -20,8 +20,7 @@ defmodule Upstream.Uploader.Chunk do
   end
 
   def perform(job) do
-    with {:ok, _value} <- Job.start(job),
-         {:ok, pid} <- Supervisor.start_child(__MODULE__, [job]),
+    with {:ok, pid} <- Supervisor.start_child(__MODULE__, [job]),
          {:ok, result} <- Worker.Chunk.upload(pid) do
       {:ok, result}
     else
