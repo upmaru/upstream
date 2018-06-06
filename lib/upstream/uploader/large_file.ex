@@ -25,7 +25,7 @@ defmodule Upstream.Uploader.LargeFile do
          {:ok, result} <- Worker.LargeFile.upload(job.uid.name) do
       {:ok, result}
     else
-      {:error, {:already_started, _pid}} -> {:error, %{error: :already_started}}
+      {:error, {reason, _}} -> {:error, %{error: reason}}
       {:error, reason} -> {:error, reason}
     end
   end
