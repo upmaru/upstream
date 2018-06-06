@@ -101,7 +101,7 @@ defmodule Upstream.Job do
     Store.remove_member(@uploading, job.uid.name)
   end
 
-  def get_result(job, timeout \\ 10_000) do
+  def get_result(job, timeout \\ 1000) do
     try do
       task = Task.async(fn -> wait_for_result(job) end)
       Task.await(task, timeout)
