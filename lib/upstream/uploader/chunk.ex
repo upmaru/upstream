@@ -25,7 +25,9 @@ defmodule Upstream.Uploader.Chunk do
          {:ok, result} <- Worker.Chunk.upload(job.uid.name) do
       {:ok, result}
     else
-      {:error, {reason, _}} -> {:error, %{error: reason}}
+      {:error, {:already_started, _}} ->
+        Job.start(job) 
+        {:error, %{error: :already_started}}
       {:error, reason} -> {:error, reason}
     end
   end
