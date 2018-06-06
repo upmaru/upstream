@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "body": "{\"bucketId\":\"6c4c58770d52643752ca0913\"}",
+      "headers": {
+        "Authorization": "3_20180606103924_68b5c7fb61de896844c9b4e0_f02fe4c2e8622a24fd704de899157e95313aef55_001_acct"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": "infinity",
+        "connect_timeout": "infinity"
+      },
+      "request_body": "",
+      "url": "https://api001.backblazeb2.com/b2api/v1/b2_get_upload_url"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\n  \"authorizationToken\": \"3_20180606103926_1afed704bb04b7080762f5c6_9b2e1cc68bbf884169399685a55367a51fa43848_001_upld\",\n  \"bucketId\": \"6c4c58770d52643752ca0913\",\n  \"uploadUrl\": \"https://pod-000-1041-17.backblaze.com/b2api/v1/b2_upload_file/6c4c58770d52643752ca0913/c001_v0001041_t0003\"\n}\n",
+      "headers": {
+        "Cache-Control": "max-age=0, no-cache, no-store",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Content-Length": "289",
+        "Date": "Wed, 06 Jun 2018 10:39:25 GMT"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]
