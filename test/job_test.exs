@@ -61,7 +61,7 @@ defmodule Upstream.JobTest do
 
       result = Job.get_result(job, 0)
 
-      assert result == {:error, %{error: :timeout}}
+      assert result == {:error, %{error: :no_reply}}
       assert Job.errored?(job) == true
     end
   end
