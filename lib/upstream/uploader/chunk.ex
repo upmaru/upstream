@@ -22,7 +22,7 @@ defmodule Upstream.Uploader.Chunk do
   def perform(job) do
     with {:ok, _value} <- Job.start(job),
          {:ok, _pid} <- Supervisor.start_child(__MODULE__, [job]),
-         {:ok, result} <- Worker.LargeFile.upload(job.uid.name) do
+         {:ok, result} <- Worker.Chunk.upload(job.uid.name) do
       {:ok, result}
     else
       {:error, {:already_started, _}} ->
