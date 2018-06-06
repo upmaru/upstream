@@ -20,14 +20,10 @@ defmodule Upstream.Uploader.LargeFile do
   end
 
   def perform(job) do
-    with {:ok, _value} <- Job.start(job),
-         {:ok, _pid} <- Supervisor.start_child(__MODULE__, [job]),
-         {:ok, result} <- Worker.LargeFile.upload(job.uid.name) do
+    with {:ok, pid} <- Supervisor.start_child(__MODULE__, [job]),
+         {:ok, result} <- Worker.LargeFile.upload(pid) do
       {:ok, result}
     else
-      {:error, {:already_started, _}} ->
-        Job.start(job) 
-        {:error, %{error: :already_started}}
       {:error, reason} -> {:error, reason}
     end
   end
