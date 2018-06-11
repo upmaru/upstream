@@ -1,0 +1,8 @@
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - "cd .apk/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
+    - "abuild check"
