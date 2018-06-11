@@ -68,3 +68,9 @@ check() {
   echo "--- Running Tests"
   MIX_ENV=test mix test
 }
+
+package() {
+  cd "$root"
+
+  mix hex.publish
+}
