@@ -1,6 +1,5 @@
 stages:
   - test
-  - publish
 
 test:
   stage: test
