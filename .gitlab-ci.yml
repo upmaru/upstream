@@ -7,12 +7,3 @@ test:
   script:
     - "cd .apk/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
     - "abuild check"
-
-publish:
-  stage: publish
-  only:
-    refs:
-      - master
-  script: 
-    - "cd .apk/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
-    - "abuild -r"
