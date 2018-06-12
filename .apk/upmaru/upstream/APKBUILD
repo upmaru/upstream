@@ -66,13 +66,3 @@ check() {
   echo "--- Running Tests"
   MIX_ENV=test mix test
 }
-
-package() {
-  cd "$root"
-
-  
-  mix local.hex --force
-  mix local.rebar --force
-  mix deps.get
-  mix hex.publish
-}
