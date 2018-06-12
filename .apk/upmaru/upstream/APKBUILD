@@ -70,5 +70,9 @@ check() {
 package() {
   cd "$root"
 
+  
+  mix local.hex --force
+  mix local.rebar --force
+  mix deps.get
   mix hex.publish
 }
