@@ -1,10 +1,14 @@
 defmodule Upstream.B2.UploadTest do
+  @moduledoc """
+  false
+  """
   use ExUnit.Case
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias Upstream.B2.{
     LargeFile,
-    Upload
+    Upload,
+    Delete
   }
 
   setup_all do
@@ -29,7 +33,6 @@ defmodule Upstream.B2.UploadTest do
     end
   end
 
-  @tag :skip
   test "upload file", %{file_name: file_name} do
     # generate an arbitary stream of data in this case 10_000 bytes
 
@@ -48,18 +51,18 @@ defmodule Upstream.B2.UploadTest do
       |> Base.encode16()
       |> String.downcase()
 
-    use_cassette "b2_upload_file" do
-      {:ok, url} = Upload.url()
+    {:ok, url} = Upload.url()
 
-      header = %{
-        authorization: url.authorization_token,
-        file_name: file_name,
-        content_length: 10_000,
-        x_bz_content_sha1: sha1
-      }
+    header = %{
+      authorization: url.authorization_token,
+      file_name: file_name,
+      content_length: 10_000,
+      x_bz_content_sha1: sha1
+    }
 
-      {:ok, file} = Upload.file(url.upload_url, header, stream)
-      assert file.action == "upload"
-    end
+    {:ok, file} = Upload.file(url.upload_url, header, stream)
+    assert file.action == "upload"
+
+    Delete.file_version(file_name, file.file_id)
   end
 end
