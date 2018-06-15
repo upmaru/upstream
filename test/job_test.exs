@@ -20,7 +20,7 @@ defmodule Upstream.JobTest do
 
     assert job.uid.name == "cute_baby_0.jpg"
     assert job.stat == stat
-    assert job.content_length == 49152
+    assert job.content_length == 49_152
   end
 
   describe "job state change" do
