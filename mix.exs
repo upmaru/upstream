@@ -11,7 +11,7 @@ defmodule Upstream.Mixfile do
       elixir: "~> 1.6.0",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      source_url: "https://github.com/upmaru/upstream",
+      source_url: "https://gitlab.com/upmaru/upstream",
       name: "Upstream",
       description: description(),
       deps: deps(),
