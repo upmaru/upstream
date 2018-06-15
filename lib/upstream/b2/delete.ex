@@ -1,4 +1,8 @@
 defmodule Upstream.B2.Delete do
+  @moduledoc """
+  Handles Deletion of Files
+  """
+  
   alias Upstream.B2.Delete.{
     FileVersion
   }
