@@ -21,11 +21,12 @@ defmodule Upstream.Utility do
   def delete_all_versions(file_name) do
     {:ok, file_ids} = get_file_ids(file_name)
 
-    tasks = Enum.map(file_ids, fn file_id ->
-      Task.async(fn -> 
-        B2.Delete.file_version(file_name, file_id)
+    tasks =
+      Enum.map(file_ids, fn file_id ->
+        Task.async(fn ->
+          B2.Delete.file_version(file_name, file_id)
+        end)
       end)
-    end)
 
     results = Task.yield_many(tasks, 10_000)
     {:ok, results}
