@@ -7,7 +7,7 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.6.9",
+      version: "1.6.10",
       elixir: "~> 1.6.0",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -24,9 +24,9 @@ defmodule Upstream.Mixfile do
         "vcr.delete": :test,
         "vcr.check": :test,
         "vcr.show": :test,
-        "coveralls": :test, 
-        "coveralls.detail": :test, 
-        "coveralls.post": :test, 
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
         "coveralls.html": :test
       ],
       test_coverage: [tool: ExCoveralls]
