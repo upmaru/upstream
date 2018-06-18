@@ -6,14 +6,15 @@ defmodule Upstream.B2.DeleteTest do
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias Upstream.B2.{
-    Delete, Upload
+    Delete,
+    Upload
   }
 
   setup_all do
     {:ok, %{file_name: "test_file_deletion.txt"}}
   end
 
-  test "file_version",  %{file_name: file_name} do
+  test "file_version", %{file_name: file_name} do
     stream = Stream.map(1..10_000, fn n -> <<n>> end)
 
     sha1 =
@@ -36,8 +37,7 @@ defmodule Upstream.B2.DeleteTest do
 
     {:ok, file} = Upload.file(url.upload_url, header, stream)
 
-    assert Delete.file_version(file_name, file.file_id) == {:ok,
-      %Upstream.B2.Delete.FileVersion{file_id: file.file_id, file_name: file_name}
-    }
+    assert Delete.file_version(file_name, file.file_id) ==
+             {:ok, %Upstream.B2.Delete.FileVersion{file_id: file.file_id, file_name: file_name}}
   end
 end
