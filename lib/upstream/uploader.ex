@@ -55,7 +55,7 @@ defmodule Upstream.Uploader do
       {:ok, reply} ->
         {:ok, reply}
 
-      {:error, :no_reply} ->
+      {:error, %{error: :no_reply}} ->
         Job.retry(job)
         on_start.()
     end
