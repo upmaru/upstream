@@ -5,6 +5,7 @@ defmodule Upstream.Store do
   set the redis_url: option for upstream, as uploads can happen from any of your node.
   """
   use GenServer
+  require Logger
 
   alias Upstream.Store.{
     Redis
@@ -57,9 +58,15 @@ defmodule Upstream.Store do
   # Callbacks
 
   def init(:ok) do
-    create_store()
+    if is_nil(Upstream.config(:redis_url)) do
+      Logger.info("[Upstream] No redis config, Store calls will result in noop ¯\_(ツ)_/¯")
+      {:ok, :no_store}
+    else
+      Redix.start_link(Upstream.config(:redis_url))
+    end
   end
 
+  def handle_call({:exist?, key}, _from, :no_store), do: noop()
   def handle_call({:exist?, key}, _from, conn) do
     case Redix.command(conn, ["EXISTS", Redis.namespace(key)]) do
       {:ok, 0} -> {:reply, false, conn}
@@ -67,6 +74,7 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call(:flush_all, _from, :no_store), do: noop()
   def handle_call(:flush_all, _from, conn) do
     {:ok, keys} = Redix.command(conn, ["KEYS", Redis.namespace("*")])
 
@@ -78,6 +86,7 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:is_member?, key, value}, _from, :no_store), do: noop()
   def handle_call({:is_member?, key, value}, _from, conn) do
     case Redix.command(conn, ["SISMEMBER", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, true, conn}
@@ -85,6 +94,7 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:move_member, from, to, value}, _from, :no_store), do: noop()
   def handle_call({:move_member, from, to, value}, _from, conn) do
     case Redix.command(conn, ["SMOVE", Redis.namespace(from), Redis.namespace(to), value]) do
       {:ok, 1} -> {:reply, :ok, conn}
@@ -92,6 +102,7 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:add_member, key, value}, _from, :no_store), do: noop()
   def handle_call({:add_member, key, value}, _from, conn) do
     case Redix.command(conn, ["SADD", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, {:ok, value}, conn}
@@ -99,6 +110,7 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:remove_member, key, value}, _from, :no_store), do: noop()
   def handle_call({:remove_member, key, value}, _from, conn) do
     case Redix.command(conn, ["SREM", Redis.namespace(key), value]) do
       {:ok, 1} -> {:reply, :ok, conn}
@@ -106,21 +118,25 @@ defmodule Upstream.Store do
     end
   end
 
+  def handle_call({:get, key}, _from, :no_store), do: noop()
   def handle_call({:get, key}, _from, conn) do
     with {:ok, type} <- Redix.command(conn, ["TYPE", Redis.namespace(key)]),
          do: Redis.get(type, conn, key)
   end
 
+  def handle_call({:increment, key}, _from, :no_store), do: noop()
   def handle_call({:increment, key}, _from, conn) do
     {:ok, _} = Redix.command(conn, ["INCR", Redis.namespace(key)])
     {:reply, :ok, conn}
   end
 
+  def handle_call({:remove, key}, _from, :no_store), do: noop()
   def handle_call({:remove, key}, _from, conn) do
     {:ok, _} = Redix.command(conn, ["DEL", Redis.namespace(key)])
     {:reply, :ok, conn}
   end
 
+  def handle_call({:set, key, value} _from, :no_store), do: noop()
   def handle_call({:set, key, value}, _from, conn) when is_map(value) do
     command =
       Enum.reduce(value, [Redis.namespace(key), "HMSET"], fn {k, v}, acc -> [[v, k] | acc] end)
@@ -137,11 +153,5 @@ defmodule Upstream.Store do
     end
   end
 
-  defp create_store do
-    if is_nil(Upstream.config(:redis_url)) do
-      raise "[upstream] please set the :redis_url"
-    else
-      Redix.start_link(Upstream.config(:redis_url))
-    end
-  end
+  defp noop, do: {:reply, :ok, :no_store}
 end
