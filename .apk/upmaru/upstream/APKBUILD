@@ -64,5 +64,5 @@ check() {
   MIX_ENV=test mix deps.get --only test
 
   echo "--- Running Tests"
-  MIX_ENV=test mix test
+  MIX_ENV=test mix coveralls
 }
