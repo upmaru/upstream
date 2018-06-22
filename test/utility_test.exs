@@ -23,6 +23,6 @@ defmodule Upstream.UtilityTest do
     assert Store.get(key) != nil
 
     Utility.delete_all_versions(key)
-    assert Store.get(key) == nil
+    assert is_nil(Store.get(key))
   end
 end
