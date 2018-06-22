@@ -2,7 +2,10 @@ defmodule Upstream.Utility do
   @moduledoc """
   Utilities for accessing the upstream upload system
   """
-  alias Upstream.B2
+  alias Upstream.{
+    B2,
+    Store
+  }
 
   def cancel_unfinished_large_files do
     {:ok, unfinished} = B2.LargeFile.unfinished()
@@ -28,6 +31,7 @@ defmodule Upstream.Utility do
         end)
       end)
 
+    Store.remove(file_name)
     results = Task.yield_many(tasks, 10_000)
     {:ok, results}
   end
