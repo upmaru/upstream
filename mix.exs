@@ -8,7 +8,7 @@ defmodule Upstream.Mixfile do
     [
       app: :upstream,
       version: "1.6.12",
-      elixir: "~> 1.6.0",
+      elixir: "~> 1.7.0",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       source_url: "https://gitlab.com/upmaru/upstream",
