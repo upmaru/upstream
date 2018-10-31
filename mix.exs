@@ -7,8 +7,8 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "1.6.13",
-      elixir: "~> 1.7.0",
+      version: "1.6.14",
+      elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       source_url: "https://gitlab.com/upmaru/upstream",
@@ -51,7 +51,7 @@ defmodule Upstream.Mixfile do
 
   defp description do
     """
-    Upstream is for integrating into projects that need to do large 
+    Upstream is for integrating into projects that need to do large
     file uploads to B2 service. It integrates tightly with Backblaze B2 for now,
     with plans to support Amazon S3.
     """
