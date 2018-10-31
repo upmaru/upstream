@@ -1,6 +1,6 @@
 defmodule Upstream.Job do
   @moduledoc """
-  Job module for making it easy to work with upload job by exposing 
+  Job module for making it easy to work with upload job by exposing
   file stats and file stream.
   """
   alias Upstream.B2.Account
@@ -146,7 +146,7 @@ defmodule Upstream.Job do
 
     if threads == 1,
       do: stream,
-      else: Stream.chunk(stream, chunk_length, chunk_length, [])
+      else: Stream.chunk_every(stream, chunk_length, chunk_length, [])
   end
 
   defp get_content_length(params) when is_binary(params), do: nil

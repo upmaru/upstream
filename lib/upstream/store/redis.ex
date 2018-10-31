@@ -15,7 +15,7 @@ defmodule Upstream.Store.Redis do
         {
           :reply,
           value
-          |> Enum.chunk(2)
+          |> Enum.chunk_every(2)
           |> Enum.map(fn [a, b] -> {a, b} end)
           |> Map.new(),
           conn
