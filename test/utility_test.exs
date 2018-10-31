@@ -7,7 +7,9 @@ defmodule Upstream.UtilityTest do
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias Upstream.{
-    Uploader, Store, Utility
+    Uploader,
+    Store,
+    Utility
   }
 
   setup do

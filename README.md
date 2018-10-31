@@ -13,7 +13,7 @@ by adding `upstream` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:upstream, "~> 1.6.0"}]
+  [{:upstream, "~> 1.7.0"}]
 end
 ```
 
