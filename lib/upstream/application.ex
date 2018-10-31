@@ -8,7 +8,8 @@ defmodule Upstream.Application do
     children = [
       Upstream.B2.Account,
       Upstream.Uploader,
-      Upstream.Store
+      Upstream.Store,
+      Upstream.Scheduler
     ]
 
     opts = [strategy: :one_for_one, name: Upstream.Supervisor]

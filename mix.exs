@@ -17,7 +17,7 @@ defmodule Upstream.Mixfile do
       deps: deps(),
       package: package(),
       dialyzer: [
-        plt_add_deps: true
+        plt_add_deps: :transitive
       ],
       preferred_cli_env: [
         vcr: :test,
@@ -74,7 +74,7 @@ defmodule Upstream.Mixfile do
       {:redix, "~> 0.7.1"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.10", only: :test, runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]

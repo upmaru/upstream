@@ -7,4 +7,5 @@ config :upstream, Upstream,
   bucket_name: System.get_env("B2_BUCKET_NAME"),
   redis_url: "redis://127.0.0.1:6379/1",
   upload_timeout: 0,
-  concurrency: 2
+  concurrency: 2,
+  scheduler: true
