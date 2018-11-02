@@ -32,8 +32,11 @@ defmodule Upstream.Utility do
       end)
 
     Store.remove(file_name)
-    results = Task.yield_many(tasks, 10_000)
-    {:ok, results}
+
+    case Task.yield_many(tasks, 10_000) do
+      {:ok, results} -> {:ok, results}
+      {:error, _} -> {:error, :failed}
+    end
   end
 
   defp get_file_ids(file_name) do
