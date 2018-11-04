@@ -23,3 +23,4 @@ erl_crash.dump
 .local.plt
 .local.plt.hash
 .DS_Store
+.elixir_ls

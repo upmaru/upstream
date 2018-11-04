@@ -20,6 +20,13 @@ defmodule Upstream.B2.Account do
     end
   end
 
+  @spec re_authorize() :: :ok
+  def re_authorize do
+    Agent.update(__MODULE__, fn _authroization ->
+      authorize()
+    end)
+  end
+
   @spec authorization :: %Authorization{}
   @doc """
   Returns the %Authorization{} data struct that will allow you to retrieve
@@ -29,18 +36,8 @@ defmodule Upstream.B2.Account do
     Agent.get(__MODULE__, &ensure_correct_auth_data/1)
   end
 
-  defp ensure_correct_auth_data(auth) do
-    case auth do
-      %Authorization{} ->
-        auth
-
-      {:error, :no_config_set} ->
-        raise "No Configuration Set"
-    end
-  end
-
   def api_url, do: authorization().api_url
-  def minimum_part_size, do: authorization().minimum_part_size
+  def absolute_minimum_part_size, do: authorization().absolute_minimum_part_size
   def recommended_part_size, do: authorization().recommended_part_size
   def download_url, do: authorization().download_url
 
@@ -56,6 +53,16 @@ defmodule Upstream.B2.Account do
     case Authorization.call() do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
+    end
+  end
+
+  defp ensure_correct_auth_data(auth) do
+    case auth do
+      %Authorization{} ->
+        auth
+
+      {:error, :no_config_set} ->
+        raise "No Configuration Set"
     end
   end
 end
