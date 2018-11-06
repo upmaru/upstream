@@ -23,7 +23,7 @@ defmodule Upstream.Scheduler do
 
   @impl true
   def handle_info(:perform, state) do
-    Upstream.reboot()
+    Upstream.B2.Account.re_authorize()
     schedule_next()
     {:noreply, state}
   end
