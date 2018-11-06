@@ -23,5 +23,8 @@ erl_crash.dump
 .local.plt
 .local.plt.hash
 .DS_Store
+<<<<<<< HEAD
 
+=======
+>>>>>>> 44046b217d04e60971cd343a3f0ae7617df81d0c
 .elixir_ls
