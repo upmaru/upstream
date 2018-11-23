@@ -3,6 +3,8 @@ defmodule Upstream.Job do
   Job module for making it easy to work with upload job by exposing
   file stats and file stream.
   """
+  use Upstream.Constants
+
   alias Upstream.B2.Account
   alias Upstream.Store
 
@@ -17,9 +19,6 @@ defmodule Upstream.Job do
     :metadata,
     :threads
   ]
-
-  @uploading "jobs:uploading"
-  @errored "jobs:errored"
 
   @stream_bytes 2048
 
@@ -91,6 +90,7 @@ defmodule Upstream.Job do
     Store.add_member(@uploading, job.uid.name)
   end
 
+  @spec error(atom() | %{uid: atom() | %{name: any()}}, any()) :: any()
   def error(job, reason) do
     Store.set(job.uid.name, Poison.encode!(reason))
     Store.move_member(@uploading, @errored, job.uid.name)

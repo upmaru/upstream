@@ -4,18 +4,12 @@ defmodule Upstream.UtilityTest do
   """
 
   use ExUnit.Case
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias Upstream.{
     Uploader,
     Store,
     Utility
   }
-
-  setup do
-    Store.start_link([])
-    Store.flush_all()
-  end
 
   test "delete_all_versions" do
     path = "test/fixtures/cute_baby.jpg"
