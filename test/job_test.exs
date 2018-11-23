@@ -9,11 +9,6 @@ defmodule Upstream.JobTest do
     Upload
   }
 
-  setup do
-    Upstream.Store.start_link([])
-    Upstream.Store.flush_all()
-  end
-
   test "create job" do
     job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
     {:ok, stat} = File.stat("test/fixtures/cute_baby.jpg")
