@@ -21,21 +21,30 @@ defmodule Upstream.Utility do
     {:ok, results}
   end
 
+  @spec delete_all_versions(binary()) :: {:error, :failed} | {:ok, [any()]}
   def delete_all_versions(file_name) do
     {:ok, file_ids} = get_file_ids(file_name)
 
-    tasks =
-      Enum.map(file_ids, fn file_id ->
-        Task.async(fn ->
-          B2.Delete.file_version(file_name, file_id)
-        end)
-      end)
 
-    Store.remove(file_name)
+    stream = Task.Supervisor.async_stream(
+      Upstream.TaskSupervisor, file_ids, fn file_id ->
+        B2.Delete.file_version(file_name, file_id)
+      end
+    )
 
-    case Task.yield_many(tasks, 10_000) do
-      {:ok, results} -> {:ok, results}
-      {:error, _} -> {:error, :failed}
+    results =
+      stream
+      |> Enum.to_list()
+      |> Enum.map(fn {:ok, result} -> result end)
+
+    responses = Enum.map(results, fn {response, _file_version} -> response end)
+
+    case Enum.uniq(responses) do
+      [:ok] ->
+        Store.remove(file_name)
+        {:ok, results}
+
+      _ -> {:error, :failed}
     end
   end
 

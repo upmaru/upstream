@@ -4,8 +4,10 @@ defmodule Upstream.Application do
   """
   use Application
 
+  @spec start(any(), any()) :: {:error, any()} | {:ok, pid()}
   def start(_type, _args) do
     children = [
+      {Task.Supervisor, name: Upstream.TaskSupervisor},
       Upstream.B2.Account,
       Upstream.Uploader,
       Upstream.Store,
