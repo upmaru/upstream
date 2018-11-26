@@ -35,17 +35,20 @@ defmodule Upstream do
   """
   def config(key), do: Keyword.get(config(), key, nil)
 
+  @spec reboot() :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def reboot do
     Application.stop(:upstream)
     Application.ensure_all_started(:upstream)
   end
 
+  @spec reset() :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def reset do
     Logger.info("[Upstream] -----> Flushing config and restarting")
     Application.delete_env(:upstream, Upstream)
     reboot()
   end
 
+  @spec set_config(any()) :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def set_config(config) do
     Logger.info("[Upstream] -----> Setting config and restarting")
     Application.put_env(:upstream, Upstream, config)
