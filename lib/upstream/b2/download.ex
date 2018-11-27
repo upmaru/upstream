@@ -21,7 +21,7 @@ defmodule Upstream.B2.Download do
   def url(file_name, authorization) do
     file_url =
       Enum.join(
-        [Account.download_url(), "file", Upstream.config(:bucket_name), file_name],
+        [Account.download_url(), "file", Upstream.storage(:bucket_name), file_name],
         "/"
       )
 

@@ -18,6 +18,6 @@ defmodule Upstream.B2.LargeFile.Unfinished do
   def url(_), do: Url.generate(Account.api_url(), :list_unfinished_large_files)
 
   def body(_) do
-    %{bucketId: Upstream.config(:bucket_id)}
+    %{bucketId: Upstream.storage(:bucket_id)}
   end
 end

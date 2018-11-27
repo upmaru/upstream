@@ -6,7 +6,7 @@ defmodule Upstream.Worker.Base do
     quote do
       use GenServer
 
-      @upload_timeout 20_000
+      @upload_timeout Application.get_env(:upstream, :upload)[:timeout] || 20_000
 
       @behaviour unquote(__MODULE__)
 
@@ -28,7 +28,7 @@ defmodule Upstream.Worker.Base do
       end
 
       def upload(pid) do
-        GenServer.call(pid, :upload, upload_timeout())
+        GenServer.call(pid, :upload, @upload_timeout)
       end
 
       # Server Callbacks
@@ -80,14 +80,6 @@ defmodule Upstream.Worker.Base do
 
       defp handle_stop(state), do: nil
       defp handle_setup(state), do: state
-
-      defp upload_timeout do
-        cond do
-          Upstream.config(:upload_timeout) == 0 -> :infinity
-          is_nil(Upstream.config(:upload_timeout)) -> @upload_timeout
-          true -> Upstream.config(:upload_timeout)
-        end
-      end
 
       defoverridable handle_stop: 1, handle_setup: 1
     end
