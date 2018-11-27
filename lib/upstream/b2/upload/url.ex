@@ -15,6 +15,6 @@ defmodule Upstream.B2.Upload.Url do
   def url(_), do: Url.generate(Account.api_url(), :get_upload_url)
 
   def body(_) do
-    %{bucketId: Upstream.config(:bucket_id)}
+    %{bucketId: Upstream.storage(:bucket_id)}
   end
 end

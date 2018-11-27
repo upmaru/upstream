@@ -5,9 +5,12 @@ config :exvcr,
 
 config :logger, level: :error
 
-config :upstream, Upstream,
+config :upstream, :storage,
   account_id: System.get_env("B2_ACCOUNT_ID"),
   application_key: System.get_env("B2_APPLICATION_KEY"),
   bucket_id: System.get_env("B2_BUCKET_ID"),
   bucket_name: System.get_env("B2_BUCKET_NAME"),
+  service: "b2"
+
+config :upstream, Upstream,
   concurrency: 2

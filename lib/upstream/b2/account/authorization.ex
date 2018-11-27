@@ -24,7 +24,7 @@ defmodule Upstream.B2.Account.Authorization do
   Authorize#call function will make a call to the api and authorize based on the
   account_id, and application_key passed in from the config.
 
-  config :upstream, Upstream, 
+  config :upstream, Upstream,
     account_id: <whatever account_id>,
     application_key: <whatever application_key>
   """
@@ -35,7 +35,7 @@ defmodule Upstream.B2.Account.Authorization do
   def header do
     encoded =
       "Basic " <>
-        Base.encode64(Upstream.config(:account_id) <> ":" <> Upstream.config(:application_key))
+        Base.encode64(Upstream.storage(:account_id) <> ":" <> Upstream.storage(:application_key))
 
     [{"Authorization", encoded}]
   end

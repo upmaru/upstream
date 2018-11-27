@@ -9,8 +9,9 @@ defmodule Upstream.B2.Account do
 
   require Logger
 
+  @spec start_link(any()) :: {:error, any()} | {:ok, pid()}
   def start_link(_args) do
-    case Application.fetch_env(:upstream, Upstream) do
+    case Application.fetch_env(:upstream, :storage) do
       {:ok, _config} ->
         Agent.start_link(&authorize/0, name: __MODULE__)
 

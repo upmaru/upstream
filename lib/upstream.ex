@@ -17,7 +17,10 @@ defmodule Upstream do
   @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
 
+  @spec config() :: any()
   def config, do: Application.get_env(:upstream, Upstream) || []
+  @spec storage() :: any()
+  def storage, do: Application.get_env(:upstream, :storage) || []
 
   @concurrency 2
   def concurrency, do: config(:concurrency) || @concurrency
@@ -25,15 +28,11 @@ defmodule Upstream do
   @file_param "file"
   def file_param, do: config(:file_param) || @file_param
 
-  @doc """
-  Upstream.config/1 help you get to your config
-
-  ## Examples
-
-    iex> Upstream.config(:account_id)
-    Keyword.fetch!(Upstream.config, :account_id)
-  """
+  @spec config(atom()) :: any()
   def config(key), do: Keyword.get(config(), key, nil)
+
+  @spec storage(atom()) :: any()
+  def storage(key), do: Keyword.get(storage(), key, nil)
 
   @spec reboot() :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def reboot do
@@ -44,14 +43,14 @@ defmodule Upstream do
   @spec reset() :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def reset do
     Logger.info("[Upstream] -----> Flushing config and restarting")
-    Application.delete_env(:upstream, Upstream)
+    Application.delete_env(:upstream, :storage)
     reboot()
   end
 
   @spec set_config(any()) :: {:error, {atom(), any()}} | {:ok, [atom()]}
   def set_config(config) do
     Logger.info("[Upstream] -----> Setting config and restarting")
-    Application.put_env(:upstream, Upstream, config)
+    Application.put_env(:upstream, :storage, config)
     reboot()
   end
 end
