@@ -29,7 +29,7 @@ defmodule Upstream.B2.LargeFile.Start do
 
   def body(file_name) when is_binary(file_name) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       contentType: "b2/x-auto",
       fileName: URI.encode(file_name)
     }
@@ -37,7 +37,7 @@ defmodule Upstream.B2.LargeFile.Start do
 
   def body(params) when is_map(params) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       contentType: "b2/x-auto",
       fileName: URI.encode(params.file_name),
       fileInfo: params.file_info

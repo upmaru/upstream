@@ -17,7 +17,7 @@ defmodule Upstream.B2.Download.Authorization do
 
   def body(body) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       fileNamePrefix: Keyword.get(body, :prefix),
       validDurationInSeconds: Keyword.get(body, :duration)
     }
