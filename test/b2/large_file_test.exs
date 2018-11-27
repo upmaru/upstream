@@ -14,7 +14,7 @@ defmodule Upstream.B2.LargeFileTest do
         LargeFile.start(file_name)
       end
 
-    assert started.account_id == Upstream.config(:account_id)
+    assert started.account_id == Upstream.storage(:account_id)
     assert is_binary(started.file_id)
   end
 
