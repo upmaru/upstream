@@ -5,9 +5,10 @@ defmodule Upstream.Worker.Chunk do
 
   use Upstream.Worker.Base
 
-  def task(auth, state) do
+  @spec task(any()) :: {:error, any()} | {:ok, struct}
+  def task(state) do
     with {:ok, checksum} <- Checksum.start_link(),
-         {:ok, part_url} <- Upload.part_url(auth, state.uid.file_id) do
+         {:ok, part_url} <- Upload.part_url(state.auth, state.uid.file_id) do
       index = state.uid.index
 
       header = %{
@@ -20,7 +21,7 @@ defmodule Upstream.Worker.Chunk do
       body = Flow.generate(state.job.stream, index, checksum)
 
       try do
-        Upload.part(auth, part_url.upload_url, header, body)
+        Upload.part(state.auth, part_url.upload_url, header, body)
       after
         Checksum.stop(checksum)
       end

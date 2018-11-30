@@ -23,9 +23,7 @@ defmodule Upstream.B2.Account do
 
   @spec re_authorize() :: :ok
   def re_authorize do
-    Agent.update(__MODULE__, fn _authroization ->
-      authorize()
-    end)
+    Agent.update(__MODULE__, fn _authorization -> authorize() end)
   end
 
   @spec authorization :: %Authorization{}

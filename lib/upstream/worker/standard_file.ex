@@ -4,9 +4,17 @@ defmodule Upstream.Worker.StandardFile do
   """
   use Upstream.Worker.Base
 
-  def task(auth, state) do
+  @spec task(
+          atom()
+          | %{
+              auth: Upstream.B2.Account.Authorization.t(),
+              job: atom() | %{metadata: any(), stat: atom() | map(), stream: any()},
+              uid: atom() | %{name: binary()}
+            }
+        ) :: {:error, struct} | {:ok, struct}
+  def task(state) do
     {:ok, checksum} = Checksum.start_link()
-    {:ok, url} = Upload.url(auth)
+    {:ok, url} = Upload.url(state.auth)
 
     # single thread
     index = 0
@@ -23,7 +31,7 @@ defmodule Upstream.Worker.StandardFile do
     body = Flow.generate(state.job.stream, index, checksum)
 
     try do
-      Upload.file(auth, url.upload_url, header, body)
+      Upload.file(state.auth, url.upload_url, header, body)
     after
       Checksum.stop(checksum)
     end

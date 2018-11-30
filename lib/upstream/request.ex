@@ -5,7 +5,15 @@ defmodule Upstream.Request do
 
   alias Upstream.Error
 
-  @spec post(struct, String.t(), List.t(), Keyword.t()) :: {:ok | :error, %Error{} | struct}
+  @spec post(
+          any(),
+          binary(),
+          any(),
+          [{atom() | binary(), binary()}] | %{optional(binary()) => binary()},
+          keyword()
+        ) ::
+          {:error, %{optional(:__struct__) => atom(), optional(atom()) => any()}}
+          | {:ok, %{:__struct__ => atom(), optional(atom()) => any()}}
   def post(caller_struct, url, body, headers, options \\ []) do
     default_options = [
       timeout: :infinity,
