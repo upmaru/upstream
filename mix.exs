@@ -42,7 +42,6 @@ defmodule Upstream.Mixfile do
       extra_applications: [
         :plug,
         :httpoison,
-        :poison,
         :logger
       ],
       mod: {Upstream.Application, []}
@@ -70,7 +69,7 @@ defmodule Upstream.Mixfile do
     [
       {:httpoison, "~> 1.0.0"},
       {:plug, "~> 1.0"},
-      {:poison, "~> 3.0"},
+      {:jason, "~> 1.1"},
 
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.10", only: :test, runtime: false},
