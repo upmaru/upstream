@@ -8,26 +8,26 @@ defmodule Upstream.Worker.StandardFile do
 
   @impl true
   @spec task(%{job: Job.t()}) :: {:error, struct} | {:ok, struct}
-  def task(%{job: job} = _state) do
+  def task(%{job: %Job{authorization: auth, uid: uid, stat: stat, metadata: metadata, stream: stream}} = _state) do
     {:ok, checksum} = Checksum.start_link()
-    {:ok, url} = Upload.url(job.authorization)
+    {:ok, url} = Upload.url(auth)
 
     # single thread
     index = 0
 
     header = %{
       authorization: url.authorization_token,
-      file_name: URI.encode(job.uid.name),
-      file_info: job.metadata,
+      file_name: URI.encode(uid.name),
+      file_info: metadata,
       # for sha1 at the end
-      content_length: job.stat.size + 40,
+      content_length: stat.size + 40,
       x_bz_content_sha1: "hex_digits_at_end"
     }
 
-    body = Flow.generate(job.stream, index, checksum)
+    body = Flow.generate(stream, index, checksum)
 
     try do
-      Upload.file(job.authorization, url.upload_url, header, body)
+      Upload.file(auth, url.upload_url, header, body)
     after
       Checksum.stop(checksum)
     end

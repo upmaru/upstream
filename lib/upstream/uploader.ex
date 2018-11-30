@@ -28,8 +28,7 @@ defmodule Upstream.Uploader do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  @spec start_worker(atom() | binary(), any()) ::
-          :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
+  @spec start_worker(atom() | binary(), any()) :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
   def start_worker(worker_module, job) do
     module = Module.concat(Worker, worker_module)
 
@@ -54,13 +53,11 @@ defmodule Upstream.Uploader do
     job = Job.create(file_path, name, metadata)
     if Job.State.errored?(job), do: Job.State.retry(job)
 
-    worker_type =
-      if job.threads == 1,
-        do: StandardFile,
-        else: LargeFile
-
-    start_and_register(job, fn -> start_upload(worker_type, job) end)
+    start_and_register(job, fn -> start_upload(file_worker_type(job.threads), job) end)
   end
+
+  defp file_worker_type(1), do: StandardFile
+  defp file_worker_type(_), do: LargeFile
 
   defp start_and_register(job, on_start) do
     if Job.State.uploading?(job) || Job.State.done?(job) do
