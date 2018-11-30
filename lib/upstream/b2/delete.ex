@@ -4,6 +4,7 @@ defmodule Upstream.B2.Delete do
   """
 
   alias Upstream.B2.Account.Authorization
+
   alias Upstream.B2.Delete.{
     FileVersion
   }

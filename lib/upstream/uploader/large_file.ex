@@ -2,28 +2,31 @@ defmodule Upstream.Uploader.LargeFile do
   @moduledoc """
   Supervisor for Uploader.LargeFile
   """
-  use Supervisor
+  use DynamicSupervisor
 
   alias Upstream.Worker
 
-  def start_link do
-    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
+  def start_link(args) do
+    DynamicSupervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def init(_) do
-    children = [
-      worker(Worker.LargeFile, [], restart: :transient)
-    ]
-
-    supervise(children, strategy: :simple_one_for_one)
+  @spec start_child() :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
+  def start_child do
+    DynamicSupervisor.start_child(__MODULE__, {Worker.LargeFile, restart: :transient})
   end
 
-  def perform(job) do
-    with {:ok, pid} <- Supervisor.start_child(__MODULE__, [job]),
-         {:ok, result} <- Worker.LargeFile.upload(pid) do
-      {:ok, result}
-    else
-      {:error, reason} -> {:error, reason}
-    end
+  @impl true
+  @spec init(any()) ::
+          {:ok,
+           %{
+             extra_arguments: [any()],
+             intensity: non_neg_integer(),
+             max_children: :infinity | non_neg_integer(),
+             period: pos_integer(),
+             strategy: :one_for_one
+           }}
+  def init(args) do
+    DynamicSupervisor.init(strategy: :one_for_one, extra_arguments: [args])
   end
 end

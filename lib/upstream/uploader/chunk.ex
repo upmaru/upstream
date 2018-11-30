@@ -6,10 +6,13 @@ defmodule Upstream.Uploader.Chunk do
 
   alias Upstream.Worker
 
-  def start_link do
+  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
+  def start_link(_) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
+  @impl true
+  @spec init(any()) :: {:ok, {{any(), any(), any()}, any()}}
   def init(_) do
     children = [
       worker(Worker.Chunk, [], restart: :temporary)
@@ -18,8 +21,9 @@ defmodule Upstream.Uploader.Chunk do
     supervise(children, strategy: :simple_one_for_one)
   end
 
-  def perform(job) do
-    with {:ok, pid} <- Supervisor.start_child(__MODULE__, [job]),
+  @spec perform(any(), any()) :: {:error, any()} | {:ok, any()}
+  def perform(auth, job) do
+    with {:ok, pid} <- Supervisor.start_child(__MODULE__, [{auth, job}]),
          {:ok, result} <- Worker.Chunk.upload(pid) do
       {:ok, result}
     else

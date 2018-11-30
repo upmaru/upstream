@@ -6,6 +6,7 @@ defmodule Upstream.Uploader.Flow do
   alias Upstream.Uploader.Checksum
   alias Upstream.Worker.LargeFile.Status
 
+  @spec generate(any(), any(), any(), any()) :: (any(), any() -> any())
   def generate(stream, index, checksum_pid, status_pid \\ nil) do
     last_bytes = get_last_bytes(stream)
 

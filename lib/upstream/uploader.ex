@@ -5,37 +5,47 @@ defmodule Upstream.Uploader do
 
   use Supervisor
 
-  alias Upstream.Job
+  alias Upstream.{
+    Job, Uploader, Worker
+  }
 
+  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
   def start_link(_args) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
+  @impl true
+  @spec init(any()) :: {:ok, {%{intensity: any(), period: any(), strategy: any()}, [any()]}}
   def init(_) do
     children = [
-      supervisor(__MODULE__.Chunk, []),
-      supervisor(__MODULE__.LargeFile, []),
-      supervisor(__MODULE__.StandardFile, []),
-      supervisor(Task.Supervisor, [[name: __MODULE__.TaskSupervisor]])
+      {__MODULE__.Chunk, []},
+      {__MODULE__.LargeFile, []},
+      {__MODULE__.StandardFile, []},
+      {Task.Supervisor, name: __MODULE__.TaskSupervisor}
     ]
 
-    supervise(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 
+  @spec upload_chunk!(binary(), binary() | %{file_id: any(), index: any()}) :: {:error, any()} | {:ok, any()}
   def upload_chunk!(chunk_path, params) do
     job = Job.create(chunk_path, params)
-    if Job.errored?(job), do: Job.retry(job)
+    if Job.State.errored?(job), do: Job.State.retry(job)
 
     start_and_register(job, fn ->
-      start_uploader(:chunk, job)
+      start_uploader(Chunk, job)
     end)
   end
 
+  @spec upload_file!(binary(), binary() | %{file_id: any(), index: any()}, any()) :: {:error, any()} | {:ok, any()}
   def upload_file!(file_path, name, metadata \\ %{}) do
     job = Job.create(file_path, name, metadata)
-    if Job.errored?(job), do: Job.retry(job)
+    if Job.State.errored?(job), do: Job.State.retry(job)
 
-    file_type = if job.threads == 1, do: :standard, else: :large
+    file_type =
+      if job.threads == 1,
+        do: StandardFile,
+        else: LargeFile
 
     start_and_register(job, fn ->
       start_uploader(file_type, job)
@@ -43,7 +53,7 @@ defmodule Upstream.Uploader do
   end
 
   defp start_and_register(job, on_start) do
-    if Job.uploading?(job) || Job.done?(job) do
+    if Job.State.uploading?(job) || Job.State.done?(job) do
       get_result_or_start(job, on_start)
     else
       on_start.()
@@ -51,25 +61,23 @@ defmodule Upstream.Uploader do
   end
 
   defp get_result_or_start(job, on_start) do
-    case Job.get_result(job) do
+    case Job.State.get_result(job) do
       {:ok, reply} ->
         {:ok, reply}
 
       {:error, %{error: :no_reply}} ->
-        Job.retry(job)
+        Job.State.retry(job)
         on_start.()
     end
   end
 
-  defp start_uploader(:chunk, job) do
-    __MODULE__.Chunk.perform(job)
-  end
-
-  defp start_uploader(:standard, job) do
-    __MODULE__.StandardFile.perform(job)
-  end
-
-  defp start_uploader(:large, job) do
-    __MODULE__.LargeFile.perform(job)
+  defp start_uploader(module, job) do
+    with {:ok, pid} <- DynamicSupervisor.start_link(Module.concat(Uploader, module), [job]),
+         {:ok, result} <- Module.concat(Worker, module).upload(pid)
+    do
+      {:ok, result}
+    else
+      {:error, reason} -> {:error, reason}
+    end
   end
 end

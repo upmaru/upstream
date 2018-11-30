@@ -40,7 +40,7 @@ defmodule Upstream.Request do
 
   defp process_response(body) do
     body
-    |> Poison.decode!()
+    |> Jason.decode!()
     |> Enum.map(fn {k, v} ->
       {String.to_atom(Macro.underscore(k)), v}
     end)

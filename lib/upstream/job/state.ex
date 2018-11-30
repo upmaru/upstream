@@ -39,13 +39,13 @@ defmodule Upstream.Job.State do
 
   @spec error(Upstream.Job.t(), any()) :: any()
   def error(job, reason) do
-    Store.set(job.uid.name, Poison.encode!(reason))
+    Store.set(job.uid.name, reason)
     Store.move_member(@uploading, @errored, job.uid.name)
   end
 
   @spec complete(Upstream.Job.t(), any()) :: :error | :ok
   def complete(job, result) do
-    Store.set(job.uid.name, Poison.encode!(result))
+    Store.set(job.uid.name, result)
     Store.remove_member(@uploading, job.uid.name)
   end
 
@@ -67,10 +67,10 @@ defmodule Upstream.Job.State do
   defp wait_for_result(job) do
     cond do
       completed?(job) ->
-        {:ok, Poison.decode!(Store.get(job.uid.name))}
+        {:ok, Store.get(job.uid.name)}
 
       errored?(job) ->
-        {:error, Poison.decode!(Store.get(job.uid.name))}
+        {:error, Store.get(job.uid.name)}
 
       true ->
         wait_for_result(job)

@@ -25,8 +25,8 @@ defmodule Upstream.Worker.Base do
 
       # Client API
 
-      def start_link(auth, job) do
-        GenServer.start_link(__MODULE__, {auth, job})
+      def start_link(job) do
+        GenServer.start_link(__MODULE__, job)
       end
 
       def upload(pid) do
@@ -36,17 +36,17 @@ defmodule Upstream.Worker.Base do
       # Server Callbacks
 
       @impl true
-      def init({auth, job}) do
+      def init(job) do
         Job.State.start(job)
 
-        {:ok, handle_setup(%{auth: auth, job: job, uid: job.uid, current_state: :started})}
+        {:ok, handle_setup(%{job: job, current_state: :started})}
       end
 
       @impl true
-      def handle_call(:upload, _from, state) do
+      def handle_call(:upload, _from, %{job: job} = state) do
         case task(state) do
           {:ok, result} ->
-            Job.State.complete(state, result)
+            Job.State.complete(job, result)
 
             {:stop, :normal, {:ok, result},
              Map.merge(state, %{
@@ -54,7 +54,7 @@ defmodule Upstream.Worker.Base do
              })}
 
           {:error, reason} ->
-            Job.State.error(state, reason)
+            Job.State.error(job, reason)
 
             {:stop, {:error, reason}, {:error, reason},
              Map.merge(state, %{
@@ -64,27 +64,25 @@ defmodule Upstream.Worker.Base do
       end
 
       @impl true
-      def terminate(reason, state) do
+      def terminate(reason, %{job: job} = state) do
         handle_stop(state)
 
         cond do
-          Job.State.completed?(state) ->
-            Logger.info("[Upstream] Completed #{state.uid.name}")
+          Job.State.completed?(job) ->
+            Logger.info("[Upstream] Completed #{job.uid.name}")
 
-          Job.State.errored?(state) ->
-            Logger.info("[Upstream] Errored #{state.uid.name}")
+          Job.State.errored?(job) ->
+            Logger.info("[Upstream] Errored #{job.uid.name}")
 
           true ->
-            Job.State.error(state, %{error: reason})
+            Job.State.error(job, %{error: reason})
         end
 
         reason
       end
 
-      # Private functions
-
-      defp handle_stop(state), do: nil
       defp handle_setup(state), do: state
+      defp handle_stop(state), do: {:ok, state.current_state}
 
       defoverridable handle_stop: 1, handle_setup: 1
     end

@@ -25,12 +25,14 @@ defmodule Upstream.Utility do
   def delete_all_versions(file_name) do
     {:ok, file_ids} = get_file_ids(file_name)
 
-
-    stream = Task.Supervisor.async_stream(
-      Upstream.TaskSupervisor, file_ids, fn file_id ->
-        B2.Delete.file_version(file_name, file_id)
-      end
-    )
+    stream =
+      Task.Supervisor.async_stream(
+        Upstream.TaskSupervisor,
+        file_ids,
+        fn file_id ->
+          B2.Delete.file_version(file_name, file_id)
+        end
+      )
 
     results =
       stream
@@ -44,7 +46,8 @@ defmodule Upstream.Utility do
         Store.remove(file_name)
         {:ok, results}
 
-      _ -> {:error, :failed}
+      _ ->
+        {:error, :failed}
     end
   end
 
