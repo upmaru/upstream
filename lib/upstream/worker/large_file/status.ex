@@ -60,7 +60,8 @@ defmodule Upstream.Worker.LargeFile.Status do
     end)
   end
 
-  @spec add_uploaded({any(), any()}, atom() | pid() | {atom(), any()} | {:via, atom(), any()}) :: {integer(), binary()}
+  @spec add_uploaded({any(), any()}, atom() | pid() | {atom(), any()} | {:via, atom(), any()}) ::
+          {integer(), binary()}
   def add_uploaded({index, checksum}, pid) do
     Agent.get_and_update(pid, fn reports ->
       new_uploaded = List.insert_at(reports.uploaded, index, checksum)

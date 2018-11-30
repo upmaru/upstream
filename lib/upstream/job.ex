@@ -13,6 +13,7 @@ defmodule Upstream.Job do
     :stream,
     :content_length,
     :last_content_length,
+    :authorization,
     :stat,
     :metadata,
     :threads
@@ -28,6 +29,7 @@ defmodule Upstream.Job do
           last_content_length: integer,
           stream: File.Stream.t(),
           threads: integer,
+          authorization: Account.Authorization.t(),
           metadata: map
         }
 
@@ -53,6 +55,7 @@ defmodule Upstream.Job do
     last_content_length = stat.size - content_length * threads + content_length
 
     %__MODULE__{
+      authorization: authorization,
       uid: get_uid(params),
       full_path: absolute_path,
       stat: stat,
