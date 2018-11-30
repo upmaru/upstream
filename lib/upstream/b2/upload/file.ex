@@ -31,9 +31,9 @@ defmodule Upstream.B2.Upload.File do
 
   use Upstream.B2.Base
 
-  def url(upload_url) when is_binary(upload_url), do: upload_url
+  def url(_auth, upload_url) when is_binary(upload_url), do: upload_url
 
-  def header(file_data) do
+  def header(_auth, file_data) do
     metadata =
       file_data
       |> Map.get(:file_info, %{})

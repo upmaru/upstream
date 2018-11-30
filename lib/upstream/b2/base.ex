@@ -15,10 +15,12 @@ defmodule Upstream.B2.Base do
         Account
       }
 
+      alias Account.Authorization
+
       @behaviour unquote(__MODULE__)
 
-      @spec call(Keyword.t()) :: {:ok | :error, %__MODULE__{} | struct}
-      def call(options \\ []) do
+      @spec call(Authorization.t(), Keyword.t()) :: {:ok | :error, %__MODULE__{} | struct}
+      def call(auth \\ %Authorization{}, options \\ []) do
         url_option = Keyword.get(options, :url, nil)
         header_option = Keyword.get(options, :header, nil)
         body_option = Keyword.get(options, :body, nil)
@@ -26,26 +28,27 @@ defmodule Upstream.B2.Base do
 
         Request.post(
           %__MODULE__{},
-          url(url_option),
+          url(auth, url_option),
           process_body(body(body_option)),
-          header(header_option),
+          header(auth, header_option),
           request_options
         )
       end
 
-      def header(nil), do: header()
-      def header, do: [Account.authorization_header()]
+      def header(auth, nil), do: [{"Authorization", auth.authorization_token}]
 
       def body(nil), do: %{}
 
       defp process_body(%{} = body), do: Poison.encode!(body)
       defp process_body(body), do: body
 
-      defoverridable header: 0, body: 1
+      defoverridable header: 2, body: 1
     end
   end
 
-  @callback url(nil | String.t() | map | none) :: String.t()
+  alias Upstream.B2.Account.Authorization
+
+  @callback url(Authorization.t(), nil | String.t() | map | none) :: String.t()
   @callback body(nil | String.t() | map | any) :: map | any
-  @callback header(nil | String.t() | map | none) :: List.t()
+  @callback header(Authorization.t(), nil | String.t() | map | none) :: List.t()
 end

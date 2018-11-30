@@ -12,7 +12,8 @@ defmodule Upstream.B2.Upload.Url do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :get_upload_url)
+  @spec url(atom() | %{api_url: any()}, any()) :: binary()
+  def url(auth, _), do: Url.generate(auth.api_url, :get_upload_url)
 
   def body(_) do
     %{bucketId: Upstream.storage(:bucket_id)}

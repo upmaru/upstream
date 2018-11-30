@@ -14,7 +14,7 @@ defmodule Upstream.B2.LargeFile.Cancel do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :cancel_large_file)
+  def url(auth, _), do: Url.generate(auth.api_url, :cancel_large_file)
 
   def body(file_id) when is_binary(file_id), do: %{fileId: file_id}
 end

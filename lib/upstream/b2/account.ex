@@ -37,17 +37,6 @@ defmodule Upstream.B2.Account do
     Agent.get(__MODULE__, &ensure_correct_auth_data/1)
   end
 
-  def api_url, do: authorization().api_url
-  def absolute_minimum_part_size, do: authorization().absolute_minimum_part_size
-  def recommended_part_size, do: authorization().recommended_part_size
-  def download_url, do: authorization().download_url
-
-  def authorization_header do
-    token = authorization().authorization_token
-
-    {"Authorization", token}
-  end
-
   defp authorize do
     Logger.info("[Upstream] Authorizing B2 account...")
 

@@ -3,6 +3,8 @@ defmodule Upstream.B2.Download.Authorization do
   This will get_download_authorization for us
   """
 
+  alias Upstream.B2.Account.Authorization
+
   defstruct [:bucket_id, :file_name_prefix, :authorization_token]
 
   @type t :: %__MODULE__{
@@ -13,7 +15,8 @@ defmodule Upstream.B2.Download.Authorization do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :get_download_authorization)
+  @spec url(Authorization.t(), any()) :: binary()
+  def url(auth, _), do: Url.generate(auth.api_url, :get_download_authorization)
 
   def body(body) do
     %{

@@ -19,6 +19,8 @@ defmodule Upstream.Worker.Base do
         Flow
       }
 
+      alias Upstream.B2.Account
+
       require Logger
 
       # Client API
@@ -34,13 +36,15 @@ defmodule Upstream.Worker.Base do
       # Server Callbacks
 
       def init(job) do
-        Job.start(job)
+        Job.State.start(job)
 
         {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
       end
 
       def handle_call(:upload, _from, state) do
-        case task(state) do
+        authorization = Account.authorization()
+
+        case task(authorization, state) do
           {:ok, result} ->
             Job.complete(state, result)
 
@@ -63,14 +67,14 @@ defmodule Upstream.Worker.Base do
         handle_stop(state)
 
         cond do
-          Job.completed?(state) ->
+          Job.State.completed?(state) ->
             Logger.info("[Upstream] Completed #{state.uid.name}")
 
-          Job.errored?(state) ->
+          Job.State.errored?(state) ->
             Logger.info("[Upstream] Errored #{state.uid.name}")
 
           true ->
-            Job.error(state, %{error: reason})
+            Job.State.error(state, %{error: reason})
         end
 
         reason
@@ -85,5 +89,5 @@ defmodule Upstream.Worker.Base do
     end
   end
 
-  @callback task(map) :: {:ok, any} | {:error, any}
+  @callback task(struct, map) :: {:ok, any} | {:error, any}
 end

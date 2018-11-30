@@ -4,9 +4,9 @@ defmodule Upstream.Worker.StandardFile do
   """
   use Upstream.Worker.Base
 
-  def task(state) do
+  def task(auth, state) do
     {:ok, checksum} = Checksum.start_link()
-    {:ok, url} = Upload.url()
+    {:ok, url} = Upload.url(auth)
 
     # single thread
     index = 0
@@ -23,7 +23,7 @@ defmodule Upstream.Worker.StandardFile do
     body = Flow.generate(state.job.stream, index, checksum)
 
     try do
-      Upload.file(url.upload_url, header, body)
+      Upload.file(auth, url.upload_url, header, body)
     after
       Checksum.stop(checksum)
     end
