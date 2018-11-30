@@ -25,8 +25,8 @@ defmodule Upstream.Worker.Base do
 
       # Client API
 
-      def start_link(job) do
-        GenServer.start_link(__MODULE__, job)
+      def start_link(auth, job) do
+        GenServer.start_link(__MODULE__, {auth, job})
       end
 
       def upload(pid) do
@@ -35,18 +35,18 @@ defmodule Upstream.Worker.Base do
 
       # Server Callbacks
 
-      def init(job) do
+      @impl true
+      def init({auth, job}) do
         Job.State.start(job)
 
-        {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
+        {:ok, handle_setup(%{auth: auth, job: job, uid: job.uid, current_state: :started})}
       end
 
+      @impl true
       def handle_call(:upload, _from, state) do
-        authorization = Account.authorization()
-
-        case task(authorization, state) do
+        case task(state) do
           {:ok, result} ->
-            Job.complete(state, result)
+            Job.State.complete(state, result)
 
             {:stop, :normal, {:ok, result},
              Map.merge(state, %{
@@ -54,7 +54,7 @@ defmodule Upstream.Worker.Base do
              })}
 
           {:error, reason} ->
-            Job.error(state, reason)
+            Job.State.error(state, reason)
 
             {:stop, {:error, reason}, {:error, reason},
              Map.merge(state, %{
@@ -63,6 +63,7 @@ defmodule Upstream.Worker.Base do
         end
       end
 
+      @impl true
       def terminate(reason, state) do
         handle_stop(state)
 
@@ -89,5 +90,5 @@ defmodule Upstream.Worker.Base do
     end
   end
 
-  @callback task(struct, map) :: {:ok, any} | {:error, any}
+  @callback task(map) :: {:ok, any} | {:error, any}
 end

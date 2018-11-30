@@ -5,11 +5,10 @@ defmodule Upstream.B2.Base do
   simply call `use Upstream.B2` in the module and define the url, header, body
   and use the module to make the calls.
   """
+  alias Upstream.Request
 
   defmacro __using__(_) do
     quote do
-      alias Upstream.Request
-
       alias Upstream.B2.{
         Url,
         Account
@@ -39,7 +38,7 @@ defmodule Upstream.B2.Base do
 
       def body(nil), do: %{}
 
-      defp process_body(%{} = body), do: Poison.encode!(body)
+      defp process_body(%{} = body), do: Jason.encode!(body)
       defp process_body(body), do: body
 
       defoverridable header: 2, body: 1
@@ -48,7 +47,7 @@ defmodule Upstream.B2.Base do
 
   alias Upstream.B2.Account.Authorization
 
-  @callback url(Authorization.t(), nil | String.t() | map | none) :: String.t()
   @callback body(nil | String.t() | map | any) :: map | any
+  @callback url(Authorization.t(), nil | String.t() | map | none) :: String.t()
   @callback header(Authorization.t(), nil | String.t() | map | none) :: List.t()
 end

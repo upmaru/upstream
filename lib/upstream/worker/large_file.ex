@@ -2,32 +2,37 @@ defmodule Upstream.Worker.LargeFile do
   @moduledoc """
   LargeFile Uploader handles all the interaction to upload a large file.
   """
+
   use Upstream.Worker.Base
 
   alias __MODULE__.Status
-  alias Upstream.B2.LargeFile
-  alias Upstream.B2.Account.Authorization
+  alias Upstream.B2.{
+    LargeFile, Account
+  }
+
+  alias Account.Authorization
   alias Upstream.Worker.Chunk
 
   @concurrency Application.get_env(:upstream, Upstream)[:concurrency] || 2
 
-  # Upstream.Worker.Base Callbacks
+  # Callbacks
 
   @spec task(
-          Authorization.t(),
           %{
-              file_id: any(),
-              job: atom() | %{stream: any()},
-              status: atom() | pid() | {atom(), any()} | {:via, atom(), any()},
-              temp_directory: any()
-            }
-        ) :: any()
-  def task(auth, state) do
+            auth: Authorization.t(),
+            file_id: any(),
+            job: atom() | %{stream: any()},
+            status: atom() | pid() | {atom(), any()} | {:via, atom(), any()},
+            temp_directory: any()
+          }
+        ) :: {:error, any()} | {:ok, struct}
+  @impl true
+  def task(state) do
     stream =
       Task.Supervisor.async_stream(
         TaskSupervisor,
         chunk_streams(state.job.stream, state.temp_directory),
-        &upload_chunk(&1, state.file_id, state.job, state.status),
+        &upload_chunk(&1, state),
         max_concurrency: @concurrency,
         timeout: 100_000_000
       )
@@ -36,7 +41,7 @@ defmodule Upstream.Worker.LargeFile do
 
     Logger.info("[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded")
     sha1_array = Status.get_uploaded_sha1(state.status)
-    LargeFile.finish(auth, state.file_id, sha1_array)
+    LargeFile.finish(state.auth, state.file_id, sha1_array)
   end
 
   ## Private Callbacks
@@ -44,7 +49,7 @@ defmodule Upstream.Worker.LargeFile do
   defp handle_setup(state) do
     {:ok, status} = Status.start_link()
 
-    {:ok, started} = LargeFile.start(state.uid.name, state.job.metadata)
+    {:ok, started} = LargeFile.start(state.auth, state.uid.name, state.job.metadata)
 
     temp_directory = Path.join(["tmp", started.file_id])
     :ok = File.mkdir_p!(temp_directory)
@@ -60,7 +65,8 @@ defmodule Upstream.Worker.LargeFile do
     Status.stop(state.status)
     File.rmdir(state.temp_directory)
 
-    if state.current_state in [:started, :uploading], do: LargeFile.cancel(state.file_id)
+    if state.current_state in [:started, :uploading],
+      do: LargeFile.cancel(state.auth, state.file_id)
   end
 
   # Private Functions
@@ -74,11 +80,14 @@ defmodule Upstream.Worker.LargeFile do
     end)
   end
 
-  defp upload_chunk({chunked_stream, index}, file_id, job, status) do
+  defp upload_chunk({chunked_stream, index}, %{auth: auth, file_id: file_id, job: job, status: status} = _state) do
     content_length =
-      if job.threads == index + 1, do: job.last_content_length, else: job.content_length
+      if job.threads == index + 1,
+        do: job.last_content_length,
+        else: job.content_length
 
     chunk_state = %{
+      auth: auth,
       job: %{stream: chunked_stream, content_length: content_length},
       uid: %{index: index, file_id: file_id}
     }

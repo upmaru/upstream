@@ -22,10 +22,6 @@ defmodule Upstream do
   @spec storage() :: any()
   def storage, do: Application.get_env(:upstream, :storage) || []
 
-  @concurrency 2
-  @spec concurrency() :: integer()
-  def concurrency, do: config(:concurrency) || @concurrency
-
   @file_param "file"
   def file_param, do: config(:file_param) || @file_param
 
