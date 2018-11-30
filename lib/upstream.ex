@@ -23,6 +23,7 @@ defmodule Upstream do
   def storage, do: Application.get_env(:upstream, :storage) || []
 
   @concurrency 2
+  @spec concurrency() :: integer()
   def concurrency, do: config(:concurrency) || @concurrency
 
   @file_param "file"
