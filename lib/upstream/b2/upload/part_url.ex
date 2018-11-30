@@ -17,7 +17,7 @@ defmodule Upstream.B2.Upload.PartUrl do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :get_upload_part_url)
+  def url(auth, _), do: Url.generate(auth.api_url, :get_upload_part_url)
 
   def body(file_id), do: %{fileId: file_id}
 end

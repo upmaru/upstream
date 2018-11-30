@@ -2,11 +2,12 @@ defmodule Upstream.Worker.Chunk do
   @moduledoc """
   Handles uploading of chunks (pieces from the client)
   """
+
   use Upstream.Worker.Base
 
-  def task(state) do
+  def task(auth, state) do
     with {:ok, checksum} <- Checksum.start_link(),
-         {:ok, part_url} <- Upload.part_url(state.uid.file_id) do
+         {:ok, part_url} <- Upload.part_url(auth, state.uid.file_id) do
       index = state.uid.index
 
       header = %{
@@ -19,7 +20,7 @@ defmodule Upstream.Worker.Chunk do
       body = Flow.generate(state.job.stream, index, checksum)
 
       try do
-        Upload.part(part_url.upload_url, header, body)
+        Upload.part(auth, part_url.upload_url, header, body)
       after
         Checksum.stop(checksum)
       end

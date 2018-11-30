@@ -6,17 +6,29 @@ defmodule Upstream.Worker.LargeFile do
 
   alias __MODULE__.Status
   alias Upstream.B2.LargeFile
+  alias Upstream.B2.Account.Authorization
   alias Upstream.Worker.Chunk
+
+  @concurrency Application.get_env(:upstream, Upstream)[:concurrency] || 2
 
   # Upstream.Worker.Base Callbacks
 
-  def task(state) do
+  @spec task(
+          Authorization.t(),
+          %{
+              file_id: any(),
+              job: atom() | %{stream: any()},
+              status: atom() | pid() | {atom(), any()} | {:via, atom(), any()},
+              temp_directory: any()
+            }
+        ) :: any()
+  def task(auth, state) do
     stream =
       Task.Supervisor.async_stream(
         TaskSupervisor,
         chunk_streams(state.job.stream, state.temp_directory),
         &upload_chunk(&1, state.file_id, state.job, state.status),
-        max_concurrency: Upstream.concurrency(),
+        max_concurrency: @concurrency,
         timeout: 100_000_000
       )
 
@@ -24,7 +36,7 @@ defmodule Upstream.Worker.LargeFile do
 
     Logger.info("[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded")
     sha1_array = Status.get_uploaded_sha1(state.status)
-    LargeFile.finish(state.file_id, sha1_array)
+    LargeFile.finish(auth, state.file_id, sha1_array)
   end
 
   ## Private Callbacks

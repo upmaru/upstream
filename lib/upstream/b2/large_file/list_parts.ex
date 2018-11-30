@@ -10,7 +10,7 @@ defmodule Upstream.B2.LargeFile.ListParts do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :list_parts)
+  def url(auth, _), do: Url.generate(auth.api_url, :list_parts)
 
   def body(file_id) when is_binary(file_id), do: %{fileId: file_id}
 

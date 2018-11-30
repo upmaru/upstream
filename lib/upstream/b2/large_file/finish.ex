@@ -31,7 +31,7 @@ defmodule Upstream.B2.LargeFile.Finish do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :finish_large_file)
+  def url(auth, _), do: Url.generate(auth.api_url, :finish_large_file)
 
   def body(body) do
     file_id = Keyword.get(body, :file_id)

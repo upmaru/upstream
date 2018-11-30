@@ -7,7 +7,7 @@ defmodule Upstream.B2.List do
     FileNames
   }
 
-  def by_file_name(file_name) do
-    FileNames.call(body: file_name)
+  def by_file_name(auth, file_name) do
+    FileNames.call(auth, body: file_name)
   end
 end

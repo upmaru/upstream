@@ -30,9 +30,10 @@ defmodule Upstream.B2.Account.Authorization do
   """
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(:authorize_account)
+  @spec url(any(), any()) :: binary()
+  def url(_, _), do: Url.generate(:authorize_account)
 
-  def header do
+  def header(_, _) do
     encoded =
       "Basic " <>
         Base.encode64(Upstream.storage(:account_id) <> ":" <> Upstream.storage(:application_key))

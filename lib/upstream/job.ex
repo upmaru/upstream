@@ -6,12 +6,10 @@ defmodule Upstream.Job do
   use Upstream.Constants
 
   alias Upstream.B2.Account
-  alias Upstream.Store
 
   defstruct [
     :uid,
     :full_path,
-    :basename,
     :stream,
     :content_length,
     :last_content_length,
@@ -23,7 +21,6 @@ defmodule Upstream.Job do
   @stream_bytes 2048
 
   @type t() :: %__MODULE__{
-          basename: String.t(),
           uid: map,
           full_path: String.t(),
           stat: File.Stat.t(),
@@ -34,11 +31,14 @@ defmodule Upstream.Job do
           metadata: map
         }
 
+  @spec create(binary(), binary() | %{file_id: any(), index: any()}, any()) :: Upstream.Job.t()
   def create(source_path, params, metadata \\ %{}) do
+    authorization = Account.authorization()
+
     absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)
-    threads = recommend_thread_count(stat.size)
+    threads = recommend_thread_count(authorization, stat.size)
 
     # calculates the chunk length based on how many threads
     chunk_length = chunk_size(stat.size, threads)
@@ -53,7 +53,7 @@ defmodule Upstream.Job do
     last_content_length = stat.size - content_length * threads + content_length
 
     %__MODULE__{
-      uid: get_uid(params) || %{name: source_path},
+      uid: get_uid(params),
       full_path: absolute_path,
       stat: stat,
       content_length: content_length,
@@ -62,70 +62,6 @@ defmodule Upstream.Job do
       threads: threads,
       metadata: metadata
     }
-  end
-
-  def uploading?(job) do
-    Store.is_member?(@uploading, job.uid.name)
-  end
-
-  def completed?(job) do
-    Store.exist?(job.uid.name) && not Store.is_member?(@errored, job.uid.name) &&
-      not Store.is_member?(@uploading, job.uid.name)
-  end
-
-  def done?(job) do
-    completed?(job) || (errored?(job) && not uploading?(job))
-  end
-
-  def errored?(job) do
-    Store.is_member?(@errored, job.uid.name)
-  end
-
-  def retry(job) do
-    Store.remove(job.uid.name)
-    Store.remove_member(@errored, job.uid.name)
-  end
-
-  def start(job) do
-    Store.add_member(@uploading, job.uid.name)
-  end
-
-  @spec error(atom() | %{uid: atom() | %{name: any()}}, any()) :: any()
-  def error(job, reason) do
-    Store.set(job.uid.name, Poison.encode!(reason))
-    Store.move_member(@uploading, @errored, job.uid.name)
-  end
-
-  def complete(job, result) do
-    Store.set(job.uid.name, Poison.encode!(result))
-    Store.remove_member(@uploading, job.uid.name)
-  end
-
-  def get_result(job, timeout \\ 5000) do
-    task = Task.async(fn -> wait_for_result(job) end)
-
-    case Task.yield(task, timeout) || Task.shutdown(task) do
-      {:ok, reply} ->
-        reply
-
-      nil ->
-        message = %{error: :no_reply}
-        error(job, message)
-        {:error, message}
-    end
-  end
-
-  defp wait_for_result(job) do
-    cond do
-      completed?(job) ->
-        {:ok, Poison.decode!(Store.get(job.uid.name))}
-
-      errored?(job) ->
-        {:error, Poison.decode!(Store.get(job.uid.name))}
-
-      true ->
-        wait_for_result(job)
-    end
   end
 
   defp get_uid(params) when is_binary(params), do: %{name: params}
@@ -137,8 +73,8 @@ defmodule Upstream.Job do
       name: "#{params.file_id}_#{params.index}"
     }
 
-  defp recommend_thread_count(file_size) do
-    to_integer(file_size / Account.recommended_part_size())
+  defp recommend_thread_count(auth, file_size) do
+    to_integer(file_size / auth.recommended_part_size)
   end
 
   defp file_stream(absolute_path, chunk_length, threads) do
