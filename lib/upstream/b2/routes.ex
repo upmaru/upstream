@@ -1,4 +1,4 @@
-defmodule Upstream.Router do
+defmodule Upstream.B2.Routes do
   @moduledoc """
   Provides the Endpoints for uploading
   """
@@ -7,7 +7,6 @@ defmodule Upstream.Router do
 
   use Plug.Router
 
-  alias Upstream.Uploader
   alias Upstream.B2
 
   plug(:match)
@@ -21,8 +20,10 @@ defmodule Upstream.Router do
 
   plug(:dispatch)
 
+  plug(B2.Account.AuthorizationPlug)
+
   get "/chunks/unfinished" do
-    case B2.LargeFile.unfinished() do
+    case B2.LargeFile.unfinished(conn.assigns.auth) do
       {:ok, unfinished} ->
         render_json(conn, 200, unfinished)
 
@@ -32,7 +33,7 @@ defmodule Upstream.Router do
   end
 
   get "/chunks/resume/:file_id" do
-    case B2.LargeFile.ListParts.call(body: file_id) do
+    case B2.LargeFile.ListParts.call(conn.assigns.auth, body: file_id) do
       {:ok, %B2.LargeFile.ListParts{parts: parts}} ->
         shas = B2.LargeFile.ListParts.extract_shas(parts)
         render_json(conn, 200, %{shas: shas})
@@ -47,7 +48,7 @@ defmodule Upstream.Router do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
-    case Uploader.upload_file!(path, file_name) do
+    case B2.upload_file(path, file_name) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -59,7 +60,7 @@ defmodule Upstream.Router do
   post "/chunks/start" do
     %{"file_name" => file_name} = conn.body_params
 
-    case B2.LargeFile.start(file_name) do
+    case B2.LargeFile.start(conn.assigns.auth, file_name) do
       {:ok, start} ->
         render_json(conn, 201, start)
 
@@ -69,7 +70,7 @@ defmodule Upstream.Router do
   end
 
   delete "/chunks/cancel/:file_id" do
-    case B2.LargeFile.cancel(file_id) do
+    case B2.LargeFile.cancel(conn.assigns.auth, file_id) do
       {:ok, cancel} ->
         render_json(conn, 200, cancel)
 
@@ -79,8 +80,9 @@ defmodule Upstream.Router do
   end
 
   patch "/chunks/add" do
-    %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
-      conn.body_params
+    %{"file_id" => file_id,
+      "part_number" => part_number,
+      "chunk_size" => chunk_size} = conn.body_params
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
@@ -91,7 +93,7 @@ defmodule Upstream.Router do
       attempt: String.to_integer(conn.body_params["attempt"] || "0")
     }
 
-    case Uploader.upload_chunk!(path, upload_params) do
+    case B2.upload_chunk(path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -108,7 +110,7 @@ defmodule Upstream.Router do
       |> Enum.sort_by(fn {k, _v} -> Integer.parse(k) end)
       |> Enum.map(fn {_k, v} -> v end)
 
-    case B2.LargeFile.finish(file_id, shas_list) do
+    case B2.LargeFile.finish(conn.assigns.auth, file_id, shas_list) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 

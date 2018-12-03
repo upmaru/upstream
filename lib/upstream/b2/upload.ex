@@ -9,10 +9,15 @@ defmodule Upstream.B2.Upload do
     File
   }
 
-  def part_url(file_id), do: PartUrl.call(body: file_id)
+  alias Upstream.B2.Account.Authorization
 
-  def part(url, header, body) do
+  @spec part_url(Authorization.t(), any()) :: {:error, struct()} | {:ok, struct()}
+  def part_url(auth, file_id), do: PartUrl.call(auth, body: file_id)
+
+  @spec part(nil | Authorization.t(), any(), any(), any()) :: {:error, struct} | {:ok, struct}
+  def part(auth, url, header, body) do
     Part.call(
+      auth,
       url: url,
       header: header,
       body: body,
@@ -24,10 +29,13 @@ defmodule Upstream.B2.Upload do
     )
   end
 
-  def url, do: Url.call()
+  @spec url(Authorization.t()) :: {:error, map()} | {:ok, struct()}
+  def url(auth), do: Url.call(auth)
 
-  def file(url, header, body) do
+  @spec file(Authorization.t(), any(), any(), any()) :: {:error, struct} | {:ok, struct}
+  def file(auth, url, header, body) do
     File.call(
+      auth,
       url: url,
       header: header,
       body: body,

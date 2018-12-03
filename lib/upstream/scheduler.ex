@@ -7,11 +7,13 @@ defmodule Upstream.Scheduler do
 
   require Logger
 
+  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil)
   end
 
   @impl true
+  @spec init(any()) :: :ignore | {:ok, nil}
   def init(_) do
     if enabled?() do
       start_scheduler()

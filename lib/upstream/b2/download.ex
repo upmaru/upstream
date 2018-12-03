@@ -9,8 +9,10 @@ defmodule Upstream.B2.Download do
 
   alias Upstream.B2.Account
 
-  def authorize(prefix, duration \\ 3600) do
+  @spec authorize(Account.Authorization.t(), any(), any()) :: {:error, struct} | {:ok, struct}
+  def authorize(auth, prefix, duration \\ 3600) do
     Authorization.call(
+      auth,
       body: [
         prefix: prefix,
         duration: duration
@@ -18,10 +20,11 @@ defmodule Upstream.B2.Download do
     )
   end
 
-  def url(file_name, authorization) do
+  @spec url(Account.Authorization.t(), any(), binary()) :: binary()
+  def url(%Account.Authorization{download_url: download_url} = _auth, file_name, authorization) do
     file_url =
       Enum.join(
-        [Account.download_url(), "file", Upstream.storage(:bucket_name), file_name],
+        [download_url, "file", Upstream.storage(:bucket_name), file_name],
         "/"
       )
 

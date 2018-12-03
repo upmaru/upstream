@@ -6,7 +6,7 @@ defmodule Upstream.UtilityTest do
   use ExUnit.Case
 
   alias Upstream.{
-    Uploader,
+    B2,
     Store,
     Utility
   }
@@ -15,7 +15,7 @@ defmodule Upstream.UtilityTest do
     path = "test/fixtures/cute_baby.jpg"
     key = "test/utility_test/delete_all_versions/cute_baby_0.jpg"
 
-    Uploader.upload_file!(path, key)
+    B2.upload_file(path, key)
     assert Store.get(key) != nil
 
     Utility.delete_all_versions(key)

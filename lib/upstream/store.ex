@@ -130,8 +130,7 @@ defmodule Upstream.Store do
          new_origin_members <- MapSet.delete(origin_members, value),
          new_destination_members <- MapSet.put(destination_members, value),
          true <- :ets.insert(store, {from, new_origin_members}),
-         true <- :ets.insert(store, {to, new_destination_members})
-    do
+         true <- :ets.insert(store, {to, new_destination_members}) do
       {:reply, :ok, store}
     else
       _ -> {:reply, :error, store}
@@ -149,8 +148,12 @@ defmodule Upstream.Store do
         else
           {:reply, nil, store}
         end
-      [{_k, value}] -> {:reply, value, store}
-      [] -> {:reply, nil, store}
+
+      [{_k, value}] ->
+        {:reply, value, store}
+
+      [] ->
+        {:reply, nil, store}
     end
   end
 

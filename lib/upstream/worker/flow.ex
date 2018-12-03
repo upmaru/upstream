@@ -1,11 +1,12 @@
-defmodule Upstream.Uploader.Flow do
+defmodule Upstream.Worker.Flow do
   @moduledoc """
   Generates the chunks stream for Worker.File and Worker.LargeFile
   """
 
-  alias Upstream.Uploader.Checksum
+  alias Upstream.Worker.Checksum
   alias Upstream.Worker.LargeFile.Status
 
+  @spec generate(any(), any(), any(), any()) :: (any(), any() -> any())
   def generate(stream, index, checksum_pid, status_pid \\ nil) do
     last_bytes = get_last_bytes(stream)
 
