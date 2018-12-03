@@ -14,7 +14,7 @@ defmodule Upstream.StoreTest do
   test "add member to list" do
     Store.add_member("uploading", "some_job")
 
-    assert Store.get("uploading") == ["some_job"]
+    assert Store.get("uploading") == MapSet.new(["some_job"])
   end
 
   test "move member from 1 list to another" do
