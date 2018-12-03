@@ -140,9 +140,7 @@ defmodule Upstream.Store do
   @impl true
   def handle_call({:get, key}, _from, store) do
     case :ets.lookup(store, key) do
-      [{_k, %MapSet{} = value}] ->
-        list = MapSet.to_list(value)
-
+      [{_k, %MapSet{} = list}] ->
         if Enum.count(list) > 0 do
           {:reply, list, store}
         else
