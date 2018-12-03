@@ -2,6 +2,9 @@ defmodule Upstream.B2.Upload.Url do
   @moduledoc """
   Responsible for retrieving the upload_url from b2 for simple file
   """
+
+  alias Upstream.B2.Account.Authorization
+
   defstruct [:bucket_id, :upload_url, :authorization_token]
 
   @type t :: %__MODULE__{
@@ -12,9 +15,10 @@ defmodule Upstream.B2.Upload.Url do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :get_upload_url)
+  @spec url(Authorization.t(), any()) :: binary()
+  def url(auth, _), do: Url.generate(auth.api_url, :get_upload_url)
 
   def body(_) do
-    %{bucketId: Upstream.config(:bucket_id)}
+    %{bucketId: Upstream.storage(:bucket_id)}
   end
 end

@@ -25,11 +25,11 @@ defmodule Upstream.B2.LargeFile.Start do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :start_large_file)
+  def url(auth, _), do: Url.generate(auth.api_url, :start_large_file)
 
   def body(file_name) when is_binary(file_name) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       contentType: "b2/x-auto",
       fileName: URI.encode(file_name)
     }
@@ -37,7 +37,7 @@ defmodule Upstream.B2.LargeFile.Start do
 
   def body(params) when is_map(params) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       contentType: "b2/x-auto",
       fileName: URI.encode(params.file_name),
       fileInfo: params.file_info
