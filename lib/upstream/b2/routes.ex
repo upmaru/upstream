@@ -80,8 +80,9 @@ defmodule Upstream.B2.Routes do
   end
 
   patch "/chunks/add" do
-    %{"file_id" => file_id, "part_number" => part_number, "chunk_size" => chunk_size} =
-      conn.body_params
+    %{"file_id" => file_id,
+      "part_number" => part_number,
+      "chunk_size" => chunk_size} = conn.body_params
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
