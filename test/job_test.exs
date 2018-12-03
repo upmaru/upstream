@@ -6,7 +6,8 @@ defmodule Upstream.JobTest do
 
   alias Upstream.B2.{
     LargeFile,
-    Upload
+    Upload,
+    Account
   }
 
   test "create job" do
@@ -21,7 +22,7 @@ defmodule Upstream.JobTest do
   describe "job state change" do
     test "start job" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
-      Job.start(job)
+      Job.State.start(job)
 
       assert Job.State.uploading?(job) == true
     end
@@ -36,16 +37,18 @@ defmodule Upstream.JobTest do
 
     test "job completed" do
       use_cassette "b2_get_upload_part_url" do
+        authorization = Account.authorization()
+
         job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
-        Job.start(job)
+        Job.State.start(job)
 
-        {:ok, started} = LargeFile.start(job.uid.name)
-        {:ok, part_url} = Upload.part_url(started.file_id)
+        {:ok, started} = LargeFile.start(authorization, job.uid.name)
+        {:ok, part_url} = Upload.part_url(authorization, started.file_id)
 
-        Job.complete(job, part_url)
+        Job.State.complete(job, part_url)
 
-        assert Job.completed?(job) == true
-        assert Job.get_result(job) == {:ok, Poison.decode!(Poison.encode!(part_url))}
+        assert Job.State.completed?(job) == true
+        assert Job.State.get_result(job) == {:ok, part_url}
       end
     end
 
@@ -54,10 +57,10 @@ defmodule Upstream.JobTest do
 
       Job.State.start(job)
 
-      result = Job.get_result(job, 0)
+      result = Job.State.get_result(job, 0)
 
       assert result == {:error, %{error: :no_reply}}
-      assert Job.errored?(job) == true
+      assert Job.State.errored?(job) == true
     end
   end
 end

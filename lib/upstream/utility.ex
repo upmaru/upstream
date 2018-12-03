@@ -29,6 +29,7 @@ defmodule Upstream.Utility do
   @spec delete_all_versions(binary()) :: {:error, :failed} | {:ok, [any()]}
   def delete_all_versions(file_name) do
     auth = Account.authorization()
+
     {:ok, file_ids} = get_file_ids(file_name)
 
     stream =
