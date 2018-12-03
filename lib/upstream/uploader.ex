@@ -26,7 +26,7 @@ defmodule Upstream.Uploader do
 
   @spec start_worker(atom() | binary(), any()) :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
   def start_worker(worker_module, job) do
-    module = Module.concat(Worker, worker_module)
+    module = Module.concat(Upstream.Worker, worker_module)
 
     child_spec = {module, job}
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
