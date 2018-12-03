@@ -23,15 +23,15 @@ defmodule Upstream.JobTest do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
       Job.start(job)
 
-      assert Job.uploading?(job) == true
+      assert Job.State.uploading?(job) == true
     end
 
     test "job errored" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
-      Job.start(job)
-      Job.error(job, "something_failed")
+      Job.State.start(job)
+      Job.State.error(job, "something_failed")
 
-      assert Job.get_result(job) == {:error, "something_failed"}
+      assert Job.State.get_result(job) == {:error, "something_failed"}
     end
 
     test "job completed" do
@@ -52,7 +52,7 @@ defmodule Upstream.JobTest do
     test "job waiting mechanism" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_99887.jpg")
 
-      Job.start(job)
+      Job.State.start(job)
 
       result = Job.get_result(job, 0)
 

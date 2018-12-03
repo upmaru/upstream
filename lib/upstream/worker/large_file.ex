@@ -26,7 +26,7 @@ defmodule Upstream.Worker.LargeFile do
   def task(%{job: job} = state) do
     stream =
       Task.Supervisor.async_stream(
-        TaskSupervisor,
+        Upstream.TaskSupervisor,
         chunk_streams(state),
         &upload_chunk(&1, state),
         max_concurrency: @concurrency,

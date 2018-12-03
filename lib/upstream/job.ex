@@ -33,7 +33,7 @@ defmodule Upstream.Job do
           metadata: map
         }
 
-  @spec create(binary(), binary() | %{file_id: any(), index: any()}, any()) :: Upstream.Job.t()
+  @spec create(binary(), binary() | map(), any()) :: Upstream.Job.t()
   def create(source_path, params, metadata \\ %{}) do
     authorization = Account.authorization()
 
@@ -90,9 +90,7 @@ defmodule Upstream.Job do
 
   defp get_content_length(params) when is_binary(params), do: nil
 
-  defp get_content_length(params) when is_map(params) do
-    if Map.has_key?(params, :content_length), do: params.content_length, else: nil
-  end
+  defp get_content_length(params) when is_map(params), do: Map.get(params, :content_length)
 
   defp chunk_size(file_size, threads) do
     to_integer(to_integer(file_size / @stream_bytes) / threads)

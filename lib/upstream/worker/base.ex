@@ -13,8 +13,7 @@ defmodule Upstream.Worker.Base do
       alias Upstream.Job
       alias Upstream.B2.Upload
 
-      alias Upstream.Uploader.{
-        TaskSupervisor,
+      alias Upstream.Worker.{
         Checksum,
         Flow
       }

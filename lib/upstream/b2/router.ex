@@ -7,7 +7,6 @@ defmodule Upstream.B2.Router do
 
   use Plug.Router
 
-  alias Upstream.Uploader
   alias Upstream.B2
 
   plug(:match)
@@ -21,7 +20,7 @@ defmodule Upstream.B2.Router do
 
   plug(:dispatch)
 
-  plug(Upstream.B2.Account.AuthorizationPlug)
+  plug(B2.Account.AuthorizationPlug)
 
   get "/chunks/unfinished" do
     case B2.LargeFile.unfinished(conn.assigns.auth) do
@@ -49,7 +48,7 @@ defmodule Upstream.B2.Router do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
-    case Uploader.upload_file!(path, file_name) do
+    case B2.upload_file(path, file_name) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
@@ -93,7 +92,7 @@ defmodule Upstream.B2.Router do
       attempt: String.to_integer(conn.body_params["attempt"] || "0")
     }
 
-    case Uploader.upload_chunk!(path, upload_params) do
+    case B2.upload_chunk(path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, Map.merge(%{success: true}, result))
 
