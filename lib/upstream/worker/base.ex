@@ -6,18 +6,19 @@ defmodule Upstream.Worker.Base do
     quote do
       use GenServer
 
-      @upload_timeout 20_000
+      @upload_timeout Application.get_env(:upstream, :upload)[:timeout] || 20_000
 
       @behaviour unquote(__MODULE__)
 
       alias Upstream.Job
       alias Upstream.B2.Upload
 
-      alias Upstream.Uploader.{
-        TaskSupervisor,
+      alias Upstream.Worker.{
         Checksum,
         Flow
       }
+
+      alias Upstream.B2.Account
 
       require Logger
 
@@ -28,21 +29,23 @@ defmodule Upstream.Worker.Base do
       end
 
       def upload(pid) do
-        GenServer.call(pid, :upload, upload_timeout())
+        GenServer.call(pid, :upload, @upload_timeout)
       end
 
       # Server Callbacks
 
+      @impl true
       def init(job) do
-        Job.start(job)
+        Job.State.start(job)
 
-        {:ok, handle_setup(%{job: job, uid: job.uid, current_state: :started})}
+        {:ok, handle_setup(%{job: job, current_state: :started})}
       end
 
-      def handle_call(:upload, _from, state) do
+      @impl true
+      def handle_call(:upload, _from, %{job: job} = state) do
         case task(state) do
           {:ok, result} ->
-            Job.complete(state, result)
+            Job.State.complete(job, result)
 
             {:stop, :normal, {:ok, result},
              Map.merge(state, %{
@@ -50,7 +53,7 @@ defmodule Upstream.Worker.Base do
              })}
 
           {:error, reason} ->
-            Job.error(state, reason)
+            Job.State.error(job, reason)
 
             {:stop, {:error, reason}, {:error, reason},
              Map.merge(state, %{
@@ -59,35 +62,26 @@ defmodule Upstream.Worker.Base do
         end
       end
 
-      def terminate(reason, state) do
+      @impl true
+      def terminate(reason, %{job: job} = state) do
         handle_stop(state)
 
         cond do
-          Job.completed?(state) ->
-            Logger.info("[Upstream] Completed #{state.uid.name}")
+          Job.State.completed?(job) ->
+            Logger.info("[Upstream] Completed #{job.uid.name}")
 
-          Job.errored?(state) ->
-            Logger.info("[Upstream] Errored #{state.uid.name}")
+          Job.State.errored?(job) ->
+            Logger.info("[Upstream] Errored #{job.uid.name}")
 
           true ->
-            Job.error(state, %{error: reason})
+            Job.State.error(job, %{error: reason})
         end
 
         reason
       end
 
-      # Private functions
-
-      defp handle_stop(state), do: nil
       defp handle_setup(state), do: state
-
-      defp upload_timeout do
-        cond do
-          Upstream.config(:upload_timeout) == 0 -> :infinity
-          is_nil(Upstream.config(:upload_timeout)) -> @upload_timeout
-          true -> Upstream.config(:upload_timeout)
-        end
-      end
+      defp handle_stop(state), do: {:ok, state.current_state}
 
       defoverridable handle_stop: 1, handle_setup: 1
     end

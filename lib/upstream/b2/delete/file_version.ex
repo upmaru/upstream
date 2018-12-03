@@ -1,4 +1,9 @@
 defmodule Upstream.B2.Delete.FileVersion do
+  @moduledoc """
+  Delete file version
+  """
+
+
   defstruct [
     :file_id,
     :file_name
@@ -6,7 +11,8 @@ defmodule Upstream.B2.Delete.FileVersion do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :delete_file_version)
+  @spec url(Authorization.t(), any()) :: binary()
+  def url(auth, _), do: Url.generate(auth.api_url, :delete_file_version)
 
   def body(body) do
     file_id = Keyword.get(body, :file_id)

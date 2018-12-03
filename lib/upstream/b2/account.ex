@@ -9,8 +9,9 @@ defmodule Upstream.B2.Account do
 
   require Logger
 
+  @spec start_link(any()) :: {:error, any()} | {:ok, pid()}
   def start_link(_args) do
-    case Application.fetch_env(:upstream, Upstream) do
+    case Application.fetch_env(:upstream, :storage) do
       {:ok, _config} ->
         Agent.start_link(&authorize/0, name: __MODULE__)
 
@@ -22,9 +23,7 @@ defmodule Upstream.B2.Account do
 
   @spec re_authorize() :: :ok
   def re_authorize do
-    Agent.update(__MODULE__, fn _authroization ->
-      authorize()
-    end)
+    Agent.update(__MODULE__, fn _authorization -> authorize() end)
   end
 
   @spec authorization :: %Authorization{}
@@ -36,21 +35,10 @@ defmodule Upstream.B2.Account do
     Agent.get(__MODULE__, &ensure_correct_auth_data/1)
   end
 
-  def api_url, do: authorization().api_url
-  def absolute_minimum_part_size, do: authorization().absolute_minimum_part_size
-  def recommended_part_size, do: authorization().recommended_part_size
-  def download_url, do: authorization().download_url
-
-  def authorization_header do
-    token = authorization().authorization_token
-
-    {"Authorization", token}
-  end
-
   defp authorize do
     Logger.info("[Upstream] Authorizing B2 account...")
 
-    case Authorization.call() do
+    case Authorization.call(nil) do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

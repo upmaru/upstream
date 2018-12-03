@@ -6,13 +6,9 @@ defmodule Upstream.JobTest do
 
   alias Upstream.B2.{
     LargeFile,
-    Upload
+    Upload,
+    Account
   }
-
-  setup do
-    Upstream.Store.start_link([])
-    Upstream.Store.flush_all()
-  end
 
   test "create job" do
     job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
@@ -26,43 +22,45 @@ defmodule Upstream.JobTest do
   describe "job state change" do
     test "start job" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
-      Job.start(job)
+      Job.State.start(job)
 
-      assert Job.uploading?(job) == true
+      assert Job.State.uploading?(job) == true
     end
 
     test "job errored" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
-      Job.start(job)
-      Job.error(job, "something_failed")
+      Job.State.start(job)
+      Job.State.error(job, "something_failed")
 
-      assert Job.get_result(job) == {:error, "something_failed"}
+      assert Job.State.get_result(job) == {:error, "something_failed"}
     end
 
     test "job completed" do
       use_cassette "b2_get_upload_part_url" do
+        authorization = Account.authorization()
+
         job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
-        Job.start(job)
+        Job.State.start(job)
 
-        {:ok, started} = LargeFile.start(job.uid.name)
-        {:ok, part_url} = Upload.part_url(started.file_id)
+        {:ok, started} = LargeFile.start(authorization, job.uid.name)
+        {:ok, part_url} = Upload.part_url(authorization, started.file_id)
 
-        Job.complete(job, part_url)
+        Job.State.complete(job, part_url)
 
-        assert Job.completed?(job) == true
-        assert Job.get_result(job) == {:ok, Poison.decode!(Poison.encode!(part_url))}
+        assert Job.State.completed?(job) == true
+        assert Job.State.get_result(job) == {:ok, part_url}
       end
     end
 
     test "job waiting mechanism" do
       job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_99887.jpg")
 
-      Job.start(job)
+      Job.State.start(job)
 
-      result = Job.get_result(job, 0)
+      result = Job.State.get_result(job, 0)
 
       assert result == {:error, %{error: :no_reply}}
-      assert Job.errored?(job) == true
+      assert Job.State.errored?(job) == true
     end
   end
 end

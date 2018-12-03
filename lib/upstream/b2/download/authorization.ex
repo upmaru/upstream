@@ -13,11 +13,12 @@ defmodule Upstream.B2.Download.Authorization do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :get_download_authorization)
+  @spec url(Authorization.t(), any()) :: binary()
+  def url(auth, _), do: Url.generate(auth.api_url, :get_download_authorization)
 
   def body(body) do
     %{
-      bucketId: Upstream.config(:bucket_id),
+      bucketId: Upstream.storage(:bucket_id),
       fileNamePrefix: Keyword.get(body, :prefix),
       validDurationInSeconds: Keyword.get(body, :duration)
     }

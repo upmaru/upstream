@@ -5,11 +5,6 @@ defmodule Upstream.StoreTest do
   use ExUnit.Case
   alias Upstream.Store
 
-  setup do
-    Upstream.Store.start_link([])
-    Upstream.Store.flush_all()
-  end
-
   test "store value in key" do
     Store.set("blah", "test")
 
@@ -19,7 +14,7 @@ defmodule Upstream.StoreTest do
   test "add member to list" do
     Store.add_member("uploading", "some_job")
 
-    assert Store.get("uploading") == ["some_job"]
+    assert Store.get("uploading") == MapSet.new(["some_job"])
   end
 
   test "move member from 1 list to another" do

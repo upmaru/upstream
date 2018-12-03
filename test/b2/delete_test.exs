@@ -7,14 +7,17 @@ defmodule Upstream.B2.DeleteTest do
 
   alias Upstream.B2.{
     Delete,
-    Upload
+    Upload,
+    Account
   }
 
   setup_all do
-    {:ok, %{file_name: "test_file_deletion.txt"}}
+    authorization = Account.authorization()
+
+    {:ok, %{auth: authorization, file_name: "test_file_deletion.txt"}}
   end
 
-  test "file_version", %{file_name: file_name} do
+  test "file_version", %{auth: auth, file_name: file_name} do
     stream = Stream.map(1..10_000, fn n -> <<n>> end)
 
     sha1 =
@@ -26,7 +29,7 @@ defmodule Upstream.B2.DeleteTest do
       |> Base.encode16()
       |> String.downcase()
 
-    {:ok, url} = Upload.url()
+    {:ok, url} = Upload.url(auth)
 
     header = %{
       authorization: url.authorization_token,
@@ -35,9 +38,9 @@ defmodule Upstream.B2.DeleteTest do
       x_bz_content_sha1: sha1
     }
 
-    {:ok, file} = Upload.file(url.upload_url, header, stream)
+    {:ok, file} = Upload.file(auth, url.upload_url, header, stream)
 
-    assert Delete.file_version(file_name, file.file_id) ==
+    assert Delete.file_version(auth, file_name, file.file_id) ==
              {:ok, %Upstream.B2.Delete.FileVersion{file_id: file.file_id, file_name: file_name}}
   end
 end
