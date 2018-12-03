@@ -7,6 +7,12 @@ defmodule Upstream.B2.Base do
   """
   alias Upstream.Request
 
+  alias Upstream.B2.Account.Authorization
+
+  @callback body(nil | String.t() | map | Keyword.t()) :: tuple | map
+  @callback url(Authorization.t(), nil | String.t() | map | none) :: String.t()
+  @callback header(Authorization.t(), nil | String.t() | map | none) :: List.t()
+
   defmacro __using__(_) do
     quote do
       alias Upstream.B2.{
@@ -18,8 +24,8 @@ defmodule Upstream.B2.Base do
 
       @behaviour unquote(__MODULE__)
 
-      @spec call(Authorization.t(), Keyword.t()) :: {:ok | :error, %__MODULE__{} | struct}
-      def call(auth \\ %Authorization{}, options \\ []) do
+      @spec call(Authorization.t() | nil, Keyword.t()) :: {:ok | :error, %__MODULE__{} | struct}
+      def call(auth, options \\ []) do
         url_option = Keyword.get(options, :url, nil)
         header_option = Keyword.get(options, :header, nil)
         body_option = Keyword.get(options, :body, nil)
@@ -28,7 +34,7 @@ defmodule Upstream.B2.Base do
         Request.post(
           %__MODULE__{},
           url(auth, url_option),
-          process_body(body(body_option)),
+          body(body_option),
           header(auth, header_option),
           request_options
         )
@@ -38,16 +44,7 @@ defmodule Upstream.B2.Base do
 
       def body(nil), do: %{}
 
-      defp process_body(%{} = body), do: Jason.encode!(body)
-      defp process_body(body), do: body
-
       defoverridable header: 2, body: 1
     end
   end
-
-  alias Upstream.B2.Account.Authorization
-
-  @callback body(nil | String.t() | map | any) :: map | any
-  @callback url(Authorization.t(), nil | String.t() | map | none) :: String.t()
-  @callback header(Authorization.t(), nil | String.t() | map | none) :: List.t()
 end

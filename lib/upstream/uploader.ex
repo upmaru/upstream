@@ -29,7 +29,7 @@ defmodule Upstream.Uploader do
   end
 
   @spec start_worker(atom() | binary(), any()) :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
-  def start_worker(worker_module, job) do
+  defp start_worker(worker_module, job) do
     module = Module.concat(Worker, worker_module)
 
     child_spec = {module, job}
@@ -40,7 +40,7 @@ defmodule Upstream.Uploader do
     end
   end
 
-  @spec upload_chunk!(binary(), binary() | %{file_id: any(), index: any()}) :: {:error, any()} | {:ok, any()}
+  @spec upload_chunk!(binary(), binary() | map()) :: {:error, any()} | {:ok, any()}
   def upload_chunk!(chunk_path, params) do
     job = Job.create(chunk_path, params)
     if Job.State.errored?(job), do: Job.State.retry(job)
@@ -48,7 +48,7 @@ defmodule Upstream.Uploader do
     start_and_register(job, fn -> start_upload(Chunk, job) end)
   end
 
-  @spec upload_file!(binary(), binary() | %{file_id: any(), index: any()}, any()) :: {:error, any()} | {:ok, any()}
+  @spec upload_file!(binary(), binary() | map(), map()) :: {:error, any()} | {:ok, any()}
   def upload_file!(file_path, name, metadata \\ %{}) do
     job = Job.create(file_path, name, metadata)
     if Job.State.errored?(job), do: Job.State.retry(job)

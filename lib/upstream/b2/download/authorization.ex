@@ -3,8 +3,6 @@ defmodule Upstream.B2.Download.Authorization do
   This will get_download_authorization for us
   """
 
-  alias Upstream.B2.Account.Authorization
-
   defstruct [:bucket_id, :file_name_prefix, :authorization_token]
 
   @type t :: %__MODULE__{
