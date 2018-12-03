@@ -3,7 +3,6 @@ defmodule Upstream.B2.Delete.FileVersion do
   Delete file version
   """
 
-  alias Upstream.B2.Account.Authorization
 
   defstruct [
     :file_id,

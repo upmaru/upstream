@@ -23,6 +23,7 @@ defmodule Upstream do
   def storage, do: Application.get_env(:upstream, :storage) || []
 
   @file_param "file"
+  @spec file_param() :: any()
   def file_param, do: config(:file_param) || @file_param
 
   @spec config(atom()) :: any()

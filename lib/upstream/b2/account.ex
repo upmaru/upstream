@@ -38,7 +38,7 @@ defmodule Upstream.B2.Account do
   defp authorize do
     Logger.info("[Upstream] Authorizing B2 account...")
 
-    case Authorization.call() do
+    case Authorization.call(nil) do
       {:ok, authorization} -> authorization
       {:error, error} -> raise error.message
     end

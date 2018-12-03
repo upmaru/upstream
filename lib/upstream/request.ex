@@ -23,22 +23,25 @@ defmodule Upstream.Request do
 
     merged_options = Keyword.merge(default_options, options)
 
-    case HTTPoison.post(url, body, headers, merged_options) do
+    case HTTPoison.post(url, process_request_body(body), headers, merged_options) do
       {:ok, response = %HTTPoison.AsyncResponse{id: _id}} ->
         {:ok, response}
 
       {:ok, %{status_code: 200, body: body}} ->
-        {:ok, struct(caller_struct, process_response(body))}
+        {:ok, struct(caller_struct, process_response_body(body))}
 
       {:ok, %{status_code: _, body: body}} ->
-        {:error, struct(Error, process_response(body))}
+        {:error, struct(Error, process_response_body(body))}
 
       {:error, %HTTPoison.Error{id: _id, reason: reason}} ->
         {:error, %{error: reason}}
     end
   end
 
-  defp process_response(body) do
+  defp process_request_body(body) when is_tuple(body), do: body
+  defp process_request_body(body) when is_map(body), do: Jason.encode!(body)
+
+  defp process_response_body(body) do
     body
     |> Jason.decode!()
     |> Enum.map(fn {k, v} ->
