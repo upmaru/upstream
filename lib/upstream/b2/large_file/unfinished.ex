@@ -3,7 +3,7 @@ defmodule Upstream.B2.LargeFile.Unfinished do
   This module retrieves Unfinished LargeFiles
   ## Examples
 
-    iex> Upstream.B2.LargeFile.Unfinished.call
+    iex> Upstream.B2.LargeFile.Unfinished.call()
     {:ok, %Upstream.B2.LargeFile.Unfinished{}}
   """
   defstruct [:files, :next_file_id]
@@ -15,7 +15,7 @@ defmodule Upstream.B2.LargeFile.Unfinished do
 
   use Upstream.B2.Base
 
-  def url(_), do: Url.generate(Account.api_url(), :list_unfinished_large_files)
+  def url(auth, _), do: Url.generate(auth.api_url, :list_unfinished_large_files)
 
   def body(_) do
     %{bucketId: Upstream.storage(:bucket_id)}

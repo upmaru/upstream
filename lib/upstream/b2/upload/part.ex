@@ -14,9 +14,9 @@ defmodule Upstream.B2.Upload.Part do
 
   use Upstream.B2.Base
 
-  def url(upload_url) when is_binary(upload_url), do: upload_url
+  def url(_auth, upload_url) when is_binary(upload_url), do: upload_url
 
-  def header(part_data) do
+  def header(_auth, part_data) do
     [
       {"Authorization", part_data.authorization},
       {"X-Bz-Part-Number", part_data.x_bz_part_number},
