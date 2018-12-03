@@ -32,7 +32,7 @@ defmodule Upstream.B2.Upload do
   @spec url(Authorization.t()) :: {:error, map()} | {:ok, struct()}
   def url(auth), do: Url.call(auth)
 
-  @spec file(Upstream.B2.Account.Authorization.t(), any(), any(), any()) :: {:error, struct} | {:ok, struct}
+  @spec file(Authorization.t(), any(), any(), any()) :: {:error, struct} | {:ok, struct}
   def file(auth, url, header, body) do
     File.call(
       auth,
