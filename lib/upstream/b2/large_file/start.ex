@@ -2,6 +2,7 @@ defmodule Upstream.B2.LargeFile.Start do
   @moduledoc """
   Start a large file upload
   """
+  @derive Jason.Encoder
 
   defstruct [
     :file_id,

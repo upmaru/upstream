@@ -9,7 +9,8 @@ defmodule Upstream.B2.Routes do
 
   alias Upstream.B2
 
-  plug(:match)
+  plug(B2.Account.AuthorizationPlug)
+
 
   plug(
     Plug.Parsers,
@@ -18,9 +19,9 @@ defmodule Upstream.B2.Routes do
     length: 100_000_000
   )
 
+  plug(:match)
   plug(:dispatch)
 
-  plug(B2.Account.AuthorizationPlug)
 
   get "/chunks/unfinished" do
     case B2.LargeFile.unfinished(conn.assigns.auth) do

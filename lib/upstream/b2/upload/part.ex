@@ -2,6 +2,7 @@ defmodule Upstream.B2.Upload.Part do
   @moduledoc """
   Handle uploading of part
   """
+  @derive Jason.Encoder
 
   defstruct [:file_id, :part_number, :content_length, :content_sha1]
 

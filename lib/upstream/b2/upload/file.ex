@@ -2,6 +2,7 @@ defmodule Upstream.B2.Upload.File do
   @moduledoc """
   Upload Standard File
   """
+  @derive Jason.Encoder
 
   defstruct [
     :file_id,
