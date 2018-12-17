@@ -2,6 +2,7 @@ defmodule Upstream.B2.LargeFile.Cancel do
   @moduledoc """
   Call to cancel un-finished large_files
   """
+  @derive Jason.Encoder
 
   defstruct [:file_id, :account_id, :bucket_id, :file_name]
 
