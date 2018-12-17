@@ -86,10 +86,12 @@ defmodule Upstream.Worker.LargeFile do
         else: job.content_length
 
     chunk_state = %{
-      auth: job.auth,
-      stream: chunked_stream,
-      content_length: content_length,
-      uid: %{index: index, file_id: file_id}
+      job: %{
+        authorization: job.auth,
+        stream: chunked_stream,
+        content_length: content_length,
+        uid: %{index: index, file_id: file_id}
+      }
     }
 
     case Chunk.task(chunk_state) do

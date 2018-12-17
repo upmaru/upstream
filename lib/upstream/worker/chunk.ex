@@ -22,7 +22,7 @@ defmodule Upstream.Worker.Chunk do
       body = Flow.generate(state.job.stream, index, checksum)
 
       try do
-        Upload.part(state.job.authorization, part_url.upload_url, header, body)
+        Upload.part(state.job.auth, part_url.upload_url, header, body)
       after
         Checksum.stop(checksum)
       end
