@@ -9,17 +9,17 @@ defmodule Upstream.Worker.Chunk do
   @spec task(any()) :: {:error, any()} | {:ok, struct}
   def task(state) do
     with {:ok, checksum} <- Checksum.start_link(),
-         {:ok, part_url} <- Upload.part_url(state.job.authorization, state.uid.file_id) do
-      index = state.uid.index
+         {:ok, part_url} <- Upload.part_url(state.job.authorization, state.job.uid.file_id) do
+      index = state.job.uid.index
 
       header = %{
         authorization: part_url.authorization_token,
         x_bz_part_number: index + 1,
-        content_length: state.content_length + 40,
+        content_length: state.job.content_length + 40,
         x_bz_content_sha1: "hex_digits_at_end"
       }
 
-      body = Flow.generate(state.stream, index, checksum)
+      body = Flow.generate(state.job.stream, index, checksum)
 
       try do
         Upload.part(state.job.authorization, part_url.upload_url, header, body)
