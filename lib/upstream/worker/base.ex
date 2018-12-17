@@ -6,7 +6,7 @@ defmodule Upstream.Worker.Base do
     quote do
       use GenServer
 
-      @upload_timeout Application.get_env(:upstream, :upload)[:timeout] || 20_000
+      @upload_timeout Application.get_env(:upstream, :upload)[:timeout] || 200_000
 
       @behaviour unquote(__MODULE__)
 
