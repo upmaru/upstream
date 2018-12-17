@@ -17,7 +17,7 @@ defmodule Upstream.B2.LargeFile.Unfinished do
 
   use Upstream.B2.Base
 
-  @spec url(atom() | %{api_url: any()}, any()) :: binary()
+  @spec url(Upstream.B2.Account.Authorization.t(), any()) :: binary()
   def url(auth, _), do: Url.generate(auth.api_url, :list_unfinished_large_files)
 
   def body(_) do
