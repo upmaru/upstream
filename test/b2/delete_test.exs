@@ -3,7 +3,6 @@ defmodule Upstream.B2.DeleteTest do
   false
   """
   use ExUnit.Case
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias Upstream.B2.{
     Delete,
