@@ -3,6 +3,7 @@ defmodule Upstream.B2.LargeFile.ListParts do
   This module will get the parts of an unfinished large file
   """
 
+  @derive Jason.Encoder
 
   defstruct [
     :parts,

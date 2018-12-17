@@ -2,6 +2,7 @@ defmodule Upstream.B2.LargeFile.Finish do
   @moduledoc """
   Handles finishing large file uploading
   """
+  @derive Jason.Encoder
 
   defstruct [
     :file_id,
