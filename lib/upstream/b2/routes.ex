@@ -51,10 +51,10 @@ defmodule Upstream.B2.Routes do
 
     case B2.upload_file(path, file_name) do
       {:ok, result} ->
-        render_json(conn, 200, Map.merge(%{success: true}, result))
+        render_json(conn, 200, merge_success(result))
 
       {:error, reason} ->
-        render_json(conn, 422, Map.merge(%{success: false}, reason))
+        render_json(conn, 422, merge_fail(reason))
     end
   end
 
@@ -96,10 +96,10 @@ defmodule Upstream.B2.Routes do
 
     case B2.upload_chunk(path, upload_params) do
       {:ok, result} ->
-        render_json(conn, 200, Map.merge(%{success: true}, result))
+        render_json(conn, 200, merge_success(result))
 
       {:error, reason} ->
-        render_json(conn, 422, Map.merge(%{success: false}, reason))
+        render_json(conn, 422, merge_fail(reason))
     end
   end
 
@@ -113,10 +113,10 @@ defmodule Upstream.B2.Routes do
 
     case B2.LargeFile.finish(conn.assigns.auth, file_id, shas_list) do
       {:ok, result} ->
-        render_json(conn, 200, Map.merge(%{success: true}, result))
+        render_json(conn, 200, merge_success(result))
 
       {:error, reason} ->
-        render_json(conn, 422, Map.merge(%{success: false}, reason))
+        render_json(conn, 422, merge_fail(reason))
     end
   end
 end
