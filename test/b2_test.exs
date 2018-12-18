@@ -9,6 +9,21 @@ defmodule Upstream.B2Test do
   setup :verify_on_exit!
 
   test "upload large file" do
+    start_response = %Upstream.B2.LargeFile.Start{
+      file_id: "example_file_id",
+      file_name: "test_b2_video_upload.mov",
+      account_id: "some_account",
+      bucket_id: "test_bucket",
+      content_type: "content/type",
+      file_info: %{},
+      upload_timestamp: 20181201
+    }
+
+    Upstream.B2.LargeFileMock
+    |> expect(:start, fn _auth, _name, _meta ->
+      {:ok, start_response}
+    end)
+
     Upstream.B2.UploadMock
     |> expect(:part, 2, fn _auth, _url, _header, _body ->
       {:ok, %Upstream.B2.Upload.Part{

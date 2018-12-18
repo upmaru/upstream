@@ -45,7 +45,7 @@ defmodule Upstream.Worker.LargeFile do
   defp handle_setup(%{job: job} = state) do
     {:ok, status} = Status.start_link()
 
-    {:ok, started} = LargeFile.start(job.authorization, job.uid.name, job.metadata)
+    {:ok, started} = @b2_large_file.start(job.authorization, job.uid.name, job.metadata)
 
     temp_directory = Path.join(["tmp", started.file_id])
     :ok = File.mkdir_p!(temp_directory)
@@ -59,7 +59,7 @@ defmodule Upstream.Worker.LargeFile do
 
   defp handle_stop(%{job: job} = state) do
     if state.current_state in [:started, :uploading],
-      do: LargeFile.cancel(job.authorization, state.file_id)
+      do: @b2_large_file.cancel(job.authorization, state.file_id)
 
     File.rmdir(state.temp_directory)
     Status.stop(state.status)
