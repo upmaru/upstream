@@ -33,10 +33,8 @@ defmodule Upstream.Job do
           metadata: map
         }
 
-  @spec create(binary(), binary() | map(), any()) :: Upstream.Job.t()
-  def create(source_path, params, metadata \\ %{}) do
-    authorization = Account.authorization()
-
+  @spec create(Account.Authorization.t(), binary(), binary() | map(), any()) :: Upstream.Job.t()
+  def create(authorization, source_path, params, metadata \\ %{}) do
     absolute_path = Path.expand(source_path)
 
     stat = File.stat!(absolute_path)

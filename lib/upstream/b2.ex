@@ -3,20 +3,21 @@ defmodule Upstream.B2 do
     Uploader, Job
   }
 
-  @spec upload_chunk(binary(), binary() | map()) :: {:error, any()} | {:ok, any()}
-  def upload_chunk(chunk_path, params) do
-    job = Job.create(chunk_path, params)
-    IO.inspect(job)
+  alias Upstream.B2.Account.Authorization
+
+  @spec upload_chunk(Authorization.t(), binary(), binary() | map()) :: {:error, any()} | {:ok, any()}
+  def upload_chunk(authorization, chunk_path, params) do
+    job = Job.create(authorization, chunk_path, params)
 
     if Job.State.errored?(job), do: Job.State.retry(job)
 
     start_and_register(job, fn -> start_upload(Chunk, job) end)
   end
 
-  @spec upload_file(binary(), binary() | %{file_id: any(), index: any()}, any()) ::
+  @spec upload_file(Authorization.t(), binary(), binary() | %{file_id: any(), index: any()}, any()) ::
           {:error, any()} | {:ok, any()}
-  def upload_file(file_path, name, metadata \\ %{}) do
-    job = Job.create(file_path, name, metadata)
+  def upload_file(authorization, file_path, name, metadata \\ %{}) do
+    job = Job.create(authorization, file_path, name, metadata)
     if Job.State.errored?(job), do: Job.State.retry(job)
 
     start_and_register(job, fn -> start_upload(file_worker_type(job.threads), job) end)

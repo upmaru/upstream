@@ -10,8 +10,14 @@ defmodule Upstream.JobTest do
     Account
   }
 
-  test "create job" do
-    job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
+  setup_all do
+    auth = Account.authorization()
+
+    {:ok, %{auth: auth}}
+  end
+
+  test "create job", %{auth: auth} do
+    job = Job.create(auth, "test/fixtures/cute_baby.jpg", "cute_baby_0.jpg")
     {:ok, stat} = File.stat("test/fixtures/cute_baby.jpg")
 
     assert job.uid.name == "cute_baby_0.jpg"
@@ -20,26 +26,24 @@ defmodule Upstream.JobTest do
   end
 
   describe "job state change" do
-    test "start job" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
+    test "start job", %{auth: auth} do
+      job = Job.create(auth, "test/fixtures/cute_baby.jpg", "cute_baby_1.jpg")
       Job.State.start(job)
 
       assert Job.State.uploading?(job) == true
     end
 
-    test "job errored" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
+    test "job errored", %{auth: auth}  do
+      job = Job.create(auth, "test/fixtures/cute_baby.jpg", "cute_baby_295.jpg")
       Job.State.start(job)
       Job.State.error(job, "something_failed")
 
       assert Job.State.get_result(job) == {:error, "something_failed"}
     end
 
-    test "job completed" do
+    test "job completed", %{auth: authorization} do
       use_cassette "b2_get_upload_part_url" do
-        authorization = Account.authorization()
-
-        job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
+        job = Job.create(authorization, "test/fixtures/cute_baby.jpg", "cute_baby_234.jpg")
         Job.State.start(job)
 
         {:ok, started} = LargeFile.start(authorization, job.uid.name)
@@ -52,8 +56,8 @@ defmodule Upstream.JobTest do
       end
     end
 
-    test "job waiting mechanism" do
-      job = Job.create("test/fixtures/cute_baby.jpg", "cute_baby_99887.jpg")
+    test "job waiting mechanism", %{auth: authorization}  do
+      job = Job.create(authorization, "test/fixtures/cute_baby.jpg", "cute_baby_99887.jpg")
 
       Job.State.start(job)
 
