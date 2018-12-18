@@ -8,6 +8,6 @@ defmodule Upstream.B2Test do
 
     {:ok, file} = B2.upload_file(path, "test_b2_video_upload.mov")
 
-    assert file == finish_response
+    assert file.content_sha1 == "E8ABFCC1D1382575CA426E3319D542E7B66FF77B"
   end
 end
