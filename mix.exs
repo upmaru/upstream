@@ -16,6 +16,7 @@ defmodule Upstream.Mixfile do
       description: description(),
       deps: deps(),
       package: package(),
+      elixirc_paths: elixirc_paths(Mix.env),
       dialyzer: [
         plt_add_deps: :transitive
       ],
@@ -32,6 +33,9 @@ defmodule Upstream.Mixfile do
       test_coverage: [tool: ExCoveralls]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["test/support", "lib"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   # Configuration for the OTP application
   #
@@ -70,6 +74,9 @@ defmodule Upstream.Mixfile do
       {:httpoison, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:jason, "~> 1.1"},
+
+      # Env specific
+      {:mox, "~> 0.4", only: :test},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.10", only: :test, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},

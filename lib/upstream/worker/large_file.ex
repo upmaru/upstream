@@ -10,6 +10,8 @@ defmodule Upstream.Worker.LargeFile do
   alias Upstream.B2.LargeFile
   alias Upstream.Worker.Chunk
 
+  use Upstream.Constants
+
   @concurrency Application.get_env(:upstream, Upstream)[:concurrency] || 2
 
   # Callbacks
@@ -37,7 +39,7 @@ defmodule Upstream.Worker.LargeFile do
 
     Logger.info("[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded")
     sha1_array = Status.get_uploaded_sha1(state.status)
-    LargeFile.finish(job.authorization, state.file_id, sha1_array)
+    @b2_large_file.finish(job.authorization, state.file_id, sha1_array)
   end
 
   defp handle_setup(%{job: job} = state) do

@@ -15,6 +15,7 @@ defmodule Upstream.B2.Upload.Part do
 
   use Upstream.B2.Base
 
+  @spec url(any(), binary()) :: binary()
   def url(_auth, upload_url) when is_binary(upload_url), do: upload_url
 
   def header(_auth, part_data) do
