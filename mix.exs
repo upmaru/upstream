@@ -7,7 +7,7 @@ defmodule Upstream.Mixfile do
   def project do
     [
       app: :upstream,
-      version: "2.0.4",
+      version: "2.0.5",
       elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -70,6 +70,8 @@ defmodule Upstream.Mixfile do
       {:httpoison, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:jason, "~> 1.1"},
+
+      # Env specific
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:exvcr, "~> 0.10", only: :test, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},

@@ -11,6 +11,8 @@ defmodule Upstream.B2.Upload do
 
   alias Upstream.B2.Account.Authorization
 
+  @callback part(Authorization.t(), binary(), any(), any()) :: {:error, struct} | {:ok, struct}
+
   @spec part_url(Authorization.t(), any()) :: {:error, struct()} | {:ok, struct()}
   def part_url(auth, file_id), do: PartUrl.call(auth, body: file_id)
 

@@ -14,3 +14,6 @@ config :upstream, :storage,
 
 config :upstream, Upstream,
   concurrency: 2
+
+config :upstream, :upload,
+  timeout: :infinity

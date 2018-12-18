@@ -67,11 +67,11 @@ defmodule Upstream.Worker.LargeFile do
 
   # Private Functions
 
-  defp chunk_streams(job) do
-    job.stream
+  defp chunk_streams(state) do
+    state.job.stream
     |> Stream.with_index()
     |> Stream.map(fn {chunk, index} ->
-      path = Path.join([job.temp_directory, "#{index}"])
+      path = Path.join([state.temp_directory, "#{index}"])
       {Enum.into(chunk, File.stream!(path, [], 2048)), index}
     end)
   end
@@ -86,10 +86,12 @@ defmodule Upstream.Worker.LargeFile do
         else: job.content_length
 
     chunk_state = %{
-      auth: job.auth,
-      stream: chunked_stream,
-      content_length: content_length,
-      uid: %{index: index, file_id: file_id}
+      job: %{
+        authorization: job.authorization,
+        stream: chunked_stream,
+        content_length: content_length,
+        uid: %{index: index, file_id: file_id}
+      }
     }
 
     case Chunk.task(chunk_state) do

@@ -11,6 +11,11 @@ defmodule Upstream.B2.LargeFile do
     Unfinished
   }
 
+  @callback start(Authorization.t(), binary(), map()) :: {:error, struct} | {:ok, struct}
+  @callback finish(Authorization.t(), binary(), list()) :: {:error, struct} | {:ok, struct}
+  @callback cancel(Authorization.t(), binary()) :: {:error, struct} | {:ok, struct}
+  @callback unfinished(Authorization.t()) :: {:error, struct} | {:ok, struct}
+
   @doc """
   `Upstream.B2.LargeFile.start/1` Starts the uploading of the large_file on b2
   """
