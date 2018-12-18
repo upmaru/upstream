@@ -3,7 +3,6 @@ defmodule Upstream.B2Test do
 
   alias Upstream.B2
 
-  @tag :skip
   test "upload large file" do
     path = "test/fixtures/large_file_example.mp4"
 
