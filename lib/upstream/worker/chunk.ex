@@ -4,7 +4,6 @@ defmodule Upstream.Worker.Chunk do
   """
 
   use Upstream.Worker.Base
-  use Upstream.Constants
 
   @impl true
   @spec task(any()) :: {:error, any()} | {:ok, struct}
@@ -23,7 +22,7 @@ defmodule Upstream.Worker.Chunk do
       body = Flow.generate(state.job.stream, index, checksum)
 
       try do
-        @b2_upload.part(state.job.authorization, part_url.upload_url, header, body)
+        Upload.part(state.job.authorization, part_url.upload_url, header, body)
       after
         Checksum.stop(checksum)
       end

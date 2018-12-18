@@ -12,9 +12,6 @@ config :upstream, :storage,
   bucket_name: System.get_env("B2_BUCKET_NAME"),
   service: "b2"
 
-config :upstream, :b2_upload, Upstream.B2.UploadMock
-config :upstream, :b2_large_file, Upstream.B2.LargeFileMock
-
 config :upstream, Upstream,
   concurrency: 2
 

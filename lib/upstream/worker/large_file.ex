@@ -10,8 +10,6 @@ defmodule Upstream.Worker.LargeFile do
   alias Upstream.B2.LargeFile
   alias Upstream.Worker.Chunk
 
-  use Upstream.Constants
-
   @concurrency Application.get_env(:upstream, Upstream)[:concurrency] || 2
 
   # Callbacks
@@ -39,13 +37,13 @@ defmodule Upstream.Worker.LargeFile do
 
     Logger.info("[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded")
     sha1_array = Status.get_uploaded_sha1(state.status)
-    @b2_large_file.finish(job.authorization, state.file_id, sha1_array)
+    LargeFile.finish(job.authorization, state.file_id, sha1_array)
   end
 
   defp handle_setup(%{job: job} = state) do
     {:ok, status} = Status.start_link()
 
-    {:ok, started} = @b2_large_file.start(job.authorization, job.uid.name, job.metadata)
+    {:ok, started} = LargeFile.start(job.authorization, job.uid.name, job.metadata)
 
     temp_directory = Path.join(["tmp", started.file_id])
     :ok = File.mkdir_p!(temp_directory)
@@ -59,7 +57,7 @@ defmodule Upstream.Worker.LargeFile do
 
   defp handle_stop(%{job: job} = state) do
     if state.current_state in [:started, :uploading],
-      do: @b2_large_file.cancel(job.authorization, state.file_id)
+      do: LargeFile.cancel(job.authorization, state.file_id)
 
     File.rmdir(state.temp_directory)
     Status.stop(state.status)
