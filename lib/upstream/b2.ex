@@ -6,6 +6,8 @@ defmodule Upstream.B2 do
   @spec upload_chunk(binary(), binary() | map()) :: {:error, any()} | {:ok, any()}
   def upload_chunk(chunk_path, params) do
     job = Job.create(chunk_path, params)
+    IO.inspect(job)
+
     if Job.State.errored?(job), do: Job.State.retry(job)
 
     start_and_register(job, fn -> start_upload(Chunk, job) end)
