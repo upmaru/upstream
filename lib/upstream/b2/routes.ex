@@ -49,7 +49,9 @@ defmodule Upstream.B2.Routes do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
-    case B2.upload_file(path, file_name) do
+    authorization = B2.Account.authorization()
+
+    case B2.upload_file(authorization, path, file_name) do
       {:ok, result} ->
         render_json(conn, 200, merge_success(result))
 
@@ -87,6 +89,8 @@ defmodule Upstream.B2.Routes do
 
     %{path: path, filename: _filename} = conn.body_params[Upstream.file_param()]
 
+    authorization = B2.Account.authorization()
+
     upload_params = %{
       file_id: file_id,
       index: String.to_integer(part_number),
@@ -94,7 +98,7 @@ defmodule Upstream.B2.Routes do
       attempt: String.to_integer(conn.body_params["attempt"] || "0")
     }
 
-    case B2.upload_chunk(path, upload_params) do
+    case B2.upload_chunk(authorization, path, upload_params) do
       {:ok, result} ->
         render_json(conn, 200, merge_success(result))
 

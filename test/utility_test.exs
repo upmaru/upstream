@@ -15,7 +15,9 @@ defmodule Upstream.UtilityTest do
     path = "test/fixtures/cute_baby.jpg"
     key = "test/utility_test/delete_all_versions/cute_baby_0.jpg"
 
-    B2.upload_file(path, key)
+    auth = B2.Account.authorization()
+
+    B2.upload_file(auth, path, key)
     assert Store.get(key) != nil
 
     Utility.delete_all_versions(key)
