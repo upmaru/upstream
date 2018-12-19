@@ -14,6 +14,8 @@ defmodule Upstream do
     iex> Upstream.base_api
     "https://api.backblazeb2.com"
   """
+  alias Upstream.B2.Account
+
   @b2_base_api ~S(https://api.backblazeb2.com)
   def base_api, do: @b2_base_api
 
@@ -45,10 +47,12 @@ defmodule Upstream do
     reboot()
   end
 
-  @spec set_config(any()) :: {:error, {atom(), any()}} | {:ok, [atom()]}
+  @spec set_config(any()) :: {:ok, Upstream.B2.Account.Authorization.t()}
   def set_config(config) do
-    Logger.info("[Upstream] -----> Setting config and restarting")
+    Logger.info("[Upstream] -----> Setting config and re authorizing")
     Application.put_env(:upstream, :storage, config)
-    reboot()
+    Account.re_authorize()
+
+    {:ok, Account.authorization()}
   end
 end
