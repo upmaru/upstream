@@ -34,19 +34,6 @@ defmodule Upstream do
   @spec storage(atom()) :: any()
   def storage(key), do: Keyword.get(storage(), key, nil)
 
-  @spec reboot() :: {:error, {atom(), any()}} | {:ok, [atom()]}
-  def reboot do
-    Application.stop(:upstream)
-    Application.ensure_all_started(:upstream)
-  end
-
-  @spec reset() :: {:error, {atom(), any()}} | {:ok, [atom()]}
-  def reset do
-    Logger.info("[Upstream] -----> Flushing config and restarting")
-    Application.delete_env(:upstream, :storage)
-    reboot()
-  end
-
   @spec set_config(any()) :: {:ok, Upstream.B2.Account.Authorization.t()}
   def set_config(config) do
     Logger.info("[Upstream] -----> Setting config and re authorizing")
