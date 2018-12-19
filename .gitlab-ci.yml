@@ -4,8 +4,6 @@ stages:
 test:
   stage: test
   coverage: '/\[TOTAL\]\s+(\d+\.\d+)%/'
-  before_script:
-    - git-lfs pull
   script:
     - "cd .apk/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
     - "abuild check"
