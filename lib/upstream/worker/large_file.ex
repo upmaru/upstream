@@ -37,6 +37,7 @@ defmodule Upstream.Worker.LargeFile do
 
     Logger.info("[Upstream] #{Status.uploaded_count(state.status)} part(s) uploaded")
     sha1_array = Status.get_uploaded_sha1(state.status)
+
     LargeFile.finish(job.authorization, state.file_id, sha1_array)
   end
 

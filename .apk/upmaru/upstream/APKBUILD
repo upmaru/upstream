@@ -40,6 +40,7 @@ depends="
 
 makedepends="
   elixir
+  git-lfs
   erlang-crypto
   erlang-syntax-tools
   erlang-parsetools

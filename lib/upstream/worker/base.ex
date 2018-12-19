@@ -4,7 +4,7 @@ defmodule Upstream.Worker.Base do
   """
   defmacro __using__(_) do
     quote do
-      use GenServer
+      use GenServer, restart: :transient
 
       @upload_timeout Application.get_env(:upstream, :upload)[:timeout] || 200_000
 
