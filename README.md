@@ -1,6 +1,6 @@
 # Upstream
 
-[![Build status](https://badge.buildkite.com/ee2ae25e635383a904e143c59088604087d7d405213b3df2cb.svg)](https://buildkite.com/upmaru/upstream)
+[![Build status](https://gitlab.com/upmaru/upstream/badges/develop/build.svg)](https://gitlab.com/upmaru/upstream)
 
 Module for handling file upload can be mounted in any `Phoenix` app via the phoenix router.
 
@@ -13,7 +13,7 @@ by adding `upstream` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:upstream, "~> 1.7.0"}]
+  [{:upstream, "~> 2.1.0"}]
 end
 ```
 
