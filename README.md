@@ -1,6 +1,7 @@
 # Upstream
 
 [![Build status](https://gitlab.com/upmaru/upstream/badges/develop/build.svg)](https://gitlab.com/upmaru/upstream)
+[![Coverage](https://gitlab.com/upmaru/upstream/badges/develop/coverage.svg)](https://gitlab.com/upmaru/upstream)
 
 Module for handling file upload can be mounted in any `Phoenix` app via the phoenix router.
 
